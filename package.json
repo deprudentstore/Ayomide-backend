@@ -1,6 +1,6 @@
 {
   "name": "deprudent-backend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Multi-tenant backend for De Prudent storefronts (Mall, Portfolio, Luxury, Restaurant) + Admin Dashboard",
   "main": "api/index.js",
   "type": "commonjs",
