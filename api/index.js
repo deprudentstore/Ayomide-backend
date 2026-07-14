@@ -7,6 +7,8 @@ const productsRouter = require('../routes/products');
 const ordersRouter = require('../routes/orders');
 const adminRouter = require('../routes/admin');
 const storesRouter = require('../routes/stores');
+const contentRouter = require('../routes/content');
+const blogRouter = require('../routes/blog');
 
 const app = express();
 
@@ -52,6 +54,8 @@ app.use('/api/products', productsRouter);
 app.use('/api/orders', ordersRouter);
 app.use('/api/admin', adminRouter);
 app.use('/api/stores', storesRouter);
+app.use('/api/content', contentRouter);
+app.use('/api/blog', blogRouter);
 
 // 404 fallback for unmatched API routes.
 app.use('/api', (req, res) => {
