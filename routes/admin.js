@@ -526,10 +526,18 @@ router.get('/content/:page', auth, async (req, res) => {
 router.put('/content/:page', auth, async (req, res) => {
   try {
     const page = req.params.page.toLowerCase();
-    const { hero, contact, pricing, services, testimonials } = req.body;
+    const {
+      hero, contact, pricing, services, testimonials, testimonialDisclaimer,
+      founder, howItWorks, whatWeBuild, growthPlan, newsletterText, cta, footer,
+      demosIntro, solutionsIntro,
+    } = req.body;
     const content = await SiteContent.findOneAndUpdate(
       { page },
-      { page, hero, contact, pricing, services, testimonials },
+      {
+        page, hero, contact, pricing, services, testimonials, testimonialDisclaimer,
+        founder, howItWorks, whatWeBuild, growthPlan, newsletterText, cta, footer,
+        demosIntro, solutionsIntro,
+      },
       { new: true, upsert: true, runValidators: true }
     );
     return res.json(content);
