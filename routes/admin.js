@@ -9,6 +9,8 @@ const Product = require('../models/Product');
 const Order = require('../models/Order');
 const Newsletter = require('../models/Newsletter');
 const Waitlist = require('../models/Waitlist');
+const SiteContent = require('../models/SiteContent');
+const BlogPost = require('../models/BlogPost');
 const auth = require('../middleware/auth');
 const resolveStoreBySlug = require('../utils/resolveStore');
 
@@ -498,6 +500,260 @@ router.get('/summary', auth, async (req, res) => {
   } catch (err) {
     console.error('GET /api/admin/summary error:', err);
     return res.status(500).json({ error: 'Failed to build summary.' });
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/*  SITE CONTENT (admin)                                               */
+/*  Powers the "editable everything" layer — hero text, pricing rows,   */
+/*  service cards, testimonials, contact info — per page. Public reads  */
+/*  live under GET /api/content/:page (see routes/content.js); only     */
+/*  saving requires login.                                              */
+/* ------------------------------------------------------------------ */
+
+// GET /api/admin/content/:page -> current saved content for a page (or null)
+router.get('/content/:page', auth, async (req, res) => {
+  try {
+    const content = await SiteContent.findOne({ page: req.params.page.toLowerCase() }).lean();
+    return res.json(content || null);
+  } catch (err) {
+    console.error('GET /api/admin/content/:page error:', err);
+    return res.status(500).json({ error: 'Failed to fetch content.' });
+  }
+});
+
+// PUT /api/admin/content/:page -> upsert the full content doc for a page
+router.put('/content/:page', auth, async (req, res) => {
+  try {
+    const page = req.params.page.toLowerCase();
+    const { hero, contact, pricing, services, testimonials } = req.body;
+    const content = await SiteContent.findOneAndUpdate(
+      { page },
+      { page, hero, contact, pricing, services, testimonials },
+      { new: true, upsert: true, runValidators: true }
+    );
+    return res.json(content);
+  } catch (err) {
+    console.error('PUT /api/admin/content/:page error:', err);
+    return res.status(500).json({ error: 'Failed to save content.' });
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/*  BLOG POSTS (admin)                                                  */
+/* ------------------------------------------------------------------ */
+
+// GET /api/admin/blog -> every post, published or draft
+router.get('/blog', auth, async (req, res) => {
+  try {
+    const posts = await BlogPost.find().sort({ createdAt: -1 }).lean();
+    return res.json(posts);
+  } catch (err) {
+    console.error('GET /api/admin/blog error:', err);
+    return res.status(500).json({ error: 'Failed to fetch posts.' });
+  }
+});
+
+// GET /api/admin/blog/:id -> single post for editing (by id, not slug)
+router.get('/blog/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'Invalid post id.' });
+    const post = await BlogPost.findById(id).lean();
+    if (!post) return res.status(404).json({ error: 'Post not found.' });
+    return res.json(post);
+  } catch (err) {
+    console.error('GET /api/admin/blog/:id error:', err);
+    return res.status(500).json({ error: 'Failed to fetch post.' });
+  }
+});
+
+// POST /api/admin/blog -> create a new post
+router.post('/blog', auth, async (req, res) => {
+  try {
+    const { slug, title, body } = req.body;
+    if (!slug || !title || !body) {
+      return res.status(400).json({ error: 'slug, title, and body are required.' });
+    }
+    const post = await BlogPost.create(req.body);
+    return res.status(201).json(post);
+  } catch (err) {
+    if (err.code === 11000) return res.status(409).json({ error: 'A post with that slug already exists.' });
+    console.error('POST /api/admin/blog error:', err);
+    return res.status(500).json({ error: 'Failed to create post.' });
+  }
+});
+
+// PUT /api/admin/blog/:id -> update an existing post
+router.put('/blog/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'Invalid post id.' });
+    const post = await BlogPost.findByIdAndUpdate(id, req.body, { new: true, runValidators: true });
+    if (!post) return res.status(404).json({ error: 'Post not found.' });
+    return res.json(post);
+  } catch (err) {
+    if (err.code === 11000) return res.status(409).json({ error: 'A post with that slug already exists.' });
+    console.error('PUT /api/admin/blog/:id error:', err);
+    return res.status(500).json({ error: 'Failed to update post.' });
+  }
+});
+
+// DELETE /api/admin/blog/:id
+router.delete('/blog/:id', auth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.isValidObjectId(id)) return res.status(400).json({ error: 'Invalid post id.' });
+    const post = await BlogPost.findByIdAndDelete(id);
+    if (!post) return res.status(404).json({ error: 'Post not found.' });
+    return res.json({ message: 'Post deleted.', id });
+  } catch (err) {
+    console.error('DELETE /api/admin/blog/:id error:', err);
+    return res.status(500).json({ error: 'Failed to delete post.' });
+  }
+});
+
+/* ------------------------------------------------------------------ */
+/*  ONE-TIME CONTENT SEED (browser-hittable, secret-protected)         */
+/*  Populates SiteContent + BlogPost from the site's current hardcoded  */
+/*  text, so the CMS starts pre-filled with what's already live instead  */
+/*  of an empty editor. Safe to re-run: skips anything already saved.   */
+/* ------------------------------------------------------------------ */
+router.get('/import-site-content', async (req, res) => {
+  try {
+    if (!process.env.SEED_SECRET) {
+      return res.status(500).json({ error: 'SEED_SECRET is not configured on the server.' });
+    }
+    if (req.query.secret !== process.env.SEED_SECRET) {
+      return res.status(403).json({ error: 'Invalid or missing secret.' });
+    }
+
+    const existingContent = await SiteContent.findOne({ page: 'index' });
+    let contentResult = 'Skipped — index content already exists.';
+    if (!existingContent) {
+      await SiteContent.create({
+        page: 'index',
+        hero: {
+          title: 'Your Business Deserves A Store That Sells.',
+          subtitle:
+            'We build high-converting, mobile-first custom online stores for restaurants, boutiques, salons, and businesses worldwide — powered by Firebase, Supabase, Appwrite, Directus, Backendless, or Shopify — ready in 48 hours, no monthly fees, fully hand-coded for your brand.',
+        },
+        contact: { whatsappNumber: '2349162306809', email: 'deprudentstoredesigner@gmail.com' },
+        pricing: [
+          {
+            title: '🏗️ Store Building (One-Time)',
+            subtitle: 'Includes custom design, responsive setup, and admin dashboard.',
+            rows: [
+              { service: 'Custom Store (Firebase/Supabase/Appwrite/Directus/Backendless)', price: '$99 – $349' },
+              { service: 'Headless Shopify Store (Custom React + Shopify Backend)', price: '$199 – $499' },
+              { service: 'Turnkey Shopify Store (Ready-to-sell dropshipping)', price: '$99 – $349' },
+              { service: 'Fashion & Beauty Niche Store', price: '$49 – $199' },
+              { service: 'Restaurant & Food Store (Menu + Ordering)', price: '$49 – $199' },
+              { service: 'Shopify Migration (Transfer existing store to new theme)', price: '$99 – $199' },
+              { service: 'Theme Customization Only (Existing Shopify)', price: '$49 – $149' },
+            ],
+            ctaText: 'Start a Store',
+            ctaUrl: 'https://wa.me/2349162306809?text=I%20want%20to%20discuss%20building%20a%20store',
+          },
+          {
+            title: '📦 Monthly Management (Retainers)',
+            subtitle: 'Hands-off store maintenance so you can focus on selling.',
+            rows: [
+              { service: 'Weekly Product Updates (Add/edit/delete products)', price: '$15 – $40' },
+              { service: 'Admin Dashboard Management (Order & inventory sync)', price: '$20 – $55' },
+              { service: 'Order Processing (Track & fulfill all customer orders)', price: '$25 – $70' },
+              { service: 'Social Media Posts (12–30 posts across Instagram/Facebook/TikTok)', price: '$20 – $100' },
+            ],
+            ctaText: 'Get Management',
+            ctaUrl: 'https://wa.me/2349162306809?text=I%20need%20monthly%20store%20management',
+          },
+          {
+            title: '📈 Marketing & Growth Services',
+            subtitle: 'Get traffic, backlinks, and higher search rankings.',
+            rows: [
+              { service: 'SEO Setup (Keywords + On-page + Google Search Console)', price: '$49 – $99 (one-time)' },
+              { service: 'Backlink Building (20 quality links/month)', price: '$35 – $65 / month' },
+              { service: 'Facebook & Instagram Ads (Setup + Monthly Management)', price: '$75 – $150 / month' },
+              { service: 'TikTok Ads (Setup + Monthly Management)', price: '$75 – $150 / month' },
+              { service: 'Traffic Generation (Pinterest, WhatsApp Broadcasts, Groups)', price: '$35 – $75 / month' },
+              { service: 'Product Research (10 winning products + analysis)', price: '$25 – $49 (one-time)' },
+            ],
+            ctaText: 'Grow My Store',
+            ctaUrl: 'https://wa.me/2349162306809?text=I%20want%20marketing%20and%20growth%20services',
+          },
+          {
+            title: '🔧 Extras & Add-Ons',
+            subtitle: 'Perfect for clients who want full brand and SaaS control.',
+            rows: [
+              { service: 'Brand Strategy Document (Identity, voice, competitor analysis)', price: '$49 – $99' },
+              { service: 'Full Brand Kit (Strategy + Colors + Content Plan)', price: '$99 (one-time)' },
+              { service: 'SSL Certificate Setup (Included free on Netlify)', price: '$20 / Free' },
+              { service: 'SaaS Admin Access (Monthly platform access & reports)', price: '$20 – $55 / month' },
+            ],
+            ctaText: 'Add Extras',
+            ctaUrl: 'https://wa.me/2349162306809?text=I%20want%20to%20add%20extras%20to%20my%20store',
+          },
+        ],
+        services: [
+          {
+            icon: '⚡🔥',
+            title: 'Custom Store (Your Choice of Backend)',
+            description:
+              'Fully dynamic, high-performance online store powered by Firebase, Supabase, Appwrite, Directus, or Backendless. Mobile-responsive, SEO-friendly, and built to maximize conversions.',
+            features: ['Real-time product search & filters', 'Persistent cart (saves on refresh)', 'WhatsApp + Paystack / Stripe ready', 'Full admin dashboard included'],
+            linkText: 'Try Demo →',
+            linkUrl: 'mall.html',
+          },
+          {
+            icon: '🛍️🚀',
+            title: 'Headless Shopify — see "Kern" demo',
+            description: 'Enterprise-grade custom frontend + Shopify backend. Lightning-fast load times (Lighthouse 90+), pixel-perfect design, and seamless Shopify checkout integration.',
+            features: ['Shopify products & collections', 'Custom cart & checkout', 'No theme limitations', 'GraphQL API'],
+            linkText: 'See Demo →',
+            linkUrl: 'headless-shopify.html',
+          },
+          {
+            icon: '🔗☁️',
+            title: 'Hybrid Shopify + Firebase',
+            description: 'Shopify products/checkout with Firebase cart sync across devices, user accounts, and real-time features.',
+            features: ['Cart sync across any device', 'User accounts (Firebase Auth)', 'Real-time order notifications', 'Custom dashboards'],
+            linkText: 'Inquire →',
+            linkUrl: 'https://wa.me/2349162306809?text=I%27m%20interested%20in%20a%20Hybrid%20Shopify%20%2B%20Firebase%20store',
+          },
+        ],
+        testimonials: [
+          { name: 'Kofi A.', role: 'Restaurant Owner · 🇬🇭 Accra, Ghana', quote: 'I had my restaurant menu online and taking WhatsApp orders within 2 days. Sales went up immediately.' },
+          { name: 'Layla M.', role: 'Boutique Owner · 🇦🇪 Dubai, UAE', quote: 'Very professional result. My boutique store looks like something a big agency built. Absolutely worth it.' },
+          { name: 'Tobi F.', role: 'Skincare Brand · 🇳🇬 Lagos, Nigeria', quote: 'The admin panel is so easy. I can add products myself without asking anyone. Amazing service.' },
+          { name: 'James O.', role: 'Accessories Seller · 🇬🇧 London, UK', quote: 'Fast delivery, clean design, and the live cart actually works. My customers love shopping on it.' },
+          { name: 'Amira S.', role: 'Handmade Jewellery · 🇫🇷 Paris, France', quote: 'I paid once and own everything. No monthly fees eating into my profit. Best investment I made.' },
+          { name: 'David K.', role: 'Electronics Dealer · 🇰🇪 Nairobi, Kenya', quote: 'Sent a WhatsApp message, had a demo in 24 hours and my store live in 2 days. Incredibly fast.' },
+        ],
+      });
+      contentResult = 'Created default index content.';
+    }
+
+    const existingPosts = await BlogPost.countDocuments();
+    let blogResult = 'Skipped — blog posts already exist.';
+    if (existingPosts === 0) {
+      await BlogPost.insertMany([
+        {
+          slug: 'firebase-vs-shopify',
+          title: 'Firebase vs. Shopify: Which Is Right for Your Store?',
+          excerpt: "Comparing zero-monthly-fee Firebase stores with Shopify's ecosystem. Pros, cons, and when to choose each.",
+          body: '<p>Full article content — edit this from the CMS to replace this placeholder with your original post text.</p>',
+          image_url: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a0f6?w=600&h=400&fit=crop',
+          category: 'comparison',
+          published: true,
+        },
+      ]);
+      blogResult = 'Created 1 starter blog post — edit it from the CMS, then add the rest.';
+    }
+
+    return res.json({ message: 'Content seed complete.', content: contentResult, blog: blogResult });
+  } catch (err) {
+    console.error('GET /api/admin/import-site-content error:', err);
+    return res.status(500).json({ error: 'Content seed failed.' });
   }
 });
 
