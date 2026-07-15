@@ -642,9 +642,9 @@ router.get('/import-site-content', async (req, res) => {
       await SiteContent.create({
         page: 'index',
         hero: {
-          title: 'Your Business Deserves A Store That Sells.',
+          title: 'Your Business Deserves A Solution That Sells.',
           subtitle:
-            'We build high-converting, mobile-first custom online stores for restaurants, boutiques, salons, and businesses worldwide — powered by Firebase, Supabase, Appwrite, Directus, Backendless, or Shopify — ready in 48 hours, no monthly fees, fully hand-coded for your brand.',
+            'We build high-converting, mobile-first custom web applications, corporate websites, and online stores for restaurants, boutiques, salons, and businesses worldwide — powered by Firebase, Supabase, Appwrite, Directus, Backendless, Node.js, Next.js, Python, PHP, Laravel, and Shopify — ready in 48 hours, no monthly fees, fully hand-coded for your brand.',
         },
         contact: { whatsappNumber: '2349162306809', email: 'deprudentstoredesigner@gmail.com' },
         pricing: [
@@ -707,7 +707,7 @@ router.get('/import-site-content', async (req, res) => {
             icon: '⚡🔥',
             title: 'Custom Store (Your Choice of Backend)',
             description:
-              'Fully dynamic, high-performance online store powered by Firebase, Supabase, Appwrite, Directus, or Backendless. Mobile-responsive, SEO-friendly, and built to maximize conversions.',
+              'Fully dynamic, high-performance web application or online store powered by Firebase, Supabase, Appwrite, Directus, Backendless, Node.js, or Laravel. Mobile-responsive, SEO-friendly, and built to maximize conversions.',
             features: ['Real-time product search & filters', 'Persistent cart (saves on refresh)', 'WhatsApp + Paystack / Stripe ready', 'Full admin dashboard included'],
             linkText: 'Try Demo →',
             linkUrl: 'mall.html',
