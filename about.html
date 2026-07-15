@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About De Prudent Store Designer</title>
+<meta name="description" content="Meet Rasheed Ayomide, founder of De Prudent Store Designer — a global full‑stack web agency building custom web applications, corporate websites, and e‑commerce stores on Firebase, Supabase, Node.js, Next.js, Python, Laravel, and Shopify.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9973A; --gold-light: #E8B96A; --obsidian: #080B10;
+    --surface: #0E1319; --surface2: #141C25; --border: rgba(201,151,58,0.15);
+    --muted: #7A8A9A; --text: #E8EDF2;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--obsidian); color: var(--text);
+    font-family: 'Outfit', sans-serif; overflow-x: hidden; line-height: 1.6;
+  }
+  .display { font-family: 'Cormorant Garamond', serif; }
+  .gold-text {
+    background: linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+
+  .btn-gold {
+    display: inline-block; background: linear-gradient(135deg,#B8862A,var(--gold),#D4A84A);
+    color: #080B10; font-weight: 700; font-family: 'Outfit', sans-serif;
+    border-radius: 100px; padding: 14px 32px; font-size: 15px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: box-shadow .3s, transform .2s;
+  }
+  .btn-gold:hover { box-shadow: 0 0 28px rgba(201,151,58,.45); transform: translateY(-2px); }
+  .btn-outline {
+    display: inline-block; border: 1px solid var(--gold); color: var(--gold-light);
+    font-family: 'Outfit', sans-serif; font-weight: 600; border-radius: 100px;
+    padding: 14px 32px; font-size: 15px; text-decoration: none;
+    background: transparent; cursor: pointer; transition: background .3s, transform .2s;
+  }
+  .btn-outline:hover { background: rgba(201,151,58,.1); transform: translateY(-2px); }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; transition: border-color .3s,transform .3s; }
+  .card:hover { border-color: rgba(201,151,58,.4); transform: translateY(-4px); }
+
+  header { position: sticky; top: 0; z-index: 100; background: rgba(8,11,16,.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  .header-inner { max-width: 1200px; margin: 0 auto; height: 68px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { text-decoration: none; display: flex; align-items: baseline; gap: 2px; }
+  .logo-main { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .logo-tag { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-left: 8px; font-weight: 300; }
+  .back-link { font-size: 13px; color: var(--gold-light); text-decoration: none; font-weight: 600; }
+  .back-link:hover { text-decoration: underline; }
+
+  #hero { position: relative; padding: 100px 24px 70px; text-align: center; overflow: hidden; }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; top: -200px; left: 50%; transform: translateX(-50%); background: radial-gradient(ellipse,rgba(201,151,58,.1) 0%,transparent 70%); pointer-events: none; }
+  .hero-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+  .section-label { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+  .hero-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 700; line-height: 1.1; margin-bottom: 20px; }
+  .hero-sub { color: var(--muted); font-size: 16px; max-width: 560px; margin: 0 auto; line-height: 1.8; }
+
+  .section { padding: 70px 24px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem,3.6vw,2.6rem); font-weight: 700; margin-bottom: 14px; }
+  .section-head { text-align: center; margin-bottom: 48px; }
+  .section-sub { color: var(--muted); max-width: 560px; margin: 10px auto 0; }
+
+  /* Founder bio */
+  #founder { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); }
+  .founder-grid { display: flex; flex-wrap: wrap; align-items: center; gap: 48px; }
+  .founder-avatar { flex-shrink: 0; width: 150px; height: 150px; border-radius: 50%; border: 3px solid var(--gold); background: linear-gradient(135deg,#1a2230,#0E1319); display: flex; align-items: center; justify-content: center; }
+  .founder-avatar span { font-family: 'Cormorant Garamond', serif; font-size: 52px; font-weight: 700; color: var(--gold-light); }
+  .founder-text { flex: 1; min-width: 280px; }
+  .founder-name { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 700; margin-bottom: 10px; }
+  .founder-desc { color: var(--muted); line-height: 1.9; max-width: 620px; margin-bottom: 18px; }
+  .skill-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+  .skill-badge { font-size: 12px; color: var(--gold); background: var(--surface2); border: 1px solid var(--border); padding: 6px 14px; border-radius: 20px; }
+
+  /* Demo correction callout */
+  #demo-callout { background: var(--surface2); border: 1px solid var(--gold); border-radius: 16px; padding: 28px 30px; }
+  #demo-callout h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; margin-bottom: 12px; color: var(--gold-light); }
+  #demo-callout p { color: var(--text); line-height: 1.8; margin-bottom: 16px; }
+  .demo-link-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .demo-link-chip { font-family: monospace; font-size: 13px; background: var(--surface); border: 1px solid var(--border); color: var(--gold-light); padding: 8px 16px; border-radius: 100px; text-decoration: none; }
+  .demo-link-chip:hover { border-color: var(--gold); }
+
+  /* Process steps */
+  .process-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 20px; }
+  .step-card { padding: 30px 26px; }
+  .step-num { font-size: 11px; color: var(--gold); font-weight: 700; letter-spacing: 3px; margin-bottom: 10px; }
+  .step-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+  .step-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  /* Pricing grid */
+  #pricing-about { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .price-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 26px; text-align: center; }
+  .price-block h3 { color: var(--gold); font-size: 1.05rem; margin-bottom: 10px; }
+  .price-block .sub { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .price-block .amount { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-weight: 700; color: var(--text); margin-bottom: 16px; }
+  .price-grid-about { display: grid; grid-template-columns: repeat(auto-fit,minmax(220px,1fr)); gap: 20px; }
+  .coupon-note { text-align: center; margin-top: 30px; font-size: 13px; color: var(--muted); }
+  .coupon-code { font-family: monospace; background: var(--surface2); border: 1px dashed var(--gold); color: var(--gold-light); padding: 4px 12px; border-radius: 6px; }
+
+  /* Tech stack */
+  .stack-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .stack-chip { font-size: 13px; color: #9AAABB; background: var(--surface2); padding: 6px 16px; border-radius: 100px; border: 1px solid var(--border); }
+  .flag-strip { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 24px; }
+  .flag-chip { font-size: 13px; color: #9AAABB; background: var(--surface2); padding: 5px 14px; border-radius: 100px; border: 1px solid var(--border); }
+
+  /* CTA */
+  #cta { text-align: center; }
+  .cta-h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem,3.6vw,2.8rem); font-weight: 700; margin-bottom: 16px; }
+  .cta-sub { color: var(--muted); font-size: 15px; max-width: 500px; margin: 0 auto 30px; }
+  .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <span class="logo-main">De<span class="gold-text">Prudent</span></span>
+      <span class="logo-tag">STORE DESIGNER</span>
+    </a>
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <p class="section-label">About Us</p>
+    <h1 class="hero-h1">About De Prudent<br><span class="gold-text">Store Designer</span></h1>
+    <p class="hero-sub">A global full‑stack web development and design agency building hand-coded, high-converting web applications, corporate websites, and online stores for businesses worldwide — no monthly fees, ever.</p>
+  </div>
+</section>
+
+<section id="founder" class="section">
+  <div class="section-inner">
+    <div class="founder-grid">
+      <div class="founder-avatar"><span>RA</span></div>
+      <div class="founder-text">
+        <p class="section-label">The Founder</p>
+        <h2 class="founder-name">Rasheed Ayomide</h2>
+        <p class="founder-desc">
+          A <strong>Doctor of Physiotherapy (DPT) candidate</strong> by academic background and a professional full‑stack web architect by trade, Rasheed founded De Prudent Store Designer to bring hand-coded, high-converting web applications, corporate websites, and online stores to businesses worldwide — from Lagos to London, Dubai to Nairobi.
+        </p>
+        <div class="skill-badges">
+          <span class="skill-badge">Meta Frontend Certified</span>
+          <span class="skill-badge">Google UX (in progress)</span>
+          <span class="skill-badge">Firebase & Supabase</span>
+          <span class="skill-badge">Shopify & Headless Shopify</span>
+          <span class="skill-badge">Global Clientele</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div id="demo-callout">
+      <h3>🛒 See the Work Before You Commit</h3>
+      <p>All live demos are <strong>publicly accessible</strong> at the following URLs — you can explore them anytime, with no need to request access first:</p>
+      <div class="demo-link-row">
+        <a href="/mall" class="demo-link-chip">/mall</a>
+        <a href="/restaurant" class="demo-link-chip">/restaurant</a>
+        <a href="/luxury" class="demo-link-chip">/luxury</a>
+        <a href="/headless-shopify" class="demo-link-chip">/headless-shopify</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="process">
+  <div class="section-inner">
+    <div class="section-head">
+      <p class="section-label">The Process</p>
+      <h2 class="section-title display">How It Works</h2>
+      <p class="section-sub">Four simple steps from first message to a live, sellable store.</p>
+    </div>
+    <div class="process-grid">
+      <div class="card step-card">
+        <div class="step-num">01</div>
+        <h3 class="step-title">💬 Contact via WhatsApp</h3>
+        <p class="step-desc">Tell us about your business, products, and style — usually a 15–20 minute chat.</p>
+      </div>
+      <div class="card step-card">
+        <div class="step-num">02</div>
+        <h3 class="step-title">🎨 Receive a Live Demo</h3>
+        <p class="step-desc">Get a personalized, fully functional demo link within 24 hours.</p>
+      </div>
+      <div class="card step-card">
+        <div class="step-num">03</div>
+        <h3 class="step-title">✏️ Request Changes</h3>
+        <p class="step-desc">Ask for revisions at no extra cost until it feels exactly right.</p>
+      </div>
+      <div class="card step-card">
+        <div class="step-num">04</div>
+        <h3 class="step-title">🚀 Approve & Go Live</h3>
+        <p class="step-desc">One-time payment, no monthly fees — your store launches worldwide.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing-about" class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <p class="section-label">Services & Pricing</p>
+      <h2 class="section-title display">Transparent, One-Time Pricing</h2>
+      <p class="section-sub">No subscriptions on the store itself — pay once and own it forever.</p>
+    </div>
+    <div class="price-grid-about">
+      <div class="price-block">
+        <h3>🏗️ Custom Online Stores</h3>
+        <p class="sub">Firebase, Supabase, Appwrite, Directus, Backendless, or Shopify</p>
+        <div class="amount">$49 – $499</div>
+        <a href="https://wa.me/2349162306809?text=I%20want%20a%20custom%20online%20store" target="_blank" class="btn-outline" style="width:100%;">Get Started</a>
+      </div>
+      <div class="price-block">
+        <h3>📦 Monthly Management</h3>
+        <p class="sub">Product updates, order processing, inventory sync</p>
+        <div class="amount">$15 – $40<span style="font-size:0.9rem;color:var(--muted);">/mo</span></div>
+        <a href="https://wa.me/2349162306809?text=I%20need%20monthly%20store%20management" target="_blank" class="btn-outline" style="width:100%;">Learn More</a>
+      </div>
+      <div class="price-block">
+        <h3>📈 SEO Setup</h3>
+        <p class="sub">Keyword research, on-page SEO, Search Console</p>
+        <div class="amount">$49 – $99</div>
+        <a href="seo.html" class="btn-outline" style="width:100%;">View SEO Services</a>
+      </div>
+      <div class="price-block">
+        <h3>📢 Ads Management</h3>
+        <p class="sub">Google, Facebook & TikTok ad campaigns</p>
+        <div class="amount">$75 – $150<span style="font-size:0.9rem;color:var(--muted);">/mo</span></div>
+        <a href="https://wa.me/2349162306809?text=I%20want%20Ads%20Management" target="_blank" class="btn-outline" style="width:100%;">Get Started</a>
+      </div>
+    </div>
+    <p class="coupon-note">Use coupon code <span class="coupon-code">PRUDENT10</span> for $10 off your first order.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="section-head">
+      <p class="section-label">Tech Stack & Clientele</p>
+      <h2 class="section-title display">Built On Trusted Technology</h2>
+      <p class="section-sub">Serving businesses across multiple continents with the right backend for each one.</p>
+    </div>
+    <div class="stack-chips">
+      <span class="stack-chip">Firebase</span>
+      <span class="stack-chip">Supabase</span>
+      <span class="stack-chip">Appwrite</span>
+      <span class="stack-chip">Directus</span>
+      <span class="stack-chip">Backendless</span>
+      <span class="stack-chip">Shopify</span>
+      <span class="stack-chip">Headless Shopify</span>
+      <span class="stack-chip">Node.js</span>
+      <span class="stack-chip">Next.js</span>
+      <span class="stack-chip">Python</span>
+      <span class="stack-chip">PHP</span>
+      <span class="stack-chip">Laravel</span>
+    </div>
+    <div class="flag-strip">
+      <span class="flag-chip">🇺🇸 USA</span>
+      <span class="flag-chip">🇬🇧 UK</span>
+      <span class="flag-chip">🇦🇪 UAE</span>
+      <span class="flag-chip">🇳🇬 Nigeria</span>
+      <span class="flag-chip">🇰🇪 Kenya</span>
+      <span class="flag-chip">🇿🇦 South Africa</span>
+      <span class="flag-chip">🌍 & More</span>
+    </div>
+  </div>
+</section>
+
+<section id="cta" class="section">
+  <div class="section-inner">
+    <h2 class="cta-h2">Ready to Launch <span class="gold-text">Your Store?</span></h2>
+    <p class="cta-sub">Message us on WhatsApp and get a live demo within 24 hours — no commitment required.</p>
+    <div class="cta-btns">
+      <a href="https://wa.me/2349162306809?text=Hi%20De%20Prudent%2C%20I%20want%20a%20custom%20online%20store" target="_blank" class="btn-gold">💬 Chat on WhatsApp</a>
+      <a href="index.html" class="btn-outline">← Back to Home</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>© <span class="copy-year">2026</span> De Prudent Store Designer. Serving businesses worldwide 🌍</p>
+</footer>
+
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

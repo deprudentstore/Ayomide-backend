@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Site Content Admin – De Prudent</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  body { font-family: 'Outfit', sans-serif; }
+  .font-display { font-family: 'Cormorant Garamond', serif; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #3a3a4a; border-radius: 4px; }
+  textarea { font-family: 'Outfit', sans-serif; }
+</style>
+</head>
+<body class="bg-[#F6F4EF] text-[#1C1C24]">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect } = React;
+
+const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+// Same token key as store-admin.html — logging in on either page keeps you
+// signed in on both, since they share one admin login.
+function getToken() { return localStorage.getItem('deprudent_admin_token') || ''; }
+function setToken(t) { localStorage.setItem('deprudent_admin_token', t); }
+function clearToken() { localStorage.removeItem('deprudent_admin_token'); }
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}), Authorization: `Bearer ${getToken()}` },
+  });
+  if (res.status === 401) { clearToken(); throw new Error('Session expired. Please log in again.'); }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function slugify(s) {
+  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
+
+/* ---------------- Login ---------------- */
+function LoginScreen({ onLogin }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) { setError('Please enter your email and password'); return; }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) { setError(data.error || 'Login failed'); return; }
+      setToken(data.token);
+      onLogin();
+    } catch (err) {
+      setError('Error logging in: ' + err.message);
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-6">
+      <form onSubmit={handleLogin} className="bg-white rounded-2xl shadow-sm border border-black/5 p-8 w-full max-w-sm">
+        <h1 className="font-display text-3xl font-bold mb-1">Site Content Admin</h1>
+        <p className="text-sm text-black/50 mb-6">Log in with your De Prudent admin account.</p>
+        {error && <p className="text-sm text-red-600 mb-4">{error}</p>}
+        <input type="email" placeholder="Email" value={email} onChange={e=>setEmail(e.target.value)}
+          className="w-full border border-black/10 rounded-lg px-4 py-3 mb-3 text-sm" />
+        <input type="password" placeholder="Password" value={password} onChange={e=>setPassword(e.target.value)}
+          className="w-full border border-black/10 rounded-lg px-4 py-3 mb-4 text-sm" />
+        <button disabled={loading} className="w-full bg-[#1C1C24] text-white rounded-lg py-3 font-medium text-sm disabled:opacity-50">
+          {loading ? 'Logging in…' : 'Log In'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+/* ---------------- Small building blocks ---------------- */
+function Field({ label, children }) {
+  return <div className="mb-4"><label className="block text-xs font-medium uppercase tracking-wide text-black/40 mb-1">{label}</label>{children}</div>;
+}
+const inputCls = "w-full border border-black/10 rounded-lg px-3 py-2 text-sm";
+
+/* ---------------- Page Content Editor ---------------- */
+function PageContentEditor() {
+  const [content, setContent] = useState(null);
+  const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    apiFetch('/admin/content/index').then(data => {
+      const blank = {
+        hero:{title:'',subtitle:''}, contact:{whatsappNumber:'',email:''},
+        pricing:[], services:[], testimonials:[], testimonialDisclaimer:'',
+        founder:{name:'',bio:''},
+        howItWorks:{title:'',subtitle:'',steps:[]},
+        whatWeBuild:{title:'',items:[]},
+        growthPlan:{title:'',text:'',buttonText:''},
+        newsletterText:'',
+        cta:{heading:'',subtitle:'',note:''},
+        footer:{brandDesc:'',copyrightText:''},
+        demosIntro:{label:'',title:'',subtitle:''},
+        solutionsIntro:{label:'',title:'',subtitle:''},
+      };
+      // Merge fetched data over the blank shape so older saved docs (missing
+      // the new fields) don't crash the inputs below with undefined values.
+      const merged = data ? {
+        ...blank, ...data,
+        hero: {...blank.hero, ...(data.hero||{})},
+        contact: {...blank.contact, ...(data.contact||{})},
+        founder: {...blank.founder, ...(data.founder||{})},
+        howItWorks: {...blank.howItWorks, ...(data.howItWorks||{}), steps: (data.howItWorks && data.howItWorks.steps) || []},
+        whatWeBuild: {...blank.whatWeBuild, ...(data.whatWeBuild||{}), items: (data.whatWeBuild && data.whatWeBuild.items) || []},
+        growthPlan: {...blank.growthPlan, ...(data.growthPlan||{})},
+        cta: {...blank.cta, ...(data.cta||{})},
+        footer: {...blank.footer, ...(data.footer||{})},
+        demosIntro: {...blank.demosIntro, ...(data.demosIntro||{})},
+        solutionsIntro: {...blank.solutionsIntro, ...(data.solutionsIntro||{})},
+        pricing: data.pricing || [], services: data.services || [], testimonials: data.testimonials || [],
+      } : blank;
+      setContent(merged);
+    }).catch(err => setStatus(err.message));
+  }, []);
+
+  if (!content) return <p className="text-sm text-black/50">Loading content…</p>;
+
+  const update = (path, value) => {
+    setContent(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      let obj = next; const parts = path.split('.');
+      for (let i=0;i<parts.length-1;i++) obj = obj[parts[i]];
+      obj[parts[parts.length-1]] = value;
+      return next;
+    });
+  };
+
+  const updateRow = (arrName, idx, key, value) => {
+    setContent(prev => {
+      const next = JSON.parse(JSON.stringify(prev));
+      next[arrName][idx][key] = value;
+      return next;
+    });
+  };
+  const addRow = (arrName, blank) => setContent(prev => ({ ...prev, [arrName]: [...prev[arrName], blank] }));
+  const removeRow = (arrName, idx) => setContent(prev => ({ ...prev, [arrName]: prev[arrName].filter((_,i)=>i!==idx) }));
+
+  // Same as updateRow/addRow/removeRow but for arrays nested one level down,
+  // e.g. content.howItWorks.steps or content.whatWeBuild.items.
+  const updateNestedRow = (parent, arrName, idx, key, value) => {
+    setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next[parent][arrName][idx][key]=value; return next; });
+  };
+  const addNestedRow = (parent, arrName, blank) => {
+    setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next[parent][arrName].push(blank); return next; });
+  };
+  const removeNestedRow = (parent, arrName, idx) => {
+    setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next[parent][arrName].splice(idx,1); return next; });
+  };
+
+  const save = async () => {
+    setSaving(true); setStatus('');
+    try {
+      await apiFetch('/admin/content/index', { method: 'PUT', body: JSON.stringify(content) });
+      setStatus('✅ Saved — live on the site now.');
+    } catch (err) { setStatus('❌ ' + err.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className="space-y-6">
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Hero</h2>
+        <Field label="Headline"><input className={inputCls} value={content.hero.title} onChange={e=>update('hero.title', e.target.value)} /></Field>
+        <Field label="Subtitle"><textarea rows="3" className={inputCls} value={content.hero.subtitle} onChange={e=>update('hero.subtitle', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">About the Founder</h2>
+        <Field label="Name"><input className={inputCls} value={content.founder.name} onChange={e=>update('founder.name', e.target.value)} /></Field>
+        <Field label="Bio"><textarea rows="4" className={inputCls} value={content.founder.bio} onChange={e=>update('founder.bio', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Contact</h2>
+        <Field label="WhatsApp Number (digits only, e.g. 2349162306809)"><input className={inputCls} value={content.contact.whatsappNumber} onChange={e=>update('contact.whatsappNumber', e.target.value)} /></Field>
+        <Field label="Email"><input className={inputCls} value={content.contact.email} onChange={e=>update('contact.email', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-xl font-bold">Pricing Blocks</h2>
+          <button onClick={()=>addRow('pricing',{title:'',subtitle:'',rows:[],ctaText:'Get Started',ctaUrl:'#'})} className="text-xs bg-black/5 rounded-full px-3 py-1.5">+ Add Block</button>
+        </div>
+        {content.pricing.map((block,bi)=>{
+          const updateBlockField = (key,val) => {
+            setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next.pricing[bi][key]=val; return next; });
+          };
+          const updateBlockRow = (ri,key,val) => {
+            setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next.pricing[bi].rows[ri][key]=val; return next; });
+          };
+          const addBlockRow = () => {
+            setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next.pricing[bi].rows.push({service:'',price:''}); return next; });
+          };
+          const removeBlockRow = (ri) => {
+            setContent(prev => { const next=JSON.parse(JSON.stringify(prev)); next.pricing[bi].rows.splice(ri,1); return next; });
+          };
+          return (
+            <div key={bi} className="border border-black/10 rounded-xl p-4 mb-4">
+              <div className="flex gap-2 mb-2">
+                <input className={inputCls} placeholder="Block title (e.g. 🏗️ Store Building)" value={block.title} onChange={e=>updateBlockField('title', e.target.value)} />
+                <button onClick={()=>removeRow('pricing',bi)} className="text-red-500 text-xs px-2">✕ Block</button>
+              </div>
+              <input className={inputCls+" mb-3"} placeholder="Block subtitle" value={block.subtitle} onChange={e=>updateBlockField('subtitle', e.target.value)} />
+              {block.rows.map((row,ri)=>(
+                <div key={ri} className="flex gap-2 mb-2">
+                  <input className={inputCls} placeholder="Service" value={row.service} onChange={e=>updateBlockRow(ri,'service',e.target.value)} />
+                  <input className={inputCls+" max-w-[140px]"} placeholder="Price" value={row.price} onChange={e=>updateBlockRow(ri,'price',e.target.value)} />
+                  <button onClick={()=>removeBlockRow(ri)} className="text-red-500 text-xs px-2">✕</button>
+                </div>
+              ))}
+              <button onClick={addBlockRow} className="text-xs bg-black/5 rounded-full px-3 py-1.5 mb-3">+ Add Row</button>
+              <div className="flex gap-2">
+                <input className={inputCls} placeholder="Button text" value={block.ctaText} onChange={e=>updateBlockField('ctaText', e.target.value)} />
+                <input className={inputCls} placeholder="Button URL" value={block.ctaUrl} onChange={e=>updateBlockField('ctaUrl', e.target.value)} />
+              </div>
+            </div>
+          );
+        })}
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-xl font-bold">Service Cards</h2>
+          <button onClick={()=>addRow('services',{icon:'',title:'',description:'',features:[],linkText:'Learn More',linkUrl:'#'})} className="text-xs bg-black/5 rounded-full px-3 py-1.5">+ Add Card</button>
+        </div>
+        {content.services.map((s,i)=>(
+          <div key={i} className="border border-black/10 rounded-xl p-4 mb-3">
+            <div className="flex gap-2 mb-2">
+              <input className={inputCls+" max-w-[70px]"} placeholder="Icon" value={s.icon} onChange={e=>updateRow('services',i,'icon',e.target.value)} />
+              <input className={inputCls} placeholder="Title" value={s.title} onChange={e=>updateRow('services',i,'title',e.target.value)} />
+              <button onClick={()=>removeRow('services',i)} className="text-red-500 text-xs px-2">✕</button>
+            </div>
+            <textarea rows="2" className={inputCls+" mb-2"} placeholder="Description" value={s.description} onChange={e=>updateRow('services',i,'description',e.target.value)} />
+            <input className={inputCls+" mb-2"} placeholder="Features, comma separated" value={s.features.join(', ')} onChange={e=>updateRow('services',i,'features', e.target.value.split(',').map(f=>f.trim()).filter(Boolean))} />
+            <div className="flex gap-2">
+              <input className={inputCls} placeholder="Link text" value={s.linkText} onChange={e=>updateRow('services',i,'linkText',e.target.value)} />
+              <input className={inputCls} placeholder="Link URL" value={s.linkUrl} onChange={e=>updateRow('services',i,'linkUrl',e.target.value)} />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="font-display text-xl font-bold">Testimonials</h2>
+          <button onClick={()=>addRow('testimonials',{name:'',role:'',quote:''})} className="text-xs bg-black/5 rounded-full px-3 py-1.5">+ Add</button>
+        </div>
+        {content.testimonials.map((t,i)=>(
+          <div key={i} className="border border-black/10 rounded-xl p-4 mb-3">
+            <div className="flex gap-2 mb-2">
+              <input className={inputCls} placeholder="Name (abbreviated for privacy)" value={t.name} onChange={e=>updateRow('testimonials',i,'name',e.target.value)} />
+              <input className={inputCls} placeholder="Role / business type" value={t.role} onChange={e=>updateRow('testimonials',i,'role',e.target.value)} />
+              <button onClick={()=>removeRow('testimonials',i)} className="text-red-500 text-xs px-2">✕</button>
+            </div>
+            <textarea rows="2" className={inputCls} placeholder="Quote" value={t.quote} onChange={e=>updateRow('testimonials',i,'quote',e.target.value)} />
+          </div>
+        ))}
+        <Field label="Disclaimer text below testimonials"><textarea rows="2" className={inputCls} value={content.testimonialDisclaimer} onChange={e=>update('testimonialDisclaimer', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">How It Works</h2>
+        <Field label="Section title"><input className={inputCls} value={content.howItWorks.title} onChange={e=>update('howItWorks.title', e.target.value)} /></Field>
+        <Field label="Section subtitle"><input className={inputCls} value={content.howItWorks.subtitle} onChange={e=>update('howItWorks.subtitle', e.target.value)} /></Field>
+        <div className="flex justify-between items-center mb-2 mt-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-black/40">Steps</p>
+          <button onClick={()=>addNestedRow('howItWorks','steps',{icon:'',title:'',desc:''})} className="text-xs bg-black/5 rounded-full px-3 py-1.5">+ Add Step</button>
+        </div>
+        {content.howItWorks.steps.map((s,i)=>(
+          <div key={i} className="border border-black/10 rounded-xl p-4 mb-3">
+            <div className="flex gap-2 mb-2">
+              <input className={inputCls+" max-w-[70px]"} placeholder="Icon" value={s.icon} onChange={e=>updateNestedRow('howItWorks','steps',i,'icon',e.target.value)} />
+              <input className={inputCls} placeholder="Step title" value={s.title} onChange={e=>updateNestedRow('howItWorks','steps',i,'title',e.target.value)} />
+              <button onClick={()=>removeNestedRow('howItWorks','steps',i)} className="text-red-500 text-xs px-2">✕</button>
+            </div>
+            <textarea rows="2" className={inputCls} placeholder="Description" value={s.desc} onChange={e=>updateNestedRow('howItWorks','steps',i,'desc',e.target.value)} />
+          </div>
+        ))}
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">What We Build</h2>
+        <Field label="Section title"><input className={inputCls} value={content.whatWeBuild.title} onChange={e=>update('whatWeBuild.title', e.target.value)} /></Field>
+        <div className="flex justify-between items-center mb-2 mt-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-black/40">Business Types</p>
+          <button onClick={()=>addNestedRow('whatWeBuild','items',{icon:'',title:'',desc:''})} className="text-xs bg-black/5 rounded-full px-3 py-1.5">+ Add Item</button>
+        </div>
+        {content.whatWeBuild.items.map((it,i)=>(
+          <div key={i} className="border border-black/10 rounded-xl p-4 mb-3">
+            <div className="flex gap-2 mb-2">
+              <input className={inputCls+" max-w-[70px]"} placeholder="Icon" value={it.icon} onChange={e=>updateNestedRow('whatWeBuild','items',i,'icon',e.target.value)} />
+              <input className={inputCls} placeholder="Title" value={it.title} onChange={e=>updateNestedRow('whatWeBuild','items',i,'title',e.target.value)} />
+              <button onClick={()=>removeNestedRow('whatWeBuild','items',i)} className="text-red-500 text-xs px-2">✕</button>
+            </div>
+            <textarea rows="2" className={inputCls} placeholder="Description" value={it.desc} onChange={e=>updateNestedRow('whatWeBuild','items',i,'desc',e.target.value)} />
+          </div>
+        ))}
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">90-Day Growth Plan</h2>
+        <Field label="Title"><input className={inputCls} value={content.growthPlan.title} onChange={e=>update('growthPlan.title', e.target.value)} /></Field>
+        <Field label="Text (plain text, line breaks are kept)"><textarea rows="3" className={inputCls} value={content.growthPlan.text} onChange={e=>update('growthPlan.text', e.target.value)} /></Field>
+        <Field label="Button text"><input className={inputCls} value={content.growthPlan.buttonText} onChange={e=>update('growthPlan.buttonText', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Newsletter Blurb</h2>
+        <p className="text-xs text-black/40 mb-2">Used above both newsletter signup forms (homepage and contact page).</p>
+        <Field label="Blurb text"><input className={inputCls} value={content.newsletterText} onChange={e=>update('newsletterText', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Final CTA Section</h2>
+        <p className="text-xs text-black/40 mb-2">Heading is plain text — the gold-highlighted line break in the default design will be replaced with your plain text once edited.</p>
+        <Field label="Heading"><input className={inputCls} value={content.cta.heading} onChange={e=>update('cta.heading', e.target.value)} /></Field>
+        <Field label="Subtitle"><textarea rows="3" className={inputCls} value={content.cta.subtitle} onChange={e=>update('cta.subtitle', e.target.value)} /></Field>
+        <Field label="Note (below buttons)"><input className={inputCls} value={content.cta.note} onChange={e=>update('cta.note', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Footer</h2>
+        <Field label="Brand description"><textarea rows="2" className={inputCls} value={content.footer.brandDesc} onChange={e=>update('footer.brandDesc', e.target.value)} /></Field>
+        <Field label="Copyright line (year is added automatically)"><input className={inputCls} placeholder="De Prudent Store Designer. All rights reserved." value={content.footer.copyrightText} onChange={e=>update('footer.copyrightText', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Demos Page Intro</h2>
+        <Field label="Label"><input className={inputCls} value={content.demosIntro.label} onChange={e=>update('demosIntro.label', e.target.value)} /></Field>
+        <Field label="Title"><input className={inputCls} value={content.demosIntro.title} onChange={e=>update('demosIntro.title', e.target.value)} /></Field>
+        <Field label="Subtitle"><textarea rows="2" className={inputCls} value={content.demosIntro.subtitle} onChange={e=>update('demosIntro.subtitle', e.target.value)} /></Field>
+      </section>
+
+      <section className="bg-white rounded-2xl border border-black/5 p-6">
+        <h2 className="font-display text-xl font-bold mb-4">Solutions Page Intro</h2>
+        <p className="text-xs text-black/40 mb-2">The solution cards themselves are edited under "Service Cards" above.</p>
+        <Field label="Label"><input className={inputCls} value={content.solutionsIntro.label} onChange={e=>update('solutionsIntro.label', e.target.value)} /></Field>
+        <Field label="Title"><input className={inputCls} value={content.solutionsIntro.title} onChange={e=>update('solutionsIntro.title', e.target.value)} /></Field>
+        <Field label="Subtitle"><textarea rows="2" className={inputCls} value={content.solutionsIntro.subtitle} onChange={e=>update('solutionsIntro.subtitle', e.target.value)} /></Field>
+      </section>
+
+      <div className="sticky bottom-4 flex items-center gap-4 bg-white/90 backdrop-blur border border-black/10 rounded-2xl p-4">
+        <button onClick={save} disabled={saving} className="bg-[#1C1C24] text-white rounded-lg px-6 py-2.5 text-sm font-medium disabled:opacity-50">
+          {saving ? 'Saving…' : 'Save Changes'}
+        </button>
+        {status && <p className="text-sm">{status}</p>}
+      </div>
+    </div>
+  );
+}
+
+/* ---------------- Blog Manager ---------------- */
+function BlogEditorForm({ post, onSaved, onCancel }) {
+  const [form, setForm] = useState(post || { slug:'', title:'', excerpt:'', body:'', image_url:'', category:'', published:true });
+  const [status, setStatus] = useState('');
+  const [saving, setSaving] = useState(false);
+  const isNew = !post;
+
+  const set = (k,v) => setForm(prev => ({ ...prev, [k]: v, ...(k==='title' && isNew ? { slug: slugify(v) } : {}) }));
+
+  const save = async () => {
+    if (!form.title || !form.slug || !form.body) { setStatus('Title, slug, and body are required.'); return; }
+    setSaving(true); setStatus('');
+    try {
+      if (isNew) await apiFetch('/admin/blog', { method:'POST', body: JSON.stringify(form) });
+      else await apiFetch(`/admin/blog/${post._id}`, { method:'PUT', body: JSON.stringify(form) });
+      onSaved();
+    } catch (err) { setStatus('❌ ' + err.message); }
+    finally { setSaving(false); }
+  };
+
+  return (
+    <div className="bg-white rounded-2xl border border-black/5 p-6">
+      <h2 className="font-display text-xl font-bold mb-4">{isNew ? 'New Blog Post' : 'Edit Post'}</h2>
+      {status && <p className="text-sm text-red-600 mb-3">{status}</p>}
+      <Field label="Title"><input className={inputCls} value={form.title} onChange={e=>set('title', e.target.value)} /></Field>
+      <Field label="Slug (URL: blog-post.html?slug=...)"><input className={inputCls} value={form.slug} onChange={e=>set('slug', slugify(e.target.value))} /></Field>
+      <Field label="Excerpt"><textarea rows="2" className={inputCls} value={form.excerpt} onChange={e=>set('excerpt', e.target.value)} /></Field>
+      <Field label="Cover Image URL"><input className={inputCls} value={form.image_url} onChange={e=>set('image_url', e.target.value)} /></Field>
+      <Field label="Category"><input className={inputCls} value={form.category} onChange={e=>set('category', e.target.value)} /></Field>
+      <Field label="Body (HTML or plain paragraphs)"><textarea rows="10" className={inputCls} value={form.body} onChange={e=>set('body', e.target.value)} /></Field>
+      <label className="flex items-center gap-2 text-sm mb-4">
+        <input type="checkbox" checked={form.published} onChange={e=>set('published', e.target.checked)} /> Published (visible on the site)
+      </label>
+      <div className="flex gap-3">
+        <button onClick={save} disabled={saving} className="bg-[#1C1C24] text-white rounded-lg px-6 py-2.5 text-sm font-medium disabled:opacity-50">{saving?'Saving…':'Save Post'}</button>
+        <button onClick={onCancel} className="text-sm text-black/50">Cancel</button>
+      </div>
+    </div>
+  );
+}
+
+function BlogManager() {
+  const [posts, setPosts] = useState(null);
+  const [editing, setEditing] = useState(undefined); // undefined = list view, null = new, object = edit
+  const [status, setStatus] = useState('');
+
+  const load = () => apiFetch('/admin/blog').then(setPosts).catch(err=>setStatus(err.message));
+  useEffect(() => { load(); }, []);
+
+  const del = async (post) => {
+    if (!confirm(`Delete "${post.title}"? This can't be undone.`)) return;
+    try { await apiFetch(`/admin/blog/${post._id}`, { method:'DELETE' }); load(); }
+    catch(err){ setStatus(err.message); }
+  };
+
+  if (editing !== undefined) {
+    return <BlogEditorForm post={editing} onSaved={()=>{ setEditing(undefined); load(); }} onCancel={()=>setEditing(undefined)} />;
+  }
+
+  return (
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="font-display text-xl font-bold">Blog Posts</h2>
+        <button onClick={()=>setEditing(null)} className="text-xs bg-[#1C1C24] text-white rounded-full px-4 py-2">+ New Post</button>
+      </div>
+      {status && <p className="text-sm text-red-600 mb-3">{status}</p>}
+      {!posts ? <p className="text-sm text-black/50">Loading…</p> : posts.length === 0 ? <p className="text-sm text-black/50">No posts yet.</p> : (
+        <div className="space-y-2">
+          {posts.map(p => (
+            <div key={p._id} className="bg-white border border-black/5 rounded-xl p-4 flex justify-between items-center">
+              <div>
+                <p className="font-medium">{p.title} {!p.published && <span className="text-xs text-orange-500 ml-2">Draft</span>}</p>
+                <p className="text-xs text-black/40">/{p.slug}</p>
+              </div>
+              <div className="flex gap-3 text-sm">
+                <button onClick={()=>setEditing(p)} className="text-blue-600">Edit</button>
+                <button onClick={()=>del(p)} className="text-red-500">Delete</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------------- App ---------------- */
+function App() {
+  const [loggedIn, setLoggedIn] = useState(!!getToken());
+  const [tab, setTab] = useState('content');
+
+  if (!loggedIn) return <LoginScreen onLogin={()=>setLoggedIn(true)} />;
+
+  return (
+    <div className="min-h-screen">
+      <header className="bg-white border-b border-black/5 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+          <h1 className="font-display text-2xl font-bold">Site Content Admin</h1>
+          <button onClick={()=>{clearToken(); setLoggedIn(false);}} className="text-xs text-black/40">Log Out</button>
+        </div>
+        <div className="max-w-3xl mx-auto px-4 flex gap-6 text-sm">
+          <button onClick={()=>setTab('content')} className={`pb-3 border-b-2 ${tab==='content'?'border-black font-medium':'border-transparent text-black/40'}`}>Page Content</button>
+          <button onClick={()=>setTab('blog')} className={`pb-3 border-b-2 ${tab==='blog'?'border-black font-medium':'border-transparent text-black/40'}`}>Blog Posts</button>
+        </div>
+      </header>
+      <main className="max-w-3xl mx-auto px-4 py-6">
+        {tab === 'content' ? <PageContentEditor /> : <BlogManager />}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

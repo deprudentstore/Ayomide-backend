@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Store Admin – De Prudent</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  body { font-family: 'Outfit', sans-serif; }
+  .font-display { font-family: 'Cormorant Garamond', serif; }
+  .font-mono-data { font-family: 'IBM Plex Mono', monospace; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #3a3a4a; border-radius: 4px; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-fade-in { animation: fadeIn .25s ease both; }
+</style>
+</head>
+<body class="bg-[#F6F4EF] text-[#1C1C24]">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo, useCallback } = React;
+
+// De Prudent backend API (replaces Firebase). Update after deploying to Vercel.
+const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+
+// ===== Auth token helpers (JWT from POST /api/admin/login, kept in localStorage
+//        so the dashboard stays logged in across page reloads) =====
+function getToken() { return localStorage.getItem('deprudent_admin_token') || ''; }
+function setToken(token) { localStorage.setItem('deprudent_admin_token', token); }
+function clearToken() { localStorage.removeItem('deprudent_admin_token'); }
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(`${API_BASE}${path}`, {
+    ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+      Authorization: `Bearer ${getToken()}`,
+    },
+  });
+  if (res.status === 401) {
+    clearToken();
+    throw new Error('Session expired. Please log in again.');
+  }
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+// ===== Store type definitions — each store has its own schema, brand color, and currency =====
+const STORE_TYPES = {
+  'mall': {
+    label: 'Khalee Mall', emoji: '🛒', accent: '#C9973A', accentSoft: '#F6ECD9', currency: '€',
+    fields: ['category'],
+    categories: [['trending','Trending'],['women','Women'],['men','Men'],['kids','Kids'],['electronics','Electronics'],['home','Home'],['sports','Sports'],['beauty','Beauty'],['deals','Deals'],['recommend','Recommended']]
+  },
+  'restaurant': {
+    label: 'Abeni', emoji: '🍽️', accent: '#B5651D', accentSoft: '#F3E2D2', currency: '₦',
+    fields: ['category','spice'],
+    categories: [['starters','Starters & Small Chops'],['mains','Main Course'],['grills','Grills & Suya'],['desserts','Desserts'],['drinks','Drinks']]
+  },
+  'luxury': {
+    label: 'MARQUE', emoji: '🖤', accent: '#7C2333', accentSoft: '#F0DDE1', currency: '$',
+    fields: ['sku','sizes','colors','soldOut'], categories: null
+  },
+  'headless-shopify': {
+    label: 'Kern', emoji: '⚡', accent: '#0F9B8E', accentSoft: '#D9F3F0', currency: '$',
+    fields: [], categories: null, readOnly: true
+  }
+};
+const STORE_ORDER = ['mall', 'restaurant', 'luxury', 'headless-shopify'];
+
+function getStoreFromUrl() {
+  const slug = new URLSearchParams(window.location.search).get('store');
+  return STORE_TYPES[slug] ? slug : 'mall';
+}
+
+// ===== Small building blocks =====
+function StatCard({ label, value, accent }) {
+  return (
+    <div className="bg-white rounded-2xl border border-black/5 p-5 shadow-sm">
+      <p className="text-[11px] uppercase tracking-wider text-black/40 font-medium mb-1">{label}</p>
+      <p className="text-2xl font-display font-bold" style={{ color: accent }}>{value}</p>
+    </div>
+  );
+}
+
+// ===== Login screen =====
+function LoginScreen({ onLogin }) {
+  const [selectedStore, setSelectedStore] = useState(getStoreFromUrl());
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!email || !password) { setError('Please enter your email and password'); return; }
+    setLoading(true);
+    try {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error || 'Login failed');
+        return;
+      }
+      setToken(data.token);
+      onLogin(selectedStore);
+    } catch (err) {
+      setError('Error logging in: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-[#14151F] px-4">
+      <div className="w-full max-w-sm bg-white rounded-3xl p-8 shadow-2xl animate-fade-in">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-black/40 mb-1">De Prudent</p>
+        <h1 className="font-display text-2xl font-bold mb-6">Store Admin Login</h1>
+
+        <form onSubmit={handleLogin} className="space-y-3">
+          <div className="grid grid-cols-2 gap-2">
+            {STORE_ORDER.map(slug => {
+              const t = STORE_TYPES[slug];
+              const active = selectedStore === slug;
+              return (
+                <button
+                  type="button" key={slug}
+                  onClick={() => setSelectedStore(slug)}
+                  className="text-left rounded-xl border-2 px-3 py-2.5 transition-all"
+                  style={{
+                    borderColor: active ? t.accent : '#EAE7E0',
+                    background: active ? t.accentSoft : '#FAFAF8'
+                  }}
+                >
+                  <div className="text-lg leading-none mb-1">{t.emoji}</div>
+                  <div className="text-xs font-semibold" style={{ color: active ? t.accent : '#555' }}>{t.label}</div>
+                </button>
+              );
+            })}
+          </div>
+
+          <input
+            type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+            placeholder="Admin email" autoComplete="username"
+            className="w-full border border-black/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-black/30"
+          />
+
+          <input
+            type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password" autoComplete="current-password"
+            className="w-full border border-black/10 rounded-xl px-4 py-3 text-sm outline-none focus:border-black/30"
+          />
+
+          {error && <p className="text-rose-600 text-xs leading-relaxed">{error}</p>}
+
+          <button
+            type="submit" disabled={loading}
+            className="w-full rounded-xl py-3 font-semibold text-sm text-white transition-opacity disabled:opacity-60"
+            style={{ background: STORE_TYPES[selectedStore].accent }}
+          >
+            {loading ? 'Logging in…' : 'Login'}
+          </button>
+        </form>
+
+        <p className="text-[11px] text-black/35 leading-relaxed mt-5">
+          Pick the store you want to manage above, then log in with your admin email and password.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ===== Product form (schema-aware per store) =====
+function ProductForm({ storeSlug, editingProduct, onSaved, onCancelEdit }) {
+  const type = STORE_TYPES[storeSlug];
+  const blank = { name: '', price: '', description: '', image_url: '', category: type.categories ? type.categories[0][0] : '', spice: '', sku: '', sizes: '', colors: '', soldOut: false };
+  const [form, setForm] = useState(blank);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (editingProduct) {
+      setForm({
+        name: editingProduct.name || '',
+        price: editingProduct.price || '',
+        description: editingProduct.description || editingProduct.desc || '',
+        image_url: editingProduct.image_url || editingProduct.img || '',
+        category: editingProduct.category || (type.categories ? type.categories[0][0] : ''),
+        spice: editingProduct.spice || '',
+        sku: editingProduct.sku || '',
+        sizes: Array.isArray(editingProduct.sizes) ? editingProduct.sizes.join(',') : '',
+        colors: Array.isArray(editingProduct.colors) ? editingProduct.colors.map(c => c.name).join(',') : '',
+        soldOut: !!editingProduct.soldOut,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [editingProduct, storeSlug]);
+
+  const has = (f) => type.fields.includes(f);
+  const set = (k, v) => setForm(prev => ({ ...prev, [k]: v }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        storeSlug: storeSlug,
+        name: form.name.trim(),
+        price: Number(form.price),
+        description: form.description.trim(),
+        image_url: form.image_url.trim(),
+      };
+      if (has('category')) payload.category = form.category;
+      if (has('spice')) payload.spice = form.spice.trim() || null;
+      if (has('sku')) payload.sku = form.sku.trim();
+      if (has('sizes')) payload.sizes = form.sizes.split(',').map(s => s.trim()).filter(Boolean);
+      if (has('colors')) payload.colors = form.colors.split(',').map(s => s.trim()).filter(Boolean).map(name => ({ name, hex: '#CCCCCC' }));
+      if (has('soldOut')) payload.soldOut = form.soldOut;
+
+      if (editingProduct) {
+        await apiFetch(`/admin/products/${editingProduct.id}`, { method: 'PUT', body: JSON.stringify(payload) });
+      } else {
+        await apiFetch('/admin/products', { method: 'POST', body: JSON.stringify(payload) });
+      }
+      onSaved();
+      setForm(blank);
+    } catch (err) {
+      alert('Error saving product: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputCls = "border border-black/10 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-black/30 w-full";
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-black/5 p-6 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="font-display text-xl font-bold">{editingProduct ? 'Edit Product' : 'Add Product'}</h2>
+        {editingProduct && (
+          <button type="button" onClick={onCancelEdit} className="text-xs text-black/40 hover:text-black/70 underline">Cancel edit</button>
+        )}
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input className={inputCls} placeholder="Product / Dish Name *" value={form.name} onChange={e => set('name', e.target.value)} required />
+        <input className={inputCls} placeholder={`Price * (${type.currency})`} value={form.price} onChange={e => set('price', e.target.value)} required />
+
+        {has('category') && (
+          <select className={inputCls} value={form.category} onChange={e => set('category', e.target.value)}>
+            {type.categories.map(([val, label]) => <option key={val} value={val}>{label}</option>)}
+          </select>
+        )}
+        {has('spice') && <input className={inputCls} placeholder="Spice level (Mild, Medium, Hot)" value={form.spice} onChange={e => set('spice', e.target.value)} />}
+        {has('sku') && <input className={inputCls} placeholder="SKU (e.g. AC-014)" value={form.sku} onChange={e => set('sku', e.target.value)} />}
+        {has('sizes') && <input className={inputCls} placeholder="Sizes, comma separated (S,M,L)" value={form.sizes} onChange={e => set('sizes', e.target.value)} />}
+        {has('colors') && <input className={inputCls + " sm:col-span-2"} placeholder="Colors, comma separated (Black,Bone)" value={form.colors} onChange={e => set('colors', e.target.value)} />}
+        {has('soldOut') && (
+          <label className="flex items-center gap-2 text-sm sm:col-span-2">
+            <input type="checkbox" checked={form.soldOut} onChange={e => set('soldOut', e.target.checked)} className="w-4 h-4" />
+            Mark as sold out
+          </label>
+        )}
+
+        <textarea className={inputCls + " sm:col-span-2 min-h-[80px] resize-y"} placeholder="Description" value={form.description} onChange={e => set('description', e.target.value)} />
+        <input className={inputCls + " sm:col-span-2"} placeholder="Image URL" value={form.image_url} onChange={e => set('image_url', e.target.value)} />
+      </div>
+      <button
+        type="submit" disabled={saving}
+        className="mt-4 rounded-xl px-6 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+        style={{ background: type.accent }}
+      >
+        {saving ? 'Saving…' : (editingProduct ? 'Update Product' : 'Save Product')}
+      </button>
+    </form>
+  );
+}
+
+// ===== Products tab =====
+function ProductsTab({ storeSlug, products, loading, onEdit, onDelete, editingProduct, onSaved, onCancelEdit }) {
+  const type = STORE_TYPES[storeSlug];
+
+  if (type.readOnly) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 text-sm leading-relaxed">
+        ⚡ <strong>{type.label}</strong> pulls its catalogue live from Shopify's Storefront API, not from this database.
+        To manage {type.label}'s products, use your Shopify Admin directly — this panel can't edit them.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <ProductForm storeSlug={storeSlug} editingProduct={editingProduct} onSaved={onSaved} onCancelEdit={onCancelEdit} />
+      <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
+        <div className="px-6 py-4 border-b border-black/5">
+          <h2 className="font-display text-xl font-bold">Products</h2>
+        </div>
+        {loading ? (
+          <div className="p-10 text-center text-black/40 text-sm">Loading…</div>
+        ) : products.length === 0 ? (
+          <div className="p-10 text-center text-black/40 text-sm">No products yet — add your first one above.</div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-[11px] uppercase tracking-wider text-black/40 border-b border-black/5">
+                  <th className="px-6 py-3 font-medium">Image</th>
+                  <th className="px-6 py-3 font-medium">Name</th>
+                  <th className="px-6 py-3 font-medium">Info</th>
+                  <th className="px-6 py-3 font-medium">Price</th>
+                  <th className="px-6 py-3 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {products.map(p => {
+                  let info = p.category || '';
+                  if (type.fields.includes('spice') && p.spice) info += ` · 🌶️ ${p.spice}`;
+                  if (type.fields.includes('sku')) info = p.sku || '';
+                  if (type.fields.includes('soldOut') && p.soldOut) info += ' · SOLD OUT';
+                  return (
+                    <tr key={p.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.015]">
+                      <td className="px-6 py-3">
+                        {(p.image_url || p.img) ? (
+                          <img src={p.image_url || p.img} className="w-10 h-10 rounded-lg object-cover" alt={p.name} />
+                        ) : <span className="text-lg">📦</span>}
+                      </td>
+                      <td className="px-6 py-3">
+                        <div className="font-semibold">{p.name}</div>
+                        <div className="text-xs text-black/40 max-w-xs truncate">{p.description || p.desc || ''}</div>
+                      </td>
+                      <td className="px-6 py-3 text-black/60">{info}</td>
+                      <td className="px-6 py-3 font-mono-data">{type.currency}{p.price}</td>
+                      <td className="px-6 py-3 text-right space-x-2">
+                        <button onClick={() => onEdit(p)} className="text-xs font-semibold px-3 py-1.5 rounded-full bg-black/5 hover:bg-black/10">Edit</button>
+                        <button onClick={() => onDelete(p.id)} className="text-xs font-semibold px-3 py-1.5 rounded-full bg-rose-50 text-rose-600 hover:bg-rose-100">Delete</button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ===== Orders tab =====
+function OrdersTab({ storeSlug, orders, loading, onStatusChange }) {
+  const type = STORE_TYPES[storeSlug];
+
+  if (type.readOnly) {
+    return (
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-amber-800 text-sm leading-relaxed">
+        ⚡ <strong>{type.label}</strong>'s checkout hands off straight to WhatsApp and never writes an order record to this database —
+        there's nothing to show here. Manage {type.label} orders directly in WhatsApp.
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-black/5 shadow-sm overflow-hidden">
+      <div className="px-6 py-4 border-b border-black/5">
+        <h2 className="font-display text-xl font-bold">Orders</h2>
+      </div>
+      {loading ? (
+        <div className="p-10 text-center text-black/40 text-sm">Loading…</div>
+      ) : orders.length === 0 ? (
+        <div className="p-10 text-center text-black/40 text-sm">No orders yet.</div>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-[11px] uppercase tracking-wider text-black/40 border-b border-black/5">
+                <th className="px-6 py-3 font-medium">Customer</th>
+                <th className="px-6 py-3 font-medium">Items</th>
+                <th className="px-6 py-3 font-medium">Total</th>
+                <th className="px-6 py-3 font-medium">Status</th>
+                <th className="px-6 py-3 font-medium">Placed</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map(o => {
+                const customerName = o.customer?.name || o.customerName || 'Guest';
+                const itemsSummary = Array.isArray(o.items) ? o.items.map(i => `${i.name} x${i.qty}`).join(', ') : '—';
+                const status = o.status || 'pending';
+                const placedDate = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString() : '—';
+                return (
+                  <tr key={o.id} className="border-b border-black/5 last:border-0 hover:bg-black/[0.015]">
+                    <td className="px-6 py-3">
+                      <div className="font-semibold">{customerName}</div>
+                      {o.customer?.phone && <div className="text-xs text-black/40">{o.customer.phone}</div>}
+                    </td>
+                    <td className="px-6 py-3 max-w-xs text-black/60 text-xs">{itemsSummary}</td>
+                    <td className="px-6 py-3 font-mono-data">{type.currency}{Number(o.total || 0).toLocaleString()}</td>
+                    <td className="px-6 py-3">
+                      <select
+                        value={status}
+                        onChange={(e) => onStatusChange(o.id, e.target.value)}
+                        className="text-xs border border-black/10 rounded-full px-2.5 py-1.5 outline-none"
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="fulfilled">Fulfilled</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </td>
+                    <td className="px-6 py-3 text-black/50 text-xs">{placedDate}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ===== Sidebar =====
+function Sidebar({ storeSlug, onSwitchStore, activeTab, onTabChange, onLogout }) {
+  const type = STORE_TYPES[storeSlug];
+  return (
+    <aside className="w-full lg:w-64 bg-[#14151F] text-white flex-shrink-0 lg:min-h-screen">
+      <div className="p-5 border-b border-white/10">
+        <p className="text-[10px] uppercase tracking-[0.2em] text-white/40 mb-1">De Prudent</p>
+        <h1 className="font-display text-xl font-bold">Store Admin</h1>
+      </div>
+
+      <div className="p-4 border-b border-white/10">
+        <p className="text-[10px] uppercase tracking-wider text-white/40 mb-2 px-1">Managing</p>
+        <div className="grid grid-cols-2 gap-2">
+          {STORE_ORDER.map(slug => {
+            const t = STORE_TYPES[slug];
+            const active = storeSlug === slug;
+            return (
+              <button
+                key={slug} onClick={() => onSwitchStore(slug)}
+                className="text-left rounded-xl px-2.5 py-2 transition-all border"
+                style={{
+                  borderColor: active ? t.accent : 'rgba(255,255,255,0.08)',
+                  background: active ? t.accent + '22' : 'transparent'
+                }}
+              >
+                <div className="text-sm leading-none mb-1">{t.emoji}</div>
+                <div className="text-[11px] font-semibold" style={{ color: active ? t.accent : 'rgba(255,255,255,0.5)' }}>{t.label}</div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <nav className="p-4 space-y-1">
+        {[['products', '📦 Products'], ['orders', '🧾 Orders'], ['subscribers', '📬 Subscribers'], ['password', '🔑 Password']].map(([key, label]) => (
+          <button
+            key={key} onClick={() => onTabChange(key)}
+            className="w-full text-left text-sm font-medium rounded-xl px-3.5 py-2.5 transition-colors"
+            style={{
+              background: activeTab === key ? type.accent : 'transparent',
+              color: activeTab === key ? '#fff' : 'rgba(255,255,255,0.6)'
+            }}
+          >
+            {label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="p-4 mt-auto border-t border-white/10 space-y-2">
+        <a
+          href={`${storeSlug}.html`} target="_blank" rel="noreferrer"
+          className="block text-center text-sm font-medium rounded-xl px-3.5 py-2.5 border border-white/15 text-white/80 hover:bg-white/5"
+        >
+          🛒 View {type.label}
+        </a>
+        <button
+          onClick={onLogout}
+          className="w-full text-center text-sm font-medium rounded-xl px-3.5 py-2.5 bg-rose-500/15 text-rose-300 hover:bg-rose-500/25"
+        >
+          Logout
+        </button>
+      </div>
+    </aside>
+  );
+}
+
+// ===== Subscribers tab — view newsletter + waitlist sign-ups =====
+function SubscribersTab() {
+  const [newsletter, setNewsletter] = useState([]);
+  const [waitlist, setWaitlist] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    (async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const [nl, wl] = await Promise.all([
+          apiFetch('/admin/newsletter'),
+          apiFetch('/admin/waitlist'),
+        ]);
+        setNewsletter(Array.isArray(nl) ? nl : []);
+        setWaitlist(Array.isArray(wl) ? wl : []);
+      } catch (err) {
+        setError(err.message || 'Failed to load subscribers.');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  const exportCsv = (rows, dateKey, filename) => {
+    const csv = 'email,store,date\n' + rows.map(r =>
+      `${r.email},${r.storeSlug},${new Date(r[dateKey]).toISOString()}`
+    ).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  if (loading) return <p className="text-sm text-black/50">Loading subscribers…</p>;
+  if (error) return <p className="text-sm text-rose-500">{error}</p>;
+
+  return (
+    <div className="space-y-8 max-w-2xl">
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display text-2xl font-bold">Newsletter ({newsletter.length})</h2>
+          {newsletter.length > 0 && (
+            <button
+              onClick={() => exportCsv(newsletter, 'subscribedAt', 'newsletter-subscribers.csv')}
+              className="text-xs font-semibold rounded-lg px-3 py-1.5 border border-black/10 hover:bg-black/5"
+            >
+              ⬇️ Export CSV
+            </button>
+          )}
+        </div>
+        <div className="bg-white rounded-2xl border border-black/5 shadow-sm divide-y divide-black/5">
+          {newsletter.length === 0 && <p className="p-4 text-sm text-black/40">No subscribers yet.</p>}
+          {newsletter.map((s, i) => (
+            <div key={i} className="p-3 flex items-center justify-between text-sm">
+              <span>{s.email}</span>
+              <span className="text-black/40 text-xs">{s.storeSlug} · {new Date(s.subscribedAt).toLocaleDateString()}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="font-display text-2xl font-bold">Waitlist ({waitlist.length})</h2>
+          {waitlist.length > 0 && (
+            <button
+              onClick={() => exportCsv(waitlist, 'joinedAt', 'waitlist-signups.csv')}
+              className="text-xs font-semibold rounded-lg px-3 py-1.5 border border-black/10 hover:bg-black/5"
+            >
+              ⬇️ Export CSV
+            </button>
+          )}
+        </div>
+        <div className="bg-white rounded-2xl border border-black/5 shadow-sm divide-y divide-black/5">
+          {waitlist.length === 0 && <p className="p-4 text-sm text-black/40">No sign-ups yet.</p>}
+          {waitlist.map((s, i) => (
+            <div key={i} className="p-3 flex items-center justify-between text-sm">
+              <span>{s.email}</span>
+              <span className="text-black/40 text-xs">{s.storeSlug} · {new Date(s.joinedAt).toLocaleDateString()}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== Password tab — lets a logged-in admin change their own password =====
+function PasswordTab({ onChanged }) {
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (newPassword.length < 8) {
+      setError('New password must be at least 8 characters.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setError('New password and confirmation do not match.');
+      return;
+    }
+
+    setSaving(true);
+    try {
+      await apiFetch('/admin/me/password', {
+        method: 'PATCH',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      setCurrentPassword(''); setNewPassword(''); setConfirmPassword('');
+      onChanged && onChanged();
+    } catch (err) {
+      setError(err.message || 'Failed to update password.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-md">
+      <h2 className="font-display text-2xl font-bold mb-4">Change Password</h2>
+      <form onSubmit={handleSubmit} className="space-y-3 bg-white rounded-2xl p-5 border border-black/5 shadow-sm">
+        <div>
+          <label className="block text-xs font-semibold text-black/50 mb-1">Current password</label>
+          <input
+            type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)}
+            required autoComplete="current-password"
+            className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-black/50 mb-1">New password</label>
+          <input
+            type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)}
+            required minLength={8} autoComplete="new-password"
+            className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-black/50 mb-1">Confirm new password</label>
+          <input
+            type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)}
+            required minLength={8} autoComplete="new-password"
+            className="w-full rounded-xl border border-black/10 px-3 py-2 text-sm"
+          />
+        </div>
+        {error && <p className="text-sm text-rose-500">{error}</p>}
+        <button
+          type="submit" disabled={saving}
+          className="w-full rounded-xl px-3.5 py-2.5 text-sm font-semibold text-white bg-[#1C1C24] disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Update Password'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+// ===== Main App =====
+function App() {
+  const [loggedIn, setLoggedIn] = useState(!!getToken());
+  const [storeSlug, setStoreSlug] = useState(getStoreFromUrl());
+  const [activeTab, setActiveTab] = useState('products');
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [toast, setToast] = useState('');
+
+  useEffect(() => {
+    document.getElementById('pageTitle').textContent = `${STORE_TYPES[storeSlug].label} – Store Admin`;
+  }, [storeSlug]);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
+
+  const loadData = useCallback(async () => {
+    const type = STORE_TYPES[storeSlug];
+    setLoading(true);
+
+    if (!type.readOnly) {
+      try {
+        // Public route — no auth needed, same data every storefront uses.
+        const res = await fetch(`${API_BASE}/products?store=${storeSlug}`);
+        const list = res.ok ? await res.json() : [];
+        setProducts(Array.isArray(list) ? list.map(p => ({ ...p, id: p._id || p.id })) : []);
+      } catch (err) {
+        setProducts([]);
+      }
+      try {
+        const list = await apiFetch(`/admin/orders?store=${storeSlug}`);
+        setOrders(Array.isArray(list) ? list.map(o => ({ ...o, id: o._id || o.id })) : []);
+      } catch (err) {
+        setOrders([]);
+      }
+    } else {
+      setProducts([]);
+      setOrders([]);
+    }
+    setLoading(false);
+  }, [storeSlug]);
+
+  useEffect(() => { if (loggedIn) loadData(); }, [loggedIn, storeSlug, loadData]);
+
+  const handleDelete = async (id) => {
+    if (!confirm('Delete this product?')) return;
+    try {
+      await apiFetch(`/admin/products/${id}`, { method: 'DELETE' });
+      showToast('🗑️ Product deleted');
+      loadData();
+    } catch (err) {
+      alert('Error deleting: ' + err.message);
+    }
+  };
+
+  const handleStatusChange = async (orderId, newStatus) => {
+    try {
+      await apiFetch(`/admin/orders/${orderId}`, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) });
+      showToast('✅ Order status updated');
+      loadData();
+    } catch (err) {
+      alert('Error updating order: ' + err.message);
+    }
+  };
+
+  const stats = useMemo(() => {
+    const pending = orders.filter(o => (o.status || 'pending') === 'pending').length;
+    const revenue = orders.filter(o => (o.status || 'pending') !== 'cancelled').reduce((s, o) => s + (Number(o.total) || 0), 0);
+    return { products: products.length, orders: orders.length, pending, revenue };
+  }, [products, orders]);
+
+  if (!loggedIn) {
+    return <LoginScreen onLogin={(slug) => { setStoreSlug(slug); setLoggedIn(true); }} />;
+  }
+
+  const type = STORE_TYPES[storeSlug];
+
+  return (
+    <div className="flex flex-col lg:flex-row min-h-screen">
+      <Sidebar
+        storeSlug={storeSlug}
+        onSwitchStore={(slug) => { setStoreSlug(slug); setEditingProduct(null); setActiveTab('products'); }}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onLogout={() => { clearToken(); setLoggedIn(false); }}
+      />
+
+      <main className="flex-1 p-5 lg:p-8 max-w-6xl">
+        {toast && (
+          <div className="fixed top-5 right-5 bg-black text-white text-sm px-4 py-2.5 rounded-xl shadow-lg animate-fade-in z-50">
+            {toast}
+          </div>
+        )}
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <StatCard label="Products" value={type.readOnly ? '—' : stats.products} accent={type.accent} />
+          <StatCard label="Orders" value={type.readOnly ? '—' : stats.orders} accent={type.accent} />
+          <StatCard label="Pending" value={type.readOnly ? '—' : stats.pending} accent={type.accent} />
+          <StatCard label="Revenue" value={type.readOnly ? '—' : `${type.currency}${stats.revenue.toLocaleString()}`} accent={type.accent} />
+        </div>
+
+        {activeTab === 'products' ? (
+          <ProductsTab
+            storeSlug={storeSlug} products={products} loading={loading}
+            editingProduct={editingProduct}
+            onEdit={(p) => { setEditingProduct(p); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+            onDelete={handleDelete}
+            onSaved={() => { setEditingProduct(null); showToast('✅ Product saved'); loadData(); }}
+            onCancelEdit={() => setEditingProduct(null)}
+          />
+        ) : activeTab === 'orders' ? (
+          <OrdersTab storeSlug={storeSlug} orders={orders} loading={loading} onStatusChange={handleStatusChange} />
+        ) : activeTab === 'subscribers' ? (
+          <SubscribersTab />
+        ) : (
+          <PasswordTab onChanged={() => showToast('✅ Password updated')} />
+        )}
+      </main>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

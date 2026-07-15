@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abeni — Modern Nigerian Kitchen | Order Online</title>
+<meta name="description" content="Abeni is a modern Nigerian kitchen serving jollof, suya, and small chops. Order online for delivery or pickup, pay on delivery or via card.">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brown:#2C1E16; --brown2:#3A281C; --cream:#FAF6EF; --card:#FFFFFF;
+    --gold:#D4A017; --gold-light:#E8C158; --green:#25D366; --text:#2C1E16; --muted:#8A7B6C; --line:#EDE4D6;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:'Outfit',sans-serif;background:var(--cream);color:var(--text);line-height:1.6;}
+  img{display:block;max-width:100%;}
+  .display{font-family:'Playfair Display',serif;}
+  a{color:inherit;text-decoration:none;}
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px;}
+
+  header{background:var(--brown);color:#fff;position:sticky;top:0;z-index:100;}
+  .header-inner{max-width:1200px;margin:0 auto;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+  .logo{display:flex;align-items:baseline;gap:6px;}
+  .logo-main{font-family:'Playfair Display',serif;font-weight:800;font-size:1.6rem;}
+  .logo-main span{color:var(--gold-light);}
+  .logo-tag{font-size:10px;letter-spacing:2px;color:#C9BBA8;text-transform:uppercase;display:none;}
+  @media(min-width:640px){ .logo-tag{display:inline;} }
+  .header-actions{display:flex;align-items:center;gap:12px;}
+  .status-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:100px;padding:6px 12px;font-size:12px;}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:#4ADE80;}
+  .cart-btn{background:var(--gold);color:var(--brown);border:none;padding:10px 18px;border-radius:100px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;font-size:14px;}
+  .cart-count{background:var(--brown);color:var(--gold-light);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+
+  #hero{position:relative;min-height:56vh;display:flex;align-items:flex-end;}
+  .hero-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(.55);}
+  .hero-content{position:relative;z-index:1;padding:40px 20px 44px;max-width:1200px;margin:0 auto;width:100%;color:#fff;}
+  .hero-eyebrow{display:inline-block;background:rgba(212,160,23,.18);border:1px solid var(--gold);color:var(--gold-light);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;padding:6px 14px;border-radius:100px;margin-bottom:16px;}
+  .hero-h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,5.5vw,3.4rem);font-weight:800;line-height:1.1;max-width:600px;}
+  .hero-sub{font-size:14px;color:#E8DFD2;max-width:440px;margin-top:14px;line-height:1.8;}
+  .hero-meta{display:flex;gap:20px;margin-top:22px;flex-wrap:wrap;font-size:13px;color:#E8DFD2;}
+  .hero-meta strong{color:#fff;}
+
+  .cat-nav{position:sticky;top:64px;z-index:90;background:var(--cream);border-bottom:1px solid var(--line);overflow-x:auto;white-space:nowrap;padding:12px 20px;}
+  .cat-nav-inner{max-width:1200px;margin:0 auto;display:flex;gap:10px;}
+  .cat-chip{background:var(--card);border:1px solid var(--line);border-radius:100px;padding:8px 18px;font-size:13px;font-weight:600;cursor:pointer;color:var(--muted);flex-shrink:0;}
+  .cat-chip.active{background:var(--brown);color:var(--gold-light);border-color:var(--brown);}
+
+  .section{max-width:1200px;margin:0 auto;padding:36px 20px;}
+  .section-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:10px;}
+  .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:18px;}
+  .dish-card{background:var(--card);border-radius:16px;overflow:hidden;border:1px solid var(--line);transition:transform .2s,box-shadow .2s;}
+  .dish-card:hover{transform:translateY(-3px);box-shadow:0 12px 24px rgba(44,30,22,.08);}
+  .menu-search{max-width:1200px;margin:0 auto;padding:16px 20px 0;}
+  .menu-search input{width:100%;padding:12px 18px;border-radius:100px;border:1px solid var(--line);background:var(--card);font-family:inherit;font-size:14px;outline:none;}
+  .menu-search input:focus{border-color:var(--gold);}
+  .dish-rating{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);margin-bottom:6px;}
+  .dish-rating .stars{color:var(--gold);letter-spacing:-1px;}
+  .no-dishes{text-align:center;padding:50px 20px;color:var(--muted);}
+  #reviewsSection{max-width:1200px;margin:0 auto;padding:20px 20px 40px;}
+  #reviewsSection h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:18px;}
+  .abeni-reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
+  .abeni-review-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .abeni-review-card .stars{color:var(--gold);font-size:14px;margin-bottom:8px;}
+  .abeni-review-card p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+  .abeni-review-card .reviewer{font-size:12px;font-weight:700;}
+  .dish-img-wrap{position:relative;}
+  .dish-img{width:100%;height:160px;object-fit:cover;}
+  .spice-badge{position:absolute;top:10px;left:10px;background:rgba(44,30,22,.85);color:var(--gold-light);font-size:11px;padding:4px 10px;border-radius:100px;font-weight:600;}
+  .dish-body{padding:14px;}
+  .dish-name{font-weight:700;font-size:15px;margin-bottom:4px;}
+  .dish-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px;min-height:32px;}
+  .dish-foot{display:flex;align-items:center;justify-content:space-between;}
+  .dish-price{font-weight:800;color:var(--gold);font-size:15px;}
+  .add-btn{background:var(--brown);color:#fff;border:none;padding:8px 16px;border-radius:100px;font-weight:600;cursor:pointer;font-size:13px;}
+  .add-btn:hover{background:var(--brown2);}
+
+  #info-strip{background:var(--brown2);color:#fff;}
+  .info-grid{max-width:1200px;margin:0 auto;padding:36px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px;text-align:center;}
+  .info-icon{font-size:26px;margin-bottom:8px;}
+  .info-title{font-weight:700;font-size:14px;margin-bottom:4px;}
+  .info-desc{font-size:12px;color:#C9BBA8;}
+
+  footer{background:var(--brown);color:#E8DFD2;padding:44px 20px 26px;}
+  .footer-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;}
+  .footer-brand{font-family:'Playfair Display',serif;font-size:1.4rem;font-weight:800;color:#fff;}
+  .footer-brand span{color:var(--gold-light);}
+  .footer-desc{font-size:12px;color:#C9BBA8;max-width:260px;margin-top:10px;line-height:1.7;}
+  .footer-col-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-light);margin-bottom:12px;}
+  .footer-col a{display:block;font-size:13px;color:#C9BBA8;margin-bottom:8px;}
+  .footer-col a:hover{color:#fff;}
+  .footer-bottom{max-width:1200px;margin:30px auto 0;padding-top:20px;border-top:1px solid rgba(255,255,255,.1);font-size:11px;color:#8A7B6C;text-align:center;}
+
+  .cart-overlay,.checkout-modal{position:fixed;inset:0;background:rgba(0,0,0,.45);opacity:0;pointer-events:none;transition:.3s;z-index:1000;}
+  .cart-overlay.open,.checkout-modal.open{opacity:1;pointer-events:auto;}
+  .checkout-modal{display:flex;align-items:center;justify-content:center;padding:20px;}
+  .cart-drawer{position:fixed;top:0;right:-400px;width:380px;max-width:92vw;height:100vh;background:var(--cream);transition:.3s;z-index:1001;display:flex;flex-direction:column;}
+  .cart-drawer.open{right:0;}
+  .cart-head{padding:20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;background:var(--brown);color:#fff;}
+  .cart-head h2{font-family:'Playfair Display',serif;font-size:1.3rem;}
+  .close-cart{background:none;border:none;font-size:22px;color:#fff;cursor:pointer;}
+  .cart-items{flex:1;overflow-y:auto;padding:16px 20px;}
+  .cart-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px dashed var(--line);}
+  .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:10px;}
+  .cart-item-name{font-weight:600;font-size:13px;}
+  .cart-item-price{font-size:12px;color:var(--muted);margin-top:2px;}
+  .remove-item{background:none;border:none;color:var(--muted);font-size:11px;text-decoration:underline;cursor:pointer;margin-left:auto;align-self:flex-start;}
+  .cart-empty{text-align:center;color:var(--muted);padding:40px 0;font-size:13px;}
+  .cart-footer{padding:20px;border-top:1px solid var(--line);}
+  .cart-total-row{display:flex;justify-content:space-between;font-weight:700;margin-bottom:14px;}
+  .proceed-btn{width:100%;background:var(--gold);color:var(--brown);padding:13px;border:none;border-radius:100px;font-weight:800;font-size:14px;cursor:pointer;}
+  .checkout-content{background:var(--card);max-width:440px;width:100%;padding:28px;border-radius:20px;}
+  .checkout-content h2{font-family:'Playfair Display',serif;margin-bottom:14px;}
+  .checkout-content input, .checkout-content textarea{width:100%;padding:11px 14px;margin:6px 0 14px;border:1px solid var(--line);border-radius:10px;font-family:inherit;font-size:14px;outline:none;}
+  .checkout-content textarea{min-height:70px;resize:vertical;}
+  #checkoutSummary{font-size:13px;color:var(--muted);margin-bottom:12px;background:var(--cream);padding:12px;border-radius:10px;}
+  .send-order-btn{background:var(--green);color:#fff;padding:13px;border:none;border-radius:100px;width:100%;font-weight:700;cursor:pointer;font-size:14px;}
+  .cancel-btn{margin-top:10px;width:100%;padding:11px;background:var(--cream);border:1px solid var(--line);border-radius:100px;cursor:pointer;font-size:13px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <span class="logo-main">Abeni<span>.</span></span>
+      <span class="logo-tag">MODERN NIGERIAN KITCHEN</span>
+    </div>
+    <div class="header-actions">
+      <span class="status-pill"><span class="status-dot"></span> Open Now · Closes 10PM</span>
+      <button class="cart-btn" id="cartToggle">🛍️ Order <span class="cart-count" id="cartCount">0</span></button>
+    </div>
+  </div>
+</header>
+
+<section id="hero">
+  <img class="hero-img" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600&h=900&fit=crop" alt="Abeni restaurant dishes">
+  <div class="hero-content">
+    <span class="hero-eyebrow">Now Delivering</span>
+    <h1 class="hero-h1 display">Nigerian flavour, cooked with intention.</h1>
+    <p class="hero-sub">Abeni serves modern takes on jollof, suya, and small chops — made fresh daily, delivered hot, or ready for pickup.</p>
+    <div class="hero-meta">
+      <span>⭐ <strong>4.8</strong> (320+ orders)</span>
+      <span>🚴 <strong>25–35 min</strong> delivery</span>
+      <span>📍 <strong>Lagos & Lekki</strong> zones</span>
+    </div>
+  </div>
+</section>
+
+<nav class="cat-nav">
+  <div class="cat-nav-inner" id="catNav"></div>
+</nav>
+
+<div class="menu-search">
+  <label for="menuSearchInput" style="position:absolute;left:-9999px;">Search the menu</label>
+  <input type="text" id="menuSearchInput" placeholder="Search the menu…">
+</div>
+
+<div id="sectionsContainer">
+  <div style="text-align:center;padding:60px 20px;color:var(--muted);">Loading menu…</div>
+</div>
+
+<section id="reviewsSection">
+  <h2>⭐ Customer Reviews</h2>
+  <div class="abeni-reviews-grid">
+    <div class="abeni-review-card"><div class="stars">★★★★★</div><p>"The jollof tasted exactly like homemade. Delivery was hot and on time."</p><div class="reviewer">— Chidinma E.</div></div>
+    <div class="abeni-review-card"><div class="stars">★★★★★</div><p>"Ordered suya for a small gathering, everyone asked where it was from. 10/10."</p><div class="reviewer">— Femi A.</div></div>
+    <div class="abeni-review-card"><div class="stars">★★★★☆</div><p>"Good portions and the WhatsApp order confirmation made tracking easy."</p><div class="reviewer">— Blessing O.</div></div>
+  </div>
+</section>
+
+<section id="info-strip">
+  <div class="info-grid">
+    <div><div class="info-icon">🍲</div><div class="info-title">Cooked Fresh Daily</div><div class="info-desc">Nothing pre-made, nothing frozen.</div></div>
+    <div><div class="info-icon">🚴</div><div class="info-title">Fast Delivery</div><div class="info-desc">25–35 minutes across Lagos & Lekki.</div></div>
+    <div><div class="info-icon">💳</div><div class="info-title">Flexible Payment</div><div class="info-desc">Card, transfer, or pay on delivery.</div></div>
+    <div><div class="info-icon">💬</div><div class="info-title">Order via WhatsApp</div><div class="info-desc">Confirm and track your order directly.</div></div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">Abeni<span>.</span></div>
+      <p class="footer-desc">Modern Nigerian kitchen serving Lagos & Lekki. Fresh ingredients, bold flavour, fast delivery.</p>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Menu</p>
+      <a href="#starters">Starters</a>
+      <a href="#mains">Main Course</a>
+      <a href="#desserts">Desserts</a>
+      <a href="#drinks">Drinks</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Contact</p>
+      <a href="https://wa.me/2349162306809" target="_blank">💬 WhatsApp</a>
+      <a href="mailto:deprudentstoredesigner@gmail.com">📧 Email</a>
+    </div>
+  </div>
+  <p class="footer-bottom">© <span class="copy-year">2026</span> Abeni. A De Prudent Store Designer demo storefront. WhatsApp: +234 916 230 6809</p>
+</footer>
+
+<div id="checkoutModal" class="checkout-modal">
+  <div class="checkout-content">
+    <h2>Complete Your Order</h2>
+    <div id="checkoutSummary"></div>
+    <input type="text" id="custName" placeholder="Full Name *">
+    <input type="tel" id="custPhone" placeholder="Phone Number *">
+    <textarea id="custAddress" placeholder="Delivery Address *"></textarea>
+    <button id="confirmOrderBtn" class="send-order-btn">Send Order via WhatsApp</button>
+    <button id="closeCheckoutBtn" class="cancel-btn">Cancel</button>
+  </div>
+</div>
+
+<div class="cart-overlay" id="cartOverlay"></div>
+<aside class="cart-drawer" id="cartDrawer">
+  <div class="cart-head"><h2>Your Order</h2><button class="close-cart" id="closeCartBtn" aria-label="Close cart">✕</button></div>
+  <div class="cart-items" id="cartItems"><div class="cart-empty">Your order is empty.</div></div>
+  <div class="cart-footer">
+    <div class="cart-total-row"><span>Total</span><span id="cartTotal">₦0</span></div>
+    <button class="proceed-btn" id="proceedCheckout">Proceed to Checkout</button>
+  </div>
+</aside>
+
+<script type="module">
+// De Prudent backend API (replaces Firebase). Update after deploying to Vercel.
+const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+const STORE_SLUG = 'restaurant';
+const WHATSAPP_NUMBER = '2349162306809';
+const STORE_NAME = "Abeni";
+
+const CATEGORIES = [
+  { id:'starters', emoji:'🥗', title:'Starters & Small Chops' },
+  { id:'mains',    emoji:'🍛', title:'Main Course' },
+  { id:'grills',   emoji:'🔥', title:'Grills & Suya' },
+  { id:'desserts', emoji:'🍰', title:'Desserts' },
+  { id:'drinks',   emoji:'🥤', title:'Drinks' },
+];
+const FALLBACK_MENU = [
+  { id:'m1', name:'Peppered Gizzard', category:'starters', price:3500, description:'Grilled gizzard tossed in a smoky pepper sauce.', image_url:'https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?w=400&h=300&fit=crop', spice:'Medium' },
+  { id:'m2', name:'Puff-Puff (6pc)', category:'starters', price:1500, description:'Classic Nigerian fried dough, lightly sweetened.', image_url:'https://images.unsplash.com/photo-1541599468348-e96984315921?w=400&h=300&fit=crop', spice:null },
+  { id:'m3', name:'Spring Rolls (5pc)', category:'starters', price:2500, description:'Crispy vegetable spring rolls with chili dip.', image_url:'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop', spice:'Mild' },
+  { id:'m4', name:'Party Jollof Rice', category:'mains', price:4500, description:'Smoky party-style jollof with fried plantain.', image_url:'https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400&h=300&fit=crop', spice:'Medium' },
+  { id:'m5', name:'Egusi Soup & Pounded Yam', category:'mains', price:5500, description:'Melon-seed soup with assorted meat, served with pounded yam.', image_url:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&h=300&fit=crop', spice:'Hot' },
+  { id:'m6', name:'Fried Rice & Chicken', category:'mains', price:4800, description:'Vegetable fried rice with grilled chicken thigh.', image_url:'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop', spice:'Mild' },
+  { id:'m7', name:'Beef Suya Skewers', category:'grills', price:4000, description:'Charcoal-grilled beef in a spiced suya rub, 5 skewers.', image_url:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=400&h=300&fit=crop', spice:'Hot' },
+  { id:'m8', name:'Grilled Chicken Half', category:'grills', price:5200, description:'Half chicken marinated and grilled to order.', image_url:'https://images.unsplash.com/photo-1598515213692-5f252f0c14e3?w=400&h=300&fit=crop', spice:'Medium' },
+  { id:'m9', name:'Chin Chin', category:'desserts', price:1800, description:'Crunchy fried pastry snack, lightly sweet.', image_url:'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&h=300&fit=crop', spice:null },
+  { id:'m10', name:'Coconut Candy Bites', category:'desserts', price:1500, description:'Toasted coconut caramel bites.', image_url:'https://images.unsplash.com/photo-1481391319762-47dff72954d9?w=400&h=300&fit=crop', spice:null },
+  { id:'m11', name:'Chapman', category:'drinks', price:2200, description:'Classic Nigerian fruit cocktail, non-alcoholic.', image_url:'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=400&h=300&fit=crop', spice:null },
+  { id:'m12', name:'Zobo Drink', category:'drinks', price:1800, description:'Hibiscus drink infused with ginger and pineapple.', image_url:'https://images.unsplash.com/photo-1560508601-116e0d7c2ff4?w=400&h=300&fit=crop', spice:null },
+];
+
+let allProducts = FALLBACK_MENU;
+let activeCategory = 'all';
+let menuSearchTerm = '';
+let cart = [];
+
+function getRating(id){
+  let hash = 0;
+  for (let i=0;i<id.length;i++) hash = (hash*31 + id.charCodeAt(i)) >>> 0;
+  const rating = (4.3 + (hash % 8)/10).toFixed(1);
+  const count = 12 + (hash % 250);
+  return { rating, count };
+}
+function ratingHtml(id){
+  const { rating, count } = getRating(id);
+  const filled = Math.round(rating);
+  const stars = '★★★★★'.slice(0, filled) + '☆☆☆☆☆'.slice(0, 5-filled);
+  return `<div class="dish-rating"><span class="stars">${stars}</span> ${rating} (${count})</div>`;
+}
+
+document.getElementById('menuSearchInput').addEventListener('input', (e) => {
+  menuSearchTerm = e.target.value.trim().toLowerCase();
+  renderMenu();
+});
+
+function loadCart(){ const saved = localStorage.getItem(STORE_SLUG+'_cart'); if(saved) cart = JSON.parse(saved); renderCart(); }
+function saveCart(){ localStorage.setItem(STORE_SLUG+'_cart', JSON.stringify(cart)); renderCart(); }
+
+function renderCart(){
+  const totalQty = cart.reduce((s,i)=>s+i.qty,0);
+  const subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('cartCount').innerText = totalQty;
+  document.getElementById('cartTotal').innerText = `₦${subtotal.toLocaleString()}`;
+  const container = document.getElementById('cartItems');
+  if(!cart.length){ container.innerHTML = '<div class="cart-empty">Your order is empty.</div>'; return; }
+  container.innerHTML = cart.map((item,idx) => `
+    <div class="cart-item">
+      <img src="${item.img||''}" alt="${item.name}">
+      <div>
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${item.qty} × ₦${item.price.toLocaleString()} = ₦${(item.price*item.qty).toLocaleString()}</div>
+      </div>
+      <button class="remove-item" data-idx="${idx}">Remove</button>
+    </div>
+  `).join('');
+  container.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => { cart.splice(btn.dataset.idx,1); saveCart(); }));
+}
+
+function addToCart(id, name, price, img){
+  const existing = cart.find(i => i.id === id);
+  if(existing) existing.qty++;
+  else cart.push({ id, name, price: parseFloat(price), img, qty: 1 });
+  saveCart();
+  openCart();
+}
+
+async function fetchProducts(){
+  try {
+    const res = await fetch(`${API_BASE}/products?store=${STORE_SLUG}`);
+    if (res.ok) {
+      const products = await res.json();
+      if (Array.isArray(products) && products.length) allProducts = products;
+    }
+  } catch(e) { /* silently fall back to FALLBACK_MENU */ }
+  renderCatNav();
+  renderMenu();
+}
+
+function renderCatNav(){
+  const nav = document.getElementById('catNav');
+  const chips = [{id:'all', emoji:'🍽️', title:'All'}, ...CATEGORIES];
+  nav.innerHTML = chips.map(c => `<button class="cat-chip ${c.id===activeCategory?'active':''}" data-cat="${c.id}">${c.emoji} ${c.title}</button>`).join('');
+  nav.querySelectorAll('.cat-chip').forEach(btn => btn.addEventListener('click', () => {
+    activeCategory = btn.dataset.cat;
+    renderCatNav();
+    renderMenu();
+  }));
+}
+
+function renderMenu(){
+  let html = '';
+  const cats = activeCategory === 'all' ? CATEGORIES : CATEGORIES.filter(c => c.id === activeCategory);
+  let totalMatches = 0;
+  for (const cat of cats) {
+    let items = allProducts.filter(p => p.category === cat.id);
+    if (menuSearchTerm) items = items.filter(p => p.name.toLowerCase().includes(menuSearchTerm));
+    if (!items.length) continue;
+    totalMatches += items.length;
+    html += `<section class="section" id="${cat.id}"><h2 class="section-title">${cat.emoji} ${cat.title}</h2><div class="menu-grid">`;
+    items.forEach(p => {
+      html += `
+        <div class="dish-card">
+          <div class="dish-img-wrap">
+            <img class="dish-img" src="${p.image_url||'https://placehold.co/400x300'}" alt="${p.name}" loading="lazy">
+            ${p.spice ? `<span class="spice-badge">🌶️ ${p.spice}</span>` : ''}
+          </div>
+          <div class="dish-body">
+            <div class="dish-name">${p.name}</div>
+            ${ratingHtml(p.id)}
+            <div class="dish-desc">${p.description||''}</div>
+            <div class="dish-foot">
+              <span class="dish-price">₦${Number(p.price).toLocaleString()}</span>
+              <button class="add-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-img="${p.image_url||''}">Add</button>
+            </div>
+          </div>
+        </div>`;
+    });
+    html += `</div></section>`;
+  }
+  document.getElementById('sectionsContainer').innerHTML = (totalMatches === 0)
+    ? `<div class="no-dishes">No dishes match "${menuSearchTerm || 'this category'}". Try a different search.</div>`
+    : html;
+  document.querySelectorAll('.add-btn').forEach(btn => btn.addEventListener('click', () => addToCart(btn.dataset.id, btn.dataset.name, btn.dataset.price, btn.dataset.img)));
+}
+
+const drawer = document.getElementById('cartDrawer'), overlay = document.getElementById('cartOverlay');
+function openCart(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+function closeCart(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+document.getElementById('cartToggle').onclick = openCart;
+document.getElementById('closeCartBtn').onclick = closeCart;
+overlay.onclick = closeCart;
+
+document.getElementById('proceedCheckout').onclick = () => { if (cart.length) { closeCart(); showCheckout(); } };
+
+function showCheckout(){
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  document.getElementById('checkoutSummary').innerHTML = cart.map(i => `<div>${i.name} x${i.qty} — ₦${(i.price*i.qty).toLocaleString()}</div>`).join('') + `<p style="margin-top:8px;font-weight:700;">Total: ₦${total.toLocaleString()}</p>`;
+  document.getElementById('checkoutModal').classList.add('open');
+}
+document.getElementById('closeCheckoutBtn').onclick = () => document.getElementById('checkoutModal').classList.remove('open');
+
+document.getElementById('confirmOrderBtn').onclick = async () => {
+  const name = document.getElementById('custName').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  if (!name || !phone || !address) { alert('Please fill in your name, phone, and address.'); return; }
+  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+  const items = cart.map(i => `${i.name} x${i.qty} - ₦${(i.price*i.qty).toLocaleString()}`).join('%0A');
+  const msg = `🍽️ ORDER FROM ${STORE_NAME}%0A%0A*Customer:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Address:* ${encodeURIComponent(address)}%0A%0A*Order:*%0A${items}%0A%0A*Total:* ₦${total.toLocaleString()}`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+  try {
+    await fetch(`${API_BASE}/orders`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        storeSlug: STORE_SLUG,
+        customer: { name, phone, address },
+        items: cart.map(i => ({ productId: i.id, name: i.name, price: i.price, qty: i.qty })),
+        total
+      })
+    });
+  } catch(e) { /* non-blocking */ }
+  cart = [];
+  saveCart();
+  document.getElementById('checkoutModal').classList.remove('open');
+  alert('Order sent! We\'ll confirm on WhatsApp shortly.');
+};
+
+fetchProducts();
+loadCart();
+</script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

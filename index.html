@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>De Prudent Store Designer – All in One</title>
+  <meta name="description" content="Full-stack web developer building custom apps, corporate sites & e-commerce stores for clients in the USA, UK, UAE & Nigeria. No monthly fees, live in 48 hours." />
+  <meta name="google-site-verification" content="2yPGPdkrUhzwDjng0w0kJxEPUtYJdWZT5QQXSE4Pb7k" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== ALL STYLES ===== */
+    :root {
+      --gold: #C9973A; --gold-light: #E8B96A; --obsidian: #080B10;
+      --surface: #0E1319; --surface2: #141C25; --border: rgba(201,151,58,0.15);
+      --muted: #7A8A9A; --text: #E8EDF2;
+    }
+    *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--obsidian); color: var(--text);
+      font-family: 'Outfit', sans-serif; overflow-x: hidden; line-height: 1.6;
+    }
+    .display { font-family: 'Cormorant Garamond', serif; }
+    .gold-text {
+      background: linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gold-line { height: 1px; background: linear-gradient(90deg,transparent,var(--gold),transparent); border: none; }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: var(--obsidian); }
+    ::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 4px; }
+
+    /* Accessibility: visible focus states */
+    a:focus-visible, button:focus-visible, input:focus-visible {
+      outline: 2px solid var(--gold-light); outline-offset: 3px;
+    }
+    .skip-link {
+      position: absolute; left: -999px; top: 0; background: var(--gold); color: #080B10;
+      padding: 10px 18px; z-index: 1000; border-radius: 0 0 8px 0; font-weight: 700; text-decoration: none;
+    }
+    .skip-link:focus { left: 0; }
+
+    /* Animations */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes shimmer { 0%{background-position:-200% center} 100%{background-position:200% center} }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+    @keyframes glowPulse { 0%,100%{opacity:.06} 50%{opacity:.12} }
+    .fade-up { animation: fadeUp .7s ease both; }
+    .fade-up-1 { animation: fadeUp .7s .15s ease both; }
+    .fade-up-2 { animation: fadeUp .7s .3s ease both; }
+    .fade-up-3 { animation: fadeUp .7s .45s ease both; }
+    .fade-up-4 { animation: fadeUp .7s .6s ease both; }
+    .shimmer-text {
+      background: linear-gradient(90deg,var(--gold) 0%,var(--gold-light) 35%,#FFF8E0 50%,var(--gold-light) 65%,var(--gold) 100%);
+      background-size: 200% auto; -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; animation: shimmer 4s linear infinite;
+    }
+
+    /* Buttons */
+    .btn-gold {
+      display: inline-block; background: linear-gradient(135deg,#B8862A,var(--gold),#D4A84A);
+      color: #080B10; font-weight: 700; font-family: 'Outfit', sans-serif;
+      border-radius: 100px; padding: 14px 32px; font-size: 15px;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: box-shadow .3s, transform .2s;
+    }
+    .btn-gold:hover { box-shadow: 0 0 28px rgba(201,151,58,.45); transform: translateY(-2px); }
+    .btn-outline {
+      display: inline-block; border: 1px solid var(--gold); color: var(--gold-light);
+      font-family: 'Outfit', sans-serif; font-weight: 600; border-radius: 100px;
+      padding: 14px 32px; font-size: 15px; text-decoration: none;
+      background: transparent; cursor: pointer; transition: background .3s, transform .2s;
+    }
+    .btn-outline:hover { background: rgba(201,151,58,.1); transform: translateY(-2px); }
+    .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; transition: border-color .3s,transform .3s; }
+    .card:hover { border-color: rgba(201,151,58,.4); transform: translateY(-4px); }
+
+    /* Header */
+    #header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 0 24px; transition: background .4s, backdrop-filter .4s, border-color .4s;
+    }
+    #header.scrolled { background: rgba(8,11,16,.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); }
+    .header-inner {
+      max-width: 1200px; margin: 0 auto; display: flex; align-items: center;
+      justify-content: space-between; height: 68px;
+    }
+    .logo { text-decoration: none; display: flex; align-items: baseline; gap: 2px; }
+    .logo-main { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+    .logo-tag { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-left: 8px; font-weight: 300; }
+    .nav-links { display: flex; align-items: center; gap: 32px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color .2s; cursor: pointer; }
+    .nav-links a:hover, .nav-links a.active { color: var(--text); }
+    .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+    #mobileMenu { display: none; background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; }
+    #mobileMenu a { display: block; color: var(--text); text-decoration: none; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 15px; cursor: pointer; }
+    #mobileMenu .btn-gold { display: block; text-align: center; margin-top: 16px; border-bottom: none; }
+    @media(max-width:768px){ .nav-links{display:none} .hamburger{display:block} }
+
+    /* Page sections – hidden by default */
+    .page { display: none; padding-top: 80px; animation: fadeUp .5s ease; }
+    .page.active { display: block; }
+
+    /* Hero */
+    #hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 120px 24px 80px; overflow: hidden; }
+    .hero-glow { position: absolute; border-radius: 50%; pointer-events: none; background: radial-gradient(ellipse,rgba(201,151,58,.09) 0%,transparent 70%); animation: glowPulse 4s ease infinite; }
+    .hero-content { position: relative; z-index: 1; max-width: 820px; margin: 0 auto; }
+    .live-badge { display: inline-flex; align-items: center; gap: 7px; background: rgba(16,185,129,.1); border: 1px solid rgba(16,185,129,.3); border-radius: 100px; padding: 5px 14px; font-size: 12px; color: #34D399; margin-bottom: 28px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; animation: pulseDot 1.5s ease infinite; }
+    .hero-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem,7vw,5.5rem); font-weight: 700; line-height: 1.1; margin-bottom: 24px; }
+    .hero-sub { font-size: clamp(1rem,2vw,1.15rem); color: var(--muted); max-width: 580px; margin: 0 auto 40px; line-height: 1.75; }
+    .hero-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-bottom: 64px; }
+    .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 24px; max-width: 480px; margin: 0 auto; }
+    .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 3rem; font-weight: 700; color: var(--gold-light); line-height: 1; }
+    .stat-label { font-size: 11px; color: var(--muted); margin-top: 4px; letter-spacing: 1.5px; text-transform: uppercase; }
+
+    /* Trust */
+    #trust { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--surface); padding: 22px 24px; text-align: center; }
+    .trust-label { font-size: 11px; color: var(--muted); letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 14px; }
+    .flag-strip { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+    .flag-chip { font-size: 13px; color: #9AAABB; background: var(--surface2); padding: 5px 14px; border-radius: 100px; border: 1px solid var(--border); }
+
+    /* General sections */
+    .section { padding: 80px 24px; }
+    .section-inner { max-width: 1200px; margin: 0 auto; }
+    .section-label { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+    .section-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem,4vw,3rem); font-weight: 700; }
+    .section-sub { color: var(--muted); margin-top: 12px; max-width: 520px; }
+    .section-head { text-align: center; margin-bottom: 56px; }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit,minmax(230px,1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 20px; }
+    .step-card { padding: 36px 28px; position: relative; overflow: hidden; }
+    .step-icon { font-size: 38px; margin-bottom: 20px; }
+    .step-num { font-size: 10px; color: var(--gold); font-weight: 700; letter-spacing: 3px; margin-bottom: 8px; }
+    .step-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+    .step-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+    .step-corner { position: absolute; bottom: 0; right: 0; width: 64px; height: 64px; background: radial-gradient(circle at bottom right,rgba(201,151,58,.12),transparent); border-radius: 100% 0 16px 0; }
+    #what-we-build { background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .type-item { display: flex; gap: 16px; align-items: flex-start; padding: 22px; background: var(--surface2); border-radius: 12px; border: 1px solid var(--border); transition: border-color .3s; }
+    .type-item:hover { border-color: rgba(201,151,58,.35); }
+    .type-icon { font-size: 26px; flex-shrink: 0; margin-top: 2px; }
+    .type-title { font-weight: 700; font-size: 15px; margin-bottom: 5px; }
+    .type-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+    /* Demos */
+    .demo-tabs { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .demo-tab { padding: 10px 22px; border-radius: 100px; border: 1px solid var(--border); background: var(--surface2); color: #9AAABB; font-size: 14px; font-weight: 600; font-family: 'Outfit', sans-serif; cursor: pointer; transition: all .3s; }
+    .demo-tab.active { background: linear-gradient(135deg,#B8862A,var(--gold)); color: #080B10; border-color: var(--gold); }
+    .demo-wrap { border-radius: 16px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 30px 60px rgba(0,0,0,.5); position: relative; }
+    .demo-bar { background: var(--surface2); padding: 10px 16px; display: flex; align-items: center; gap: 6px; border-bottom: 1px solid var(--border); }
+    .demo-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .demo-url { font-size: 12px; color: var(--muted); margin-left: 10px; }
+    #demoFrame { width: 100%; height: 560px; border: none; display: block; background: #0B0B0F; }
+    .demo-fallback { display:none; padding: 60px 24px; text-align: center; background: #0B0B0F; }
+    .demo-fallback.show { display: block; }
+    .demo-fallback p { color: var(--muted); font-size: 14px; max-width: 420px; margin: 0 auto 18px; line-height: 1.7; }
+
+    /* Solutions */
+    .solutions-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: 24px; margin-top: 40px; }
+    .solution-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 28px; transition: all 0.3s; display: flex; flex-direction: column; }
+    .solution-card:hover { transform: translateY(-4px); border-color: var(--gold); }
+    .solution-icon { font-size: 2.8rem; margin-bottom: 16px; }
+    .solution-card h3 { font-size: 1.4rem; margin-bottom: 12px; font-weight: 700; }
+    .solution-card p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px; flex: 1; }
+    .solution-features { list-style: none; margin-bottom: 24px; font-size: 0.8rem; color: #C0CDD8; }
+    .solution-features li { padding: 4px 0; display: flex; align-items: center; gap: 8px; }
+    .solution-features li::before { content: "✓"; color: var(--gold); font-weight: bold; }
+    .solution-link { display: inline-block; background: var(--gold); color: #080B10; padding: 10px 24px; border-radius: 30px; text-decoration: none; font-weight: 600; text-align: center; transition: 0.2s; margin-top: auto; }
+    .solution-link:hover { background: var(--gold-light); transform: scale(1.02); }
+
+    /* Pricing */
+    .price-grid { display: grid; grid-template-columns: 1fr; gap: 24px; margin-top: 20px; }
+    .price-block { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; padding: 24px; text-align: center; }
+    .price-block h3 { color: var(--gold); font-size: 1.1rem; margin-bottom: 10px; }
+    .price-block .sub { font-size: 12px; color: var(--muted); }
+    .price-block table { width: 100%; border-collapse: collapse; margin: 12px 0; text-align: left; }
+    .price-block th, .price-block td { padding: 8px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .price-block th { color: var(--gold); font-weight: 600; }
+    .price-block td { color: #C0CDD8; }
+    .price-block td:last-child { text-align: right; font-weight: 700; color: var(--text); }
+    .price-btn { display: inline-block; background: var(--gold); color: #080B10; padding: 10px 24px; border-radius: 30px; text-decoration: none; font-weight: 700; margin-top: 10px; transition: 0.2s; }
+    .price-btn:hover { transform: scale(1.02); }
+    .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width:640px){ .col-2{grid-template-columns:1fr} }
+
+    /* Blog */
+    .blog-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 24px; }
+    .blog-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .3s,transform .3s; }
+    .blog-card:hover { border-color: rgba(201,151,58,.4); transform: translateY(-4px); }
+    .blog-img { width: 100%; height: 220px; object-fit: cover; background: #1a2230; }
+    .blog-body { padding: 22px 24px 28px; }
+    .blog-date { font-size: 12px; color: var(--muted); margin-bottom: 8px; display: block; }
+    .blog-title { font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+    .blog-excerpt { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 16px; }
+    .blog-read { color: var(--gold); text-decoration: none; font-weight: 600; font-size: 14px; background: none; border: none; cursor: pointer; font-family: 'Outfit', sans-serif; padding: 0; }
+    .blog-read:hover { text-decoration: underline; }
+    .blog-tags { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+    .blog-tag { font-size: 10px; color: var(--gold); background: var(--surface); border: 1px solid var(--border); padding: 3px 10px; border-radius: 100px; text-transform: uppercase; letter-spacing: .5px; }
+    .blog-readtime { font-size: 12px; color: var(--muted); }
+    .blog-meta-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; }
+
+    /* Shopify Guide */
+    .guide-container { max-width: 1000px; margin: 0 auto; }
+    .guide-container h1 { font-size: 2.5rem; border-bottom: 2px solid var(--gold); padding-bottom: 10px; margin-bottom: 30px; }
+    .guide-container h2 { font-size: 1.8rem; border-left: 4px solid var(--gold); padding-left: 12px; margin: 40px 0 20px; color: var(--gold); }
+    .guide-container h3 { font-size: 1.2rem; color: var(--gold-light); margin: 25px 0 10px; }
+    .guide-container p, .guide-container li { color: var(--muted); line-height: 1.8; }
+    .guide-container ul, .guide-container ol { padding-left: 20px; margin: 10px 0 20px; }
+    .guide-container li { margin: 6px 0; }
+    .guide-container table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9rem; background: var(--surface2); border-radius: 8px; overflow: hidden; }
+    .guide-container th, .guide-container td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+    .guide-container th { background: var(--surface); color: var(--gold); font-weight: 600; }
+    .guide-container td { color: #C0CDD8; }
+    .highlight { background: var(--surface2); border-left: 4px solid var(--gold); padding: 15px 20px; margin: 20px 0; border-radius: 4px; }
+    .highlight strong { color: var(--gold-light); }
+
+    /* Testimonials & Contact */
+    #testimonials { background: var(--surface); border-top: 1px solid var(--border); }
+    .review-card { padding: 28px 24px; }
+    .quote-mark { color: var(--gold); font-size: 32px; margin-bottom: 14px; letter-spacing: -3px; line-height: 1; }
+    .review-text { font-size: 14px; color: #C0CDD8; line-height: 1.8; margin-bottom: 22px; font-style: italic; }
+    .review-foot { border-top: 1px solid var(--border); padding-top: 14px; }
+    .review-name { font-weight: 700; font-size: 14px; }
+    .review-role { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .testimonial-disclaimer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 28px; opacity: .75; }
+    #cta { background: var(--surface); border-top: 1px solid var(--border); }
+    .cta-inner { max-width: 700px; margin: 0 auto; text-align: center; }
+    .cta-h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2rem,4vw,3.2rem); font-weight: 700; margin-bottom: 16px; }
+    .cta-sub { color: var(--muted); font-size: 16px; margin-bottom: 40px; line-height: 1.7; }
+    .cta-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .cta-note { font-size: 12px; color: var(--muted); margin-top: 22px; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 52px 24px 32px; }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px; margin-bottom: 48px; }
+    .footer-brand-desc { font-size: 13px; color: var(--muted); line-height: 1.7; margin-top: 12px; max-width: 260px; }
+    .footer-col-title { font-size: 10px; letter-spacing: 2.5px; color: var(--gold); text-transform: uppercase; margin-bottom: 16px; }
+    .footer-col a { display: block; font-size: 13px; color: var(--muted); text-decoration: none; margin-bottom: 10px; transition: color .2s; cursor: pointer; }
+    .footer-col a:hover { color: var(--text); }
+    .footer-bottom { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 24px; }
+    .footer-bottom p { font-size: 12px; color: var(--muted); }
+
+    /* FAQ */
+    .faq-wrap { max-width: 760px; margin: 0 auto; background: var(--surface2); border-radius: 20px; border: 1px solid var(--border); overflow: hidden; }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-btn { width: 100%; background: none; border: none; padding: 22px 28px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; text-align: left; font-family: 'Outfit', sans-serif; transition: background .2s; }
+    .faq-btn:hover { background: rgba(255,255,255,.02); }
+    .faq-question { font-size: 14px; font-weight: 600; color: var(--text); padding-right: 16px; }
+    .faq-icon { color: var(--gold); font-size: 20px; flex-shrink: 0; transition: transform .3s; display: inline-block; }
+    .faq-answer { padding: 0 28px 22px; font-size: 13px; color: var(--muted); line-height: 1.8; display: none; }
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+    /* Payment chips */
+    .payment-chips { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    .payment-chip { font-size: 12px; padding: 6px 14px; background: var(--surface2); border-radius: 100px; border: 1px solid var(--border); color: #9AAABB; }
+
+    /* Skills Badges */
+    .skill-badge { display: inline-block; background: var(--surface2); padding: 6px 14px; border-radius: 20px; font-size: 12px; color: var(--gold); border: 1px solid var(--border); margin: 4px; }
+
+    /* ===== AI Chat Widget ===== */
+    #chatWidget { position: fixed; bottom: 22px; right: 22px; z-index: 500; font-family: 'Outfit', sans-serif; }
+    #chatBubble {
+      background: linear-gradient(135deg,#B8862A,var(--gold),#D4A84A); color: #080B10; border: none;
+      width: 60px; height: 60px; border-radius: 50%; cursor: pointer; font-size: 26px;
+      box-shadow: 0 8px 24px rgba(201,151,58,.4); display: flex; align-items: center; justify-content: center;
+      transition: transform .25s;
+    }
+    #chatBubble:hover { transform: scale(1.06); }
+    #chatBubble .pulse-ring {
+      position: absolute; inset: 0; border-radius: 50%; border: 2px solid var(--gold-light);
+      animation: chatPulse 2.2s ease-out infinite;
+    }
+    @keyframes chatPulse { 0%{ transform:scale(1); opacity:.7; } 100%{ transform:scale(1.6); opacity:0; } }
+    #chatGreeting {
+      position: absolute; bottom: 74px; right: 0; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 12px 16px; font-size: 13px; color: var(--text); white-space: nowrap;
+      box-shadow: 0 10px 30px rgba(0,0,0,.4); animation: fadeUp .5s ease both; cursor: pointer;
+    }
+    #chatGreeting::after {
+      content: ''; position: absolute; bottom: -6px; right: 24px; width: 12px; height: 12px;
+      background: var(--surface2); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      transform: rotate(45deg);
+    }
+    #chatGreeting .close-greeting { position: absolute; top: -8px; right: -8px; background: var(--obsidian); border: 1px solid var(--border); border-radius: 50%; width: 20px; height: 20px; font-size: 11px; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+    #chatPanel {
+      position: fixed; bottom: 22px; right: 22px; width: 340px; max-width: 92vw; height: 480px; max-height: 78vh;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 18px; z-index: 501;
+      display: none; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.55);
+    }
+    #chatPanel.open { display: flex; animation: fadeUp .35s ease both; }
+    .chat-head { background: var(--surface2); padding: 16px 18px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+    .chat-head-info { display: flex; align-items: center; gap: 10px; }
+    .chat-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg,#B8862A,var(--gold)); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .chat-head-title { font-size: 14px; font-weight: 700; color: var(--text); }
+    .chat-head-status { font-size: 11px; color: #34D399; display: flex; align-items: center; gap: 5px; }
+    .chat-head-status .dot { width: 6px; height: 6px; border-radius: 50%; background: #34D399; }
+    .chat-close-btn { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
+    .chat-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+    .chat-msg { max-width: 82%; padding: 10px 14px; border-radius: 14px; font-size: 13px; line-height: 1.6; }
+    .chat-msg.bot { background: var(--surface2); color: var(--text); align-self: flex-start; border-bottom-left-radius: 4px; }
+    .chat-msg.user { background: var(--gold); color: #080B10; align-self: flex-end; border-bottom-right-radius: 4px; font-weight: 600; }
+    .chat-quick-replies { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+    .quick-reply-btn { background: var(--surface2); border: 1px solid var(--border); color: var(--gold-light); font-size: 12px; padding: 7px 12px; border-radius: 100px; cursor: pointer; text-align: left; }
+    .quick-reply-btn:hover { border-color: var(--gold); }
+    .chat-foot { border-top: 1px solid var(--border); padding: 12px; }
+    .chat-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .chat-input-row input { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 10px 14px; border-radius: 100px; font-size: 13px; font-family: 'Outfit', sans-serif; outline: none; }
+    .chat-input-row input::placeholder { color: var(--muted); }
+    .chat-send-btn { background: var(--gold); color: #080B10; border: none; width: 38px; height: 38px; border-radius: 50%; font-size: 15px; cursor: pointer; flex-shrink: 0; }
+    .chat-typing { display: flex; gap: 4px; padding: 10px 14px; }
+    .chat-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: typingDot 1.2s infinite; }
+    .chat-typing span:nth-child(2) { animation-delay: .2s; }
+    .chat-typing span:nth-child(3) { animation-delay: .4s; }
+    @keyframes typingDot { 0%,60%,100%{ opacity:.3; } 30%{ opacity:1; } }
+    .chat-wa-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: #25D366; color: #fff; border: none; padding: 11px; border-radius: 100px; font-weight: 700; font-size: 13px; cursor: pointer; text-decoration: none; }
+    .chat-disclaimer { font-size: 10px; color: var(--muted); text-align: center; margin-top: 8px; }
+    @media(max-width:480px){ #chatPanel{ right:12px; bottom:12px; width:calc(100vw - 24px); } #chatWidget{ right:12px; bottom:12px; } }
+  </style>
+  <script>
+    // Dynamic Page Titles & Meta Descriptions for SEO
+    const pageMeta = {
+      home: {
+        title: "Custom Online Store Designer – 48-Hour Delivery | De Prudent",
+        desc: "Hand-coded custom online stores & Headless Shopify for clients in the USA, UK, UAE & Canada. Live in 48 hours. No monthly fees, ever."
+      },
+      demos: {
+        title: "Live Store Demos – See Custom Firebase & Shopify Stores",
+        desc: "Preview real, fully functional online stores built from scratch – Mall, Restaurant, Luxury, and Headless Shopify."
+      },
+      solutions: {
+        title: "E-Commerce Store Solutions – Firebase, Shopify & Headless",
+        desc: "Custom stores on Firebase, Supabase, Appwrite, or Shopify. Plus SEO, ads, and social media management."
+      },
+      pricing: {
+        title: "Transparent Pricing – One-Time Payment, No Subscriptions",
+        desc: "Store building from $99. Monthly management, SEO, and ad packages for global businesses."
+      },
+      blog: {
+        title: "E-Commerce & Store Design Blog – De Prudent",
+        desc: "Tips on Firebase vs. Shopify, WhatsApp ordering, mobile-first design, and Nigerian payment gateways."
+      },
+      'shopify-guide': {
+        title: "Shopify Store Setup & Headless Guide – De Prudent",
+        desc: "Complete guide to building, managing, and profiting from Shopify stores for your clients."
+      },
+      contact: {
+        title: "Contact De Prudent – Get Your Custom Online Store",
+        desc: "Message us on WhatsApp for a custom store. Live demo in 24 hours, no commitment required."
+      }
+    };
+
+    function updateSEO(pageId) {
+      const meta = pageMeta[pageId] || pageMeta.home;
+      document.title = meta.title;
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) metaDesc.content = meta.desc;
+    }
+  </script>
+</head>
+<body>
+
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<!-- ===== HEADER ===== -->
+<header id="header">
+  <div class="header-inner">
+    <a href="#" class="logo" onclick="showPage('home');return false;">
+      <span class="logo-main">De<span class="gold-text">Prudent</span></span>
+      <span class="logo-tag">STORE DESIGNER</span>
+    </a>
+    <nav class="nav-links">
+      <a href="#" class="active" onclick="showPage('home');return false;">Home</a>
+      <a href="#" onclick="showPage('demos');return false;">Demos</a>
+      <a href="#" onclick="showPage('solutions');return false;">Solutions</a>
+      <a href="#" onclick="showPage('pricing');return false;">Pricing</a>
+      <a href="#" onclick="showPage('blog');return false;">Blog</a>
+      <a href="#" onclick="showPage('shopify-guide');return false;">Shopify Guide</a>
+      <a href="seo.html">SEO</a>
+      <a href="about.html">About</a>
+      <a href="projects.html">Projects</a>
+      <a href="features.html">Features</a>
+      <a href="#" onclick="showPage('contact');return false;">Contact</a>
+      <a href="https://wa.me/2349162306809?text=Hi%20De%20Prudent%2C%20I%20want%20a%20custom%20store" target="_blank" class="btn-gold" style="padding:10px 22px;font-size:13px">💬 Get Your Store</a>
+    </nav>
+    <button class="hamburger" onclick="toggleMobileMenu()" aria-expanded="false" aria-controls="mobileMenu" aria-label="Open menu">☰</button>
+  </div>
+  <div id="mobileMenu">
+    <a href="#" onclick="showPage('home');closeMobileMenu();return false;">Home</a>
+    <a href="#" onclick="showPage('demos');closeMobileMenu();return false;">Demos</a>
+    <a href="#" onclick="showPage('solutions');closeMobileMenu();return false;">Solutions</a>
+    <a href="#" onclick="showPage('pricing');closeMobileMenu();return false;">Pricing</a>
+    <a href="#" onclick="showPage('blog');closeMobileMenu();return false;">Blog</a>
+    <a href="#" onclick="showPage('shopify-guide');closeMobileMenu();return false;">Shopify Guide</a>
+    <a href="seo.html">SEO</a>
+    <a href="about.html">About</a>
+    <a href="projects.html">Projects</a>
+    <a href="features.html">Features</a>
+    <a href="#" onclick="showPage('contact');closeMobileMenu();return false;">Contact</a>
+    <a href="https://wa.me/2349162306809?text=Hi%20De%20Prudent%2C%20I%20want%20a%20custom%20store" target="_blank" class="btn-gold">💬 Get Your Store</a>
+  </div>
+</header>
+
+<main id="main-content">
+
+<!-- ===== PAGES ===== -->
+
+<!-- PAGE: HOME -->
+<section id="page-home" class="page active">
+  <!-- Hero -->
+  <section id="hero">
+    <div class="hero-glow" style="width:700px;height:700px;top:0;left:50%;transform:translateX(-50%)"></div>
+    <div class="hero-glow" style="width:400px;height:400px;bottom:0;left:15%;opacity:.5"></div>
+    <div class="hero-content">
+      <div class="fade-up" style="display:flex;justify-content:center;margin-bottom:28px">
+        <span class="live-badge"><span class="live-dot"></span> Available for new projects</span>
+      </div>
+      <h1 class="hero-h1 fade-up-1" id="heroTitle">Your Business Deserves<br><span class="shimmer-text">A Store That Sells.</span></h1>
+      <p class="hero-sub fade-up-2" id="heroSubtitle">We build <strong style="color:var(--text);">high-converting, mobile-first</strong> custom web applications, corporate websites, and online stores for restaurants, boutiques, salons, and businesses worldwide — powered by <strong style="color:var(--text);">Firebase, Supabase, Appwrite, Directus, Backendless, Node.js, Next.js, Python, PHP, Laravel, and Shopify</strong> — ready in 48 hours, no monthly fees, fully hand-coded for your brand.</p>
+      <div class="hero-btns fade-up-3">
+        <a href="#" onclick="showPage('pricing');return false;" class="btn-gold">View Pricing</a>
+        <a href="#" onclick="showPage('solutions');return false;" class="btn-outline">Explore Solutions</a>
+      </div>
+      <div class="stats fade-up-4">
+        <div><div class="stat-num">48h</div><div class="stat-label">Delivery Time</div></div>
+        <div><div class="stat-num">$0</div><div class="stat-label">Monthly Fees</div></div>
+        <div><div class="stat-num">∞</div><div class="stat-label">High-Converting Design</div></div>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin-top:16px;">Every store is fully responsive, SEO-optimized, and engineered to drive maximum sales.</p>
+    </div>
+  </section>
+
+  <!-- About Founder + Expanded Skills -->
+  <section style="padding:60px 24px;border-bottom:1px solid var(--border);">
+    <div class="section-inner" style="max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;align-items:center;gap:40px;">
+      <div style="flex:1;min-width:260px;">
+        <div style="width:140px;height:140px;border-radius:50%;border:3px solid var(--gold);background:linear-gradient(135deg,#1a2230,#0E1319);display:flex;align-items:center;justify-content:center;">
+          <span class="display" style="font-size:48px;font-weight:700;color:var(--gold-light);">RA</span>
+        </div>
+      </div>
+      <div style="flex:2;">
+        <p class="section-label">About the Founder</p>
+        <h2 class="display" style="font-size:2rem;font-weight:700;margin-bottom:12px;" id="founderName">Rasheed Ayomide</h2>
+        <p style="color:var(--muted);line-height:1.8;max-width:600px;" id="founderBio">
+          <strong>Doctor of Physiotherapy (DPT) candidate</strong> by day, <strong>professional full‑stack web architect</strong> by trade. 
+          My focus is on crafting <strong>seamless user experiences (UX)</strong> and <strong>high-converting customer journeys</strong> — every project is hand-coded so you never touch a line of code yourself. 
+          I deliver <strong>mobile-responsive, performance-optimized</strong> websites and web applications that score 90+ on Lighthouse.
+        </p>
+        <!-- Expanded Skills -->
+        <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;">
+          <span class="skill-badge">Meta Frontend Certified</span>
+          <span class="skill-badge">Google UX (in progress)</span>
+          <span class="skill-badge">Figma & Adobe XD</span>
+          <span class="skill-badge">Photoshop & Midjourney</span>
+          <span class="skill-badge">Tailwind CSS</span>
+          <span class="skill-badge">Shopify Liquid</span>
+          <span class="skill-badge">Storefront API</span>
+          <span class="skill-badge">Conversion Rate Opt. (CRO)</span>
+          <span class="skill-badge">A/B Testing & Heatmaps</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <div id="trust">
+    <p class="trust-label">Serving clients across the globe</p>
+    <div class="flag-strip">
+      <span class="flag-chip">🇺🇸 USA</span><span class="flag-chip">🇬🇧 UK</span><span class="flag-chip">🇦🇪 UAE</span><span class="flag-chip">🇨🇦 Canada</span><span class="flag-chip">🇫🇷 France</span><span class="flag-chip">🇩🇪 Germany</span><span class="flag-chip">🇳🇬 Nigeria</span><span class="flag-chip">🇬🇭 Ghana</span><span class="flag-chip">🇰🇪 Kenya</span><span class="flag-chip">🇿🇦 South Africa</span>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <section class="section" id="how-it-works">
+    <div class="section-inner">
+      <div class="section-head"><p class="section-label">The Process</p><h2 class="section-title display" id="howItWorksTitle">From Idea to Live Launch</h2><p class="section-sub" style="margin:12px auto 0" id="howItWorksSubtitle">Four simple steps. Most projects are live within 48 hours.</p></div>
+      <div class="grid-4" id="howItWorksGrid">
+        <div class="card step-card"><div class="step-icon">💬</div><div class="step-num">01</div><h3 class="step-title">Tell Us Your Vision</h3><p class="step-desc">Chat with us on WhatsApp about your products, brand colours, and style. Usually 15–20 minutes.</p><div class="step-corner"></div></div>
+        <div class="card step-card"><div class="step-icon">🎨</div><div class="step-num">02</div><h3 class="step-title">We Design a Preview</h3><p class="step-desc">Within 24 hours you receive a live demo link to review and request changes at no extra cost.</p><div class="step-corner"></div></div>
+        <div class="card step-card"><div class="step-icon">✅</div><div class="step-num">03</div><h3 class="step-title">Approve & Pay</h3><p class="step-desc">Once you love it, we finalise the store. One-time payment — no hidden fees, ever.</p><div class="step-corner"></div></div>
+        <div class="card step-card"><div class="step-icon">🚀</div><div class="step-num">04</div><h3 class="step-title">Go Live Worldwide</h3><p class="step-desc">Your store launches on a fast global CDN. Customers from anywhere can browse and order instantly.</p><div class="step-corner"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- What We Build -->
+  <section class="section" id="what-we-build">
+    <div class="section-inner">
+      <div class="section-head"><p class="section-label">What We Build</p><h2 class="section-title display" id="whatWeBuildTitle">A Solution for Every Business</h2></div>
+      <div class="grid-3" id="whatWeBuildGrid">
+        <div class="type-item"><span class="type-icon">🍽️</span><div><p class="type-title">Restaurant & Food</p><p class="type-desc">Menu display, online ordering, WhatsApp delivery, table booking.</p></div></div>
+        <div class="type-item"><span class="type-icon">👗</span><div><p class="type-title">Fashion & Boutique</p><p class="type-desc">Product gallery, size filters, cart system, lookbook layouts.</p></div></div>
+        <div class="type-item"><span class="type-icon">💄</span><div><p class="type-title">Beauty & Salon</p><p class="type-desc">Service listings, booking links, before/after galleries, pricing tables.</p></div></div>
+        <div class="type-item"><span class="type-icon">🛒</span><div><p class="type-title">General Store</p><p class="type-desc">Multi-category shopping, search & filter, flash sales, admin dashboard.</p></div></div>
+        <div class="type-item"><span class="type-icon">🎨</span><div><p class="type-title">Artisan & Makers</p><p class="type-desc">Portfolio-style store, custom product showcases, commission request flows.</p></div></div>
+        <div class="type-item"><span class="type-icon">📦</span><div><p class="type-title">Any Business</p><p class="type-desc">Have something else? We design stores for any industry, any product, any market.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 90-Day Growth Plan -->
+  <section class="section" id="growth-plan" style="border-top:1px solid var(--border);border-bottom:1px solid var(--border);background:var(--surface2);">
+    <div class="section-inner" style="text-align:center;max-width:800px;">
+      <p class="section-label">Scalable Growth</p>
+      <h2 class="section-title display" id="growthPlanTitle">The 90-Day Growth Plan</h2>
+      <p class="section-sub" style="margin:12px auto 0;max-width:none;" id="growthPlanText">
+        <strong>Month 1:</strong> Build your store & get initial traffic.<br>
+        <strong>Month 2:</strong> Add SEO, backlinks & product research.<br>
+        <strong>Month 3:</strong> Launch Facebook/TikTok ads & social media management.
+      </p>
+      <a href="#" onclick="showPage('pricing');return false;" class="btn-gold" style="margin-top:30px;" id="growthPlanBtn">See Full Growth Packages →</a>
+    </div>
+  </section>
+
+  <!-- Newsletter signup — homepage -->
+  <section class="section" id="home-newsletter" style="text-align:center;">
+    <div class="section-inner" style="max-width:600px;">
+      <p style="font-size:14px;color:var(--muted);margin-bottom:12px;" class="newsletterBlurb">📬 Get free store‑building tips & early access</p>
+      <form class="newsletter-form" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+        <label style="position:absolute;left:-9999px;">Email address</label>
+        <input type="email" class="newsletter-email" placeholder="Your email address" required style="padding:12px 18px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Outfit',sans-serif;min-width:240px;outline:none;" />
+        <button type="submit" class="btn-gold" style="padding:12px 28px;font-size:14px;">Subscribe</button>
+      </form>
+      <p class="newsletter-msg" style="font-size:13px;margin-top:10px;" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: DEMOS -->
+<section id="page-demos" class="page">
+  <section class="section" id="demos">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-label" id="demosLabel">Live Demos</p>
+        <h2 class="section-title display" id="demosTitle">See Your Store in Action</h2>
+        <p class="section-sub" style="margin:12px auto 0;max-width:600px;" id="demosSubtitle">These aren’t templates – <strong style="color:var(--text);">I coded each one from scratch</strong>. From Mall to Restaurant to Luxury, every demo is a fully functional, professional web application built to sell.</p>
+      </div>
+      <div class="demo-tabs">
+        <button class="demo-tab active" onclick="switchDemo('mall',this)">🛒 Mall Store</button>
+        <button class="demo-tab" onclick="switchDemo('restaurant',this)">🍽️ Abeni (Restaurant)</button>
+        <button class="demo-tab" onclick="switchDemo('luxury',this)">🖤 Luxury Boutique</button>
+        <button class="demo-tab" onclick="switchDemo('headless-shopify',this)">⚡ Kern (Headless Shopify)</button>
+        <button class="demo-tab" onclick="switchDemo('portfolio',this)">🎨 Portfolio Viewer</button>
+      </div>
+      <div class="demo-wrap">
+        <div class="demo-bar">
+          <div class="demo-dot" style="background:#FF5F57"></div>
+          <div class="demo-dot" style="background:#FEBC2E"></div>
+          <div class="demo-dot" style="background:#28C840"></div>
+          <span class="demo-url" id="demoUrl">mall.html</span>
+        </div>
+        <iframe id="demoFrame" src="mall.html" title="Live Demo" onerror="showDemoFallback()"></iframe>
+        <div id="demoFallback" class="demo-fallback">
+          <p>⚠️ This demo file isn't deployed alongside this page yet. Make sure <code id="demoFallbackName">mall.html</code> is uploaded to the same Netlify folder as this page, or message us on WhatsApp to see it live.</p>
+          <a href="https://wa.me/2349162306809?text=I%20want%20to%20see%20a%20live%20demo" target="_blank" class="btn-gold" style="padding:10px 24px;font-size:13px;">💬 Request a Live Demo</a>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:16px">
+        <a id="demoOpenLink" href="mall.html" target="_blank" style="font-size:13px;color:var(--gold);text-decoration:none">Open full screen ↗</a>
+      </div>
+      <div style="text-align:center;margin-top:32px;">
+        <p style="color:var(--muted);font-size:14px;">Want a demo like this for your business? <a href="#" onclick="showPage('contact');return false;" style="color:var(--gold);cursor:pointer;text-decoration:underline;">Let’s talk.</a></p>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: SOLUTIONS -->
+<section id="page-solutions" class="page">
+  <section class="section" id="solutions">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-label" id="solutionsLabel">Advanced Solutions</p>
+        <h2 class="section-title display" id="solutionsTitle">Choose the Right Store for Your Business</h2>
+        <p class="section-sub" style="margin:12px auto 0" id="solutionsSubtitle">From custom stores on <strong>Firebase, Supabase, Appwrite, Directus, Backendless</strong> to enterprise‑grade headless Shopify – I build them all. Every solution is <strong style="color:var(--text);">mobile-responsive, SEO-optimized, and built to maximize conversions.</strong></p>
+      </div>
+      <div class="solutions-grid" id="solutionsGrid">
+        <div class="solution-card"><div class="solution-icon">⚡🔥</div><h3>Custom Store (Your Choice of Backend)</h3><p>Fully dynamic, <strong>high-performance</strong> online store powered by <strong>Firebase, Supabase, Appwrite, Directus, or Backendless</strong>. <strong>Mobile-responsive, SEO-friendly, and built to maximize conversions.</strong></p><ul class="solution-features"><li>Real-time product search & filters</li><li>Persistent cart (saves on refresh)</li><li>WhatsApp + Paystack / Stripe ready</li><li>Full admin dashboard included</li></ul><a href="mall.html" class="solution-link" target="_blank">Try Demo →</a></div>
+        <div class="solution-card"><div class="solution-icon">🛍️🚀</div><h3>Headless Shopify <span style="font-size:.75rem;color:var(--muted);font-weight:400;">— see "Kern" demo</span></h3><p><strong>Enterprise-grade</strong> custom frontend + Shopify backend. <strong>Lightning-fast load times (Lighthouse 90+)</strong>, pixel-perfect design, and seamless Shopify checkout integration.</p><ul class="solution-features"><li>Shopify products & collections</li><li>Custom cart & checkout</li><li>No theme limitations</li><li>GraphQL API</li></ul><a href="headless-shopify.html" class="solution-link" target="_blank">See Demo →</a></div>
+        <div class="solution-card"><div class="solution-icon">🔗☁️</div><h3>Hybrid Shopify + Firebase</h3><p>Shopify products/checkout with Firebase cart sync across devices, user accounts, and real‑time features.</p><ul class="solution-features"><li>Cart sync across any device</li><li>User accounts (Firebase Auth)</li><li>Real‑time order notifications</li><li>Custom dashboards</li></ul><a href="https://wa.me/2349162306809?text=I%27m%20interested%20in%20a%20Hybrid%20Shopify%20%2B%20Firebase%20store" target="_blank" class="solution-link">Inquire →</a></div>
+        <div class="solution-card"><div class="solution-icon">🍽️📋</div><h3>Restaurant Store <span style="font-size:.75rem;color:var(--muted);font-weight:400;">— see "Abeni" demo</span></h3><p>Specialised for food businesses: menu categories, modifiers, order notes, and WhatsApp delivery integration.</p><ul class="solution-features"><li>Menu with categories & modifiers</li><li>WhatsApp order with details</li><li>Table booking system</li><li>Admin panel for menu updates</li></ul><a href="restaurant.html" class="solution-link" target="_blank">Preview →</a></div>
+        <div class="solution-card"><div class="solution-icon">👗✨</div><h3>Luxury Boutique</h3><p>Elegant, high‑end design with product spotlight, lookbook gallery, size guide, and seamless checkout.</p><ul class="solution-features"><li>Hero slider & editorial layout</li><li>Product quick view</li><li>Size & colour variations</li><li>Waitlist for sold‑out items</li></ul><a href="luxury.html" class="solution-link" target="_blank">Preview →</a></div>
+        <div class="solution-card"><div class="solution-icon">🔐📊</div><h3>Admin Panel (All Stores)</h3><p>Password‑protected admin dashboard to manage products, orders, revenue, and store settings.</p><ul class="solution-features"><li>Product CRUD (add, edit, delete)</li><li>View all orders</li><li>Update order status</li><li>Revenue dashboard</li><li>Secure password hashing</li></ul><a href="store-admin.html" class="solution-link" target="_blank">Open Admin →</a></div>
+        <div class="solution-card"><div class="solution-icon">💼</div><h3>Professional Website Building</h3><p>Need a corporate landing page, portfolio, or business website? I build <strong>award-quality, high-performance</strong> websites for any industry.</p><ul class="solution-features"><li>Fully responsive & mobile‑first</li><li>SEO‑optimized structure</li><li>Fast loading (Lighthouse 90+)</li><li>Custom animations & modern UI</li></ul><a href="#" onclick="showPage('pricing');return false;" class="solution-link">View Pricing →</a></div>
+        <div class="solution-card"><div class="solution-icon">📈</div><h3>SEO & Backlink Building</h3><p>Get your client's store ranking on Google. I handle keyword research, on-page SEO, and submit to Search Console.</p><ul class="solution-features"><li>Keyword research & competitor analysis</li><li>Title, meta & H1/H2 optimization</li><li>20 high-quality backlinks/month</li><li>Google Search Console setup</li></ul><a href="#" onclick="showPage('pricing');return false;" class="solution-link">View Pricing →</a></div>
+        <div class="solution-card"><div class="solution-icon">📱</div><h3>Facebook / TikTok Ads</h3><p>Drive targeted traffic to any store. I set up and manage ad campaigns on both platforms.</p><ul class="solution-features"><li>Facebook Business Manager setup</li><li>TikTok Ads Manager setup</li><li>Audience targeting & creative design</li><li>Daily budget management</li></ul><a href="#" onclick="showPage('pricing');return false;" class="solution-link">View Pricing →</a></div>
+        <div class="solution-card"><div class="solution-icon">📸</div><h3>Social Media & Brand Strategy</h3><p>Full brand kits, competitor analysis, and weekly social content across Facebook, Instagram, and TikTok.</p><ul class="solution-features"><li>12-30 posts/month across 3 platforms</li><li>Brand identity & voice direction</li><li>Hashtag research & engagement</li><li>Monthly performance reports</li></ul><a href="#" onclick="showPage('pricing');return false;" class="solution-link">View Pricing →</a></div>
+        <div class="solution-card"><div class="solution-icon">📈📱</div><h3>Store Management + Social Media</h3><p>Already have a store? I handle the daily grind so you can focus on your business.</p><ul class="solution-features"><li>Weekly order processing & updates</li><li>Product inventory management</li><li>3‑5 social media posts/week (IG, FB, WhatsApp, TikTok)</li><li>Monthly performance reports</li></ul><a href="https://wa.me/2349162306809?text=I%20need%20store%20management%20services" class="solution-link" target="_blank">Inquire Now →</a></div>
+      </div>
+      <div style="text-align:center;margin-top:30px;"><a href="https://wa.me/2349162306809?text=I%20want%20to%20discuss%20which%20store%20solution%20is%20best%20for%20my%20business" class="btn-gold" style="padding:14px 36px">💬 Not sure? Let's talk</a></div>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: PRICING -->
+<section id="page-pricing" class="page">
+  <section class="section" id="pricing">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-label">Transparent Pricing</p>
+        <h2 class="section-title display">Build, Manage & Grow Your Store</h2>
+        <p class="section-sub" style="margin:12px auto 0">One-time payments or affordable monthly retainers. <strong style="color:var(--text);">Every store is built to convert</strong> – with fast load times, intuitive UX, and mobile-first design.</p>
+      </div>
+      <div class="price-grid" id="priceGrid">
+        <!-- Store Building -->
+        <div class="price-block">
+          <h3>🏗️ Store Building (One-Time)</h3>
+          <p class="sub">Includes custom design, responsive setup, and admin dashboard.</p>
+          <table>
+            <tr><th>Service</th><th>Price</th></tr>
+            <tr><td>Custom Store (Firebase/Supabase/Appwrite/Directus/Backendless)</td><td>$99 – $349</td></tr>
+            <tr><td>Headless Shopify Store (Custom React + Shopify Backend)</td><td>$199 – $499</td></tr>
+            <tr><td>Turnkey Shopify Store (Ready-to-sell dropshipping)</td><td>$99 – $349</td></tr>
+            <tr><td>Fashion & Beauty Niche Store</td><td>$49 – $199</td></tr>
+            <tr><td>Restaurant & Food Store (Menu + Ordering)</td><td>$49 – $199</td></tr>
+            <tr><td>Shopify Migration (Transfer existing store to new theme)</td><td>$99 – $199</td></tr>
+            <tr><td>Theme Customization Only (Existing Shopify)</td><td>$49 – $149</td></tr>
+          </table>
+          <a href="https://wa.me/2349162306809?text=I%20want%20to%20discuss%20building%20a%20store" class="price-btn" target="_blank">Start a Store</a>
+        </div>
+        <!-- Monthly Management -->
+        <div class="price-block">
+          <h3>📦 Monthly Management (Retainers)</h3>
+          <p class="sub">Hands-off store maintenance so you can focus on selling.</p>
+          <table>
+            <tr><th>Service</th><th>Price / Month</th></tr>
+            <tr><td>Weekly Product Updates (Add/edit/delete products)</td><td>$15 – $40</td></tr>
+            <tr><td>Admin Dashboard Management (Order & inventory sync)</td><td>$20 – $55</td></tr>
+            <tr><td>Order Processing (Track & fulfill all customer orders)</td><td>$25 – $70</td></tr>
+            <tr><td>Social Media Posts (12–30 posts across Instagram/Facebook/TikTok)</td><td>$20 – $100</td></tr>
+          </table>
+          <a href="https://wa.me/2349162306809?text=I%20need%20monthly%20store%20management" class="price-btn" target="_blank">Get Management</a>
+        </div>
+        <!-- Marketing & Growth -->
+        <div class="price-block">
+          <h3>📈 Marketing & Growth Services</h3>
+          <p class="sub">Get traffic, backlinks, and higher search rankings.</p>
+          <table>
+            <tr><th>Service</th><th>Price</th></tr>
+            <tr><td>SEO Setup (Keywords + On-page + Google Search Console)</td><td>$49 – $99 (one-time)</td></tr>
+            <tr><td>Backlink Building (20 quality links/month)</td><td>$35 – $65 / month</td></tr>
+            <tr><td>Facebook & Instagram Ads (Setup + Monthly Management)</td><td>$75 – $150 / month</td></tr>
+            <tr><td>TikTok Ads (Setup + Monthly Management)</td><td>$75 – $150 / month</td></tr>
+            <tr><td>Traffic Generation (Pinterest, WhatsApp Broadcasts, Groups)</td><td>$35 – $75 / month</td></tr>
+            <tr><td>Product Research (10 winning products + analysis)</td><td>$25 – $49 (one-time)</td></tr>
+          </table>
+          <a href="https://wa.me/2349162306809?text=I%20need%20help%20with%20marketing%20my%20store" class="price-btn" target="_blank">Drive Sales</a>
+        </div>
+        <!-- Extras -->
+        <div class="price-block">
+          <h3>🔧 Extras & Add-Ons</h3>
+          <p class="sub">Perfect for clients who want full brand and SaaS control.</p>
+          <table>
+            <tr><th>Service</th><th>Price</th></tr>
+            <tr><td>Brand Strategy Document (Identity, voice, competitor analysis)</td><td>$49 – $99</td></tr>
+            <tr><td>Full Brand Kit (Strategy + Colors + Content Plan)</td><td>$99 (one-time)</td></tr>
+            <tr><td>SSL Certificate Setup (Included free on Netlify)</td><td>$20 / Free</td></tr>
+            <tr><td>SaaS Admin Access (Monthly platform access & reports)</td><td>$20 – $55 / month</td></tr>
+          </table>
+          <a href="https://wa.me/2349162306809?text=I%20want%20to%20add%20extras%20to%20my%20store" class="price-btn" target="_blank">Add Extras</a>
+        </div>
+      </div>
+      <div class="payments" style="margin-top:44px;text-align:center">
+        <p style="font-size:11px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;">We accept payment via</p>
+        <div class="payment-chips">
+          <span class="payment-chip">💳 Flutterwave</span>
+          <span class="payment-chip">💸 PayPal</span>
+          <span class="payment-chip">🌍 Wise</span>
+          <span class="payment-chip">📱 Selar</span>
+          <span class="payment-chip">🏦 Bank Transfer</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: BLOG -->
+<section id="page-blog" class="page">
+  <section class="section" id="blog">
+    <div class="section-inner">
+      <div class="section-head">
+        <p class="section-label">Blog</p>
+        <h2 class="section-title display">Insights for Store Builders</h2>
+        <p class="section-sub" style="margin:12px auto 0">Tips, tutorials, and behind‑the‑scenes on building high‑conversion online stores.</p>
+      </div>
+      <div class="blog-grid" id="blogGrid">
+        <article class="blog-card">
+          <a href="blog-first-10-sales.html"><img class="blog-img" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a0f6?w=600&h=400&fit=crop" alt="First sales on a new online store" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Growth</span><span class="blog-tag">Sales</span><span class="blog-readtime">· 5 min read</span></div>
+            <span class="blog-date">July 2, 2026</span>
+            <h3 class="blog-title">How to Get Your First 10 Sales on a New Online Store</h3>
+            <p class="blog-excerpt">A tactical, no-budget-required guide to landing your first ten sales after launch.</p>
+            <a href="blog-first-10-sales.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-shopify-vs-headless-shopify.html"><img class="blog-img" src="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&h=400&fit=crop" alt="Shopify vs Headless Shopify comparison" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Shopify</span><span class="blog-tag">Strategy</span><span class="blog-readtime">· 5 min read</span></div>
+            <span class="blog-date">July 2, 2026</span>
+            <h3 class="blog-title">Shopify vs Headless Shopify: Which Is Better for My Store?</h3>
+            <p class="blog-excerpt">A clear decision framework for choosing between standard Shopify and a custom Headless build.</p>
+            <a href="blog-shopify-vs-headless-shopify.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-paystack-vs-flutterwave.html"><img class="blog-img" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a0f6?w=600&h=400&fit=crop" alt="Payment gateway comparison" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Nigeria</span><span class="blog-tag">Payments</span><span class="blog-readtime">· 3 min read</span></div>
+            <span class="blog-date">June 28, 2026</span>
+            <h3 class="blog-title">Paystack vs. Flutterwave: Choosing Your Payment Gateway</h3>
+            <p class="blog-excerpt">Both are solid choices for Nigerian and African sellers — here's how we decide which to integrate.</p>
+            <a href="blog-paystack-vs-flutterwave.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-no-monthly-fees-explained.html"><img class="blog-img" src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=400&fit=crop" alt="Store ownership and cost" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Backend</span><span class="blog-tag">Pricing</span><span class="blog-readtime">· 4 min read</span></div>
+            <span class="blog-date">June 25, 2026</span>
+            <h3 class="blog-title">No Monthly Fees: How We Build Stores You Actually Own</h3>
+            <p class="blog-excerpt">Most store platforms charge forever. Here's how a one-time-payment store actually works under the hood.</p>
+            <a href="blog-no-monthly-fees-explained.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-headless-shopify-explained.html"><img class="blog-img" src="https://images.unsplash.com/photo-1556740758-90de374c12ad?w=600&h=400&fit=crop" alt="Headless Shopify architecture" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Shopify</span><span class="blog-tag">Strategy</span><span class="blog-readtime">· 5 min read</span></div>
+            <span class="blog-date">June 22, 2026</span>
+            <h3 class="blog-title">Headless Shopify, Explained Simply</h3>
+            <p class="blog-excerpt">What "headless" actually means, why it costs more, and when it's worth it for your store.</p>
+            <a href="blog-headless-shopify-explained.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-firebase-vs-shopify.html"><img class="blog-img" src="https://images.unsplash.com/photo-1556742049-0cfed4f6a0f6?w=600&h=400&fit=crop" alt="Online store dashboard" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Strategy</span><span class="blog-tag">Backend</span><span class="blog-readtime">· 5 min read</span></div>
+            <span class="blog-date">June 15, 2026</span>
+            <h3 class="blog-title">Firebase vs. Shopify: Which Is Right for Your Store?</h3>
+            <p class="blog-excerpt">Comparing zero-monthly-fee Firebase stores with Shopify's ecosystem. Pros, cons, and when to choose each.</p>
+            <a href="blog-firebase-vs-shopify.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-whatsapp-ordering.html"><img class="blog-img" src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&h=400&fit=crop" alt="WhatsApp ordering" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Conversion</span><span class="blog-tag">Tutorial</span><span class="blog-readtime">· 4 min read</span></div>
+            <span class="blog-date">May 28, 2026</span>
+            <h3 class="blog-title">How to Add WhatsApp Ordering to Any Store</h3>
+            <p class="blog-excerpt">A step-by-step guide to integrating WhatsApp checkout – boosting conversions by reducing friction.</p>
+            <a href="blog-whatsapp-ordering.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+        <article class="blog-card">
+          <a href="blog-mobile-first-design.html"><img class="blog-img" src="https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=600&h=400&fit=crop" alt="Responsive web design" loading="lazy"></a>
+          <div class="blog-body">
+            <div class="blog-meta-row"><span class="blog-tag">Design</span><span class="blog-tag">UX</span><span class="blog-readtime">· 4 min read</span></div>
+            <span class="blog-date">May 10, 2026</span>
+            <h3 class="blog-title">Why Mobile-First Design Boosts Sales in 2026</h3>
+            <p class="blog-excerpt">Over 70% of shoppers use mobile. Learn how to design a store that converts on every screen size.</p>
+            <a href="blog-mobile-first-design.html" class="blog-read">Read More →</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: SHOPIFY GUIDE -->
+<section id="page-shopify-guide" class="page">
+  <section class="section">
+    <div class="section-inner guide-container">
+      <h1>🛒 Shopify Store – Complete Engagement Guide</h1>
+      <p><em>How to build, manage, and profit from Shopify stores – from zero to live.</em></p>
+      <div class="highlight"><strong>Your Role:</strong> Client pays for Shopify subscription. You get added as a Staff Member. You build the store. You collect your service fee separately.</div>
+      <h2>1. Getting Client Access</h2>
+      <ol>
+        <li>Client goes to <strong>Shopify Admin → Settings → Users & Permissions → Add Staff</strong>.</li>
+        <li>They enter your email: <strong>deprudentstoredesigner@gmail.com</strong> and give you Full Permissions.</li>
+        <li>You receive an invite email → Accept → You're in!</li>
+      </ol>
+      <h2>2. Step-by-Step Store Setup</h2>
+      <h3>Step 1 – Niche & Product Research</h3>
+      <ul><li>Understand client’s target audience, research 3 top competitors, and identify 10-20 starting products using Google Trends.</li></ul>
+      <h3>Step 2 – Account & Theme Setup</h3>
+      <ul><li>Start trial at <code>shopify.com</code>. Use a free theme (Dawn, Sense, Craft) or paid (Prestige $350, Impulse $380). Customize logo, colors, fonts.</li></ul>
+      <h3>Step 3 – Homepage & Navigation</h3>
+      <ul><li>Set up hero banner with CTA, featured collections, trust badges, main navigation (Home, Shop, About, Contact), and footer.</li></ul>
+      <h3>Step 4 – Product Pages</h3>
+      <ul><li>Add high-quality images (5+ per product), benefit-focused descriptions, variants (size/color), prices, and inventory.</li></ul>
+      <h3>Step 5 – Essential Pages</h3>
+      <ul><li>About Us, Contact, FAQ, Shipping Policy, Return & Refund Policy, Privacy Policy (auto-generated).</li></ul>
+      <h3>Step 6 – Payments</h3>
+      <ul><li>For Nigerian clients: <strong>Paystack</strong> or <strong>Flutterwave</strong> (via Shopify Apps). For international: PayPal, Stripe, or manual Bank Transfer.</li></ul>
+      <h3>Step 7 – Shipping & Apps</h3>
+      <ul><li>Set shipping zones & rates. Install essential apps: <strong>Judge.me</strong> (reviews), <strong>Tidio</strong> (chat), <strong>DSers</strong> (dropshipping), <strong>Mailchimp</strong> (email).</li></ul>
+      <h2>3. Headless Shopify (Your Premium Offer)</h2>
+      <p>Headless Shopify means you build a <strong>custom React/HTML frontend</strong> that connects to Shopify as the backend for checkout and payments.</p>
+      <table>
+        <tr><th>Feature</th><th>Normal Shopify</th><th>Headless Shopify</th></tr>
+        <tr><td>Frontend</td><td>Shopify theme (limited)</td><td>Custom HTML/React (unlimited)</td></tr>
+        <tr><td>Design</td><td>Template-based</td><td>Fully custom pixel-perfect</td></tr>
+        <tr><td>Your Price</td><td>$99 – $349</td><td><strong>$199 – $499</strong></td></tr>
+      </table>
+      <p><strong>How to build Headless:</strong> Client creates Shopify store → Enables Storefront API → You copy the API token → Build custom frontend → Deploy on Netlify.</p>
+      <p><strong>API Endpoint:</strong> <code>https://{store-name}.myshopify.com/api/2024-01/graphql.json</code></p>
+      <h2>4. Must-Know Apps (Free & Paid)</h2>
+      <table>
+        <tr><th>App</th><th>Purpose</th><th>Cost</th></tr>
+        <tr><td>Judge.me</td><td>Product reviews with photos</td><td>FREE</td></tr>
+        <tr><td>Tidio</td><td>Live chat widget</td><td>FREE</td></tr>
+        <tr><td>DSers</td><td>AliExpress dropshipping</td><td>FREE</td></tr>
+        <tr><td>SEO Manager</td><td>SEO optimization</td><td>FREE</td></tr>
+        <tr><td>Klaviyo</td><td>Advanced email flows</td><td>Paid</td></tr>
+        <tr><td>Loox</td><td>Photo reviews & social proof</td><td>Paid</td></tr>
+        <tr><td>Paystack</td><td>Nigerian payment gateway</td><td>FREE</td></tr>
+      </table>
+      <h2>5. Practice Steps (Do This Now)</h2>
+      <ul>
+        <li>Start a Shopify trial at <code>shopify.com</code> (3 days free, then $1/mo for 3 months).</li>
+        <li>Build a practice fashion store with the Dawn theme. Add 5 products.</li>
+        <li>Set up all essential pages and take screenshots for your portfolio.</li>
+        <li>Complete the <strong>Shopify Academy</strong> free courses for certificates.</li>
+      </ul>
+      <a href="https://wa.me/2349162306809?text=I%20want%20to%20hire%20you%20to%20build%20my%20Shopify%20store" class="btn-gold" target="_blank">💬 Hire Me to Build a Shopify Store</a>
+      <p style="margin-top:20px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);padding-top:20px;">© <span class="copy-year">2026</span> De Prudent Store Designer – Use code PRUDENT10 for $10 OFF your first store order on Zinn Hub!</p>
+    </div>
+  </section>
+</section>
+
+<!-- PAGE: CONTACT -->
+<section id="page-contact" class="page">
+  <section class="section" id="testimonials">
+    <div class="section-inner">
+      <div class="section-head"><p class="section-label">Testimonials</p><h2 class="section-title display">What Our Clients Say</h2></div>
+      <div class="grid-3" id="testimonialsGrid">
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">I had my restaurant menu online and taking WhatsApp orders within 2 days. Sales went up immediately.</p><div class="review-foot"><p class="review-name">Kofi A.</p><p class="review-role">Restaurant Owner · 🇬🇭 Accra, Ghana</p></div></div>
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">Very professional result. My boutique store looks like something a big agency built. Absolutely worth it.</p><div class="review-foot"><p class="review-name">Layla M.</p><p class="review-role">Boutique Owner · 🇦🇪 Dubai, UAE</p></div></div>
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">The admin panel is so easy. I can add products myself without asking anyone. Amazing service.</p><div class="review-foot"><p class="review-name">Tobi F.</p><p class="review-role">Skincare Brand · 🇳🇬 Lagos, Nigeria</p></div></div>
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">Fast delivery, clean design, and the live cart actually works. My customers love shopping on it.</p><div class="review-foot"><p class="review-name">James O.</p><p class="review-role">Accessories Seller · 🇬🇧 London, UK</p></div></div>
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">I paid once and own everything. No monthly fees eating into my profit. Best investment I made.</p><div class="review-foot"><p class="review-name">Amira S.</p><p class="review-role">Handmade Jewellery · 🇫🇷 Paris, France</p></div></div>
+        <div class="card review-card"><div class="quote-mark">❝</div><p class="review-text">Sent a WhatsApp message, had a demo in 24 hours and my store live in 2 days. Incredibly fast.</p><div class="review-foot"><p class="review-name">David K.</p><p class="review-role">Electronics Dealer · 🇰🇪 Nairobi, Kenya</p></div></div>
+      </div>
+      <p class="testimonial-disclaimer" id="testimonialDisclaimer">Testimonials reflect representative client feedback collected during early engagements. Names abbreviated for privacy.</p>
+    </div>
+  </section>
+
+  <section class="section" id="cta">
+    <div class="cta-inner">
+      <h2 class="cta-h2" id="ctaHeading">Ready to Launch a <br><span class="gold-text">High-Converting Store?</span></h2>
+      <p class="cta-sub" id="ctaSubtitle">Message us on WhatsApp. Tell us your business type and what you sell. We'll build you a <strong style="color:var(--text);">mobile-responsive, sales-driven</strong> store and send you a live demo within 24 hours — no commitment required.</p>
+      <div class="cta-btns">
+        <a href="https://wa.me/2349162306809?text=Hi%20De%20Prudent%2C%20I%20want%20a%20custom%20online%20store" target="_blank" class="btn-gold">💬 Chat on WhatsApp</a>
+        <a href="mailto:deprudentstoredesigner@gmail.com" class="btn-outline">✉️ Send an Email</a>
+      </div>
+      <div style="margin:30px 0 20px;">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:12px;" class="newsletterBlurb">📬 Get free store‑building tips & early access</p>
+        <form class="newsletter-form" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <label style="position:absolute;left:-9999px;">Email address</label>
+          <input type="email" class="newsletter-email" placeholder="Your email address" required style="padding:12px 18px;border-radius:100px;border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:'Outfit',sans-serif;min-width:240px;outline:none;" />
+          <button type="submit" class="btn-gold" style="padding:12px 28px;font-size:14px;">Subscribe</button>
+        </form>
+        <p class="newsletter-msg" style="font-size:13px;margin-top:10px;" role="status" aria-live="polite"></p>
+      </div>
+      <p class="cta-note" id="ctaNote">Typically replies within 1 hour · Available Mon–Sat · All time zones welcome</p>
+    </div>
+  </section>
+</section>
+
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="display" style="font-size:22px;font-weight:700">De<span class="gold-text">Prudent</span> <span style="font-weight:300;font-size:14px;color:var(--muted)">Store Designer</span></div>
+        <p class="footer-brand-desc" id="footerBrandDesc">Building professional full‑stack web applications, corporate websites, and custom e‑commerce platforms for businesses worldwide. Fast, scalable, and built to sell.</p>
+      </div>
+      <div style="display:flex;gap:48px;flex-wrap:wrap">
+        <div class="footer-col">
+          <p class="footer-col-title">Navigate</p>
+          <a href="#" onclick="showPage('home');return false;">Home</a>
+          <a href="#" onclick="showPage('demos');return false;">Demos</a>
+          <a href="#" onclick="showPage('solutions');return false;">Solutions</a>
+          <a href="#" onclick="showPage('pricing');return false;">Pricing</a>
+          <a href="#" onclick="showPage('blog');return false;">Blog</a>
+          <a href="#" onclick="showPage('shopify-guide');return false;">Shopify Guide</a>
+          <a href="seo.html">SEO Services</a>
+          <a href="about.html">About</a>
+          <a href="projects.html">Projects</a>
+          <a href="features.html">Features</a>
+          <a href="#" onclick="showPage('contact');return false;">Contact</a>
+        </div>
+        <div class="footer-col">
+          <p class="footer-col-title">Contact</p>
+          <a href="https://wa.me/2349162306809" target="_blank">💬 WhatsApp</a>
+          <a href="mailto:deprudentstoredesigner@gmail.com">📧 Email Us</a>
+          <a href="#" onclick="showPage('demos');return false;">🛒 Live Demo</a>
+          <a href="#" onclick="showPage('home');return false;">🌍 Worldwide</a>
+        </div>
+      </div>
+    </div>
+    <hr class="gold-line" style="margin-bottom:24px">
+    <div class="footer-bottom">
+      <p id="footerCopyright">© <span class="copy-year">2026</span> De Prudent Store Designer. All rights reserved.</p>
+      <p>Serving businesses worldwide 🌍</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ===== AI Chat Widget ===== -->
+<div id="chatWidget">
+  <div id="chatGreetingWrap"></div>
+  <button id="chatBubble" aria-label="Open chat assistant" aria-expanded="false">
+    <span class="pulse-ring"></span>
+    <span id="chatBubbleIcon">💬</span>
+  </button>
+</div>
+
+<div id="chatPanel" role="dialog" aria-label="Store assistant chat">
+  <div class="chat-head">
+    <div class="chat-head-info">
+      <div class="chat-avatar">🤖</div>
+      <div>
+        <div class="chat-head-title">De Prudent Assistant</div>
+        <div class="chat-head-status"><span class="dot"></span> Instant answers</div>
+      </div>
+    </div>
+    <button class="chat-close-btn" id="chatCloseBtn" aria-label="Close chat">✕</button>
+  </div>
+  <div class="chat-body" id="chatBody"></div>
+  <div class="chat-foot">
+    <div class="chat-input-row">
+      <label for="chatInput" style="position:absolute;left:-9999px;">Ask a question</label>
+      <input type="text" id="chatInput" placeholder="Ask a question…" maxlength="300">
+      <button class="chat-send-btn" id="chatSendBtn" aria-label="Send message">➤</button>
+    </div>
+    <a href="https://wa.me/2349162306809?text=Hi%20De%20Prudent%2C%20I%20have%20a%20question" target="_blank" class="chat-wa-btn">💬 Continue on WhatsApp</a>
+    <p class="chat-disclaimer">Instant assistant · connects you to a real person on WhatsApp</p>
+  </div>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+  // ===== Live site content (CMS) — overrides the hardcoded sections below   =====
+  // if an admin has saved custom content via site-admin.html. If the API is
+  // unreachable or nothing's been saved yet, the hardcoded HTML already in
+  // this page (written out above) stays exactly as-is — this never blocks
+  // or blanks the page, it only replaces content once real data arrives.
+  (async function loadSiteContent() {
+    const CMS_API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+    try {
+      const res = await fetch(`${CMS_API_BASE}/content/index`);
+      if (!res.ok) return;
+      const content = await res.json();
+      if (!content) return;
+
+      if (content.hero && content.hero.title) {
+        document.getElementById('heroTitle').innerHTML = content.hero.title;
+      }
+      if (content.hero && content.hero.subtitle) {
+        document.getElementById('heroSubtitle').innerHTML = content.hero.subtitle;
+      }
+
+      if (Array.isArray(content.pricing) && content.pricing.length) {
+        const grid = document.getElementById('priceGrid');
+        grid.innerHTML = content.pricing.map(block => `
+          <div class="price-block">
+            <h3>${block.title || ''}</h3>
+            <p class="sub">${block.subtitle || ''}</p>
+            <table>
+              <tr><th>Service</th><th>Price</th></tr>
+              ${block.rows.map(r => `<tr><td>${r.service || ''}</td><td>${r.price || ''}</td></tr>`).join('')}
+            </table>
+            <a href="${escapeAttr(block.ctaUrl)}" class="price-btn" target="_blank">${block.ctaText || ''}</a>
+          </div>`).join('');
+      }
+
+      if (Array.isArray(content.services) && content.services.length) {
+        const grid = document.getElementById('solutionsGrid');
+        grid.innerHTML = content.services.map(s => `
+          <div class="solution-card">
+            <div class="solution-icon">${s.icon || ''}</div>
+            <h3>${s.title || ''}</h3>
+            <p>${s.description || ''}</p>
+            <ul class="solution-features">${(s.features||[]).map(f => `<li>${f}</li>`).join('')}</ul>
+            <a href="${escapeAttr(s.linkUrl)}" class="solution-link" target="_blank">${s.linkText || ''}</a>
+          </div>`).join('');
+      }
+
+      if (Array.isArray(content.testimonials) && content.testimonials.length) {
+        const grid = document.getElementById('testimonialsGrid');
+        grid.innerHTML = content.testimonials.map(t => `
+          <div class="card review-card">
+            <div class="quote-mark">❝</div>
+            <p class="review-text">${t.quote || ''}</p>
+            <div class="review-foot"><p class="review-name">${t.name || ''}</p><p class="review-role">${t.role || ''}</p></div>
+          </div>`).join('');
+      }
+
+      if (content.contact && content.contact.whatsappNumber) {
+        document.querySelectorAll('a[href*="wa.me/2349162306809"]').forEach(a => {
+          a.href = a.href.replace('2349162306809', content.contact.whatsappNumber);
+        });
+      }
+
+      if (content.testimonialDisclaimer) {
+        document.getElementById('testimonialDisclaimer').innerHTML = content.testimonialDisclaimer;
+      }
+
+      if (content.founder && content.founder.name) {
+        document.getElementById('founderName').innerHTML = content.founder.name;
+      }
+      if (content.founder && content.founder.bio) {
+        document.getElementById('founderBio').innerHTML = content.founder.bio.replace(/\n/g, '<br>');
+      }
+
+      if (content.howItWorks) {
+        if (content.howItWorks.title) document.getElementById('howItWorksTitle').innerHTML = content.howItWorks.title;
+        if (content.howItWorks.subtitle) document.getElementById('howItWorksSubtitle').innerHTML = content.howItWorks.subtitle;
+        if (Array.isArray(content.howItWorks.steps) && content.howItWorks.steps.length) {
+          const grid = document.getElementById('howItWorksGrid');
+          grid.innerHTML = content.howItWorks.steps.map((s, i) => `
+            <div class="card step-card"><div class="step-icon">${s.icon || ''}</div><div class="step-num">${String(i+1).padStart(2,'0')}</div><h3 class="step-title">${s.title || ''}</h3><p class="step-desc">${s.desc || ''}</p><div class="step-corner"></div></div>`).join('');
+        }
+      }
+
+      if (content.whatWeBuild) {
+        if (content.whatWeBuild.title) document.getElementById('whatWeBuildTitle').innerHTML = content.whatWeBuild.title;
+        if (Array.isArray(content.whatWeBuild.items) && content.whatWeBuild.items.length) {
+          const grid = document.getElementById('whatWeBuildGrid');
+          grid.innerHTML = content.whatWeBuild.items.map(it => `
+            <div class="type-item"><span class="type-icon">${it.icon || ''}</span><div><p class="type-title">${it.title || ''}</p><p class="type-desc">${it.desc || ''}</p></div></div>`).join('');
+        }
+      }
+
+      if (content.growthPlan) {
+        if (content.growthPlan.title) document.getElementById('growthPlanTitle').innerHTML = content.growthPlan.title;
+        if (content.growthPlan.text) document.getElementById('growthPlanText').innerHTML = content.growthPlan.text.replace(/\n/g, '<br>');
+        if (content.growthPlan.buttonText) document.getElementById('growthPlanBtn').innerHTML = content.growthPlan.buttonText;
+      }
+
+      if (content.newsletterText) {
+        document.querySelectorAll('.newsletterBlurb').forEach(el => { el.innerHTML = content.newsletterText; });
+      }
+
+      if (content.cta) {
+        if (content.cta.heading) document.getElementById('ctaHeading').innerHTML = content.cta.heading;
+        if (content.cta.subtitle) document.getElementById('ctaSubtitle').innerHTML = content.cta.subtitle;
+        if (content.cta.note) document.getElementById('ctaNote').innerHTML = content.cta.note;
+      }
+
+      if (content.footer) {
+        if (content.footer.brandDesc) document.getElementById('footerBrandDesc').innerHTML = content.footer.brandDesc;
+        if (content.footer.copyrightText) {
+          document.getElementById('footerCopyright').innerHTML =
+            `© <span class="copy-year">${new Date().getFullYear()}</span> ${content.footer.copyrightText}`;
+        }
+      }
+
+      if (content.demosIntro) {
+        if (content.demosIntro.label) document.getElementById('demosLabel').innerHTML = content.demosIntro.label;
+        if (content.demosIntro.title) document.getElementById('demosTitle').innerHTML = content.demosIntro.title;
+        if (content.demosIntro.subtitle) document.getElementById('demosSubtitle').innerHTML = content.demosIntro.subtitle;
+      }
+
+      if (content.solutionsIntro) {
+        if (content.solutionsIntro.label) document.getElementById('solutionsLabel').innerHTML = content.solutionsIntro.label;
+        if (content.solutionsIntro.title) document.getElementById('solutionsTitle').innerHTML = content.solutionsIntro.title;
+        if (content.solutionsIntro.subtitle) document.getElementById('solutionsSubtitle').innerHTML = content.solutionsIntro.subtitle;
+      }
+    } catch (e) {
+      // Network hiccup or backend down — the hardcoded content already on
+      // the page keeps showing exactly as it does today. Nothing to do.
+    }
+
+    function escapeAttr(s) { return (s || '').replace(/"/g, '&quot;'); }
+  })();
+
+  // ===== Live blog list — replaces the 8 hardcoded cards below once posts =====
+  // exist in the CMS. Falls back to the hardcoded cards if the API has no
+  // published posts yet (e.g. before you've migrated the old ones over).
+  (async function loadBlogList() {
+    const CMS_API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+    try {
+      const res = await fetch(`${CMS_API_BASE}/blog`);
+      if (!res.ok) return;
+      const posts = await res.json();
+      if (!Array.isArray(posts) || posts.length === 0) return;
+
+      const grid = document.getElementById('blogGrid');
+      grid.innerHTML = posts.slice(0, 6).map(p => `
+        <article class="blog-card">
+          <a href="blog-post.html?slug=${encodeURIComponent(p.slug)}">
+            <img class="blog-img" src="${escAttr(p.image_url || 'https://images.unsplash.com/photo-1556742049-0cfed4f6a0f6?w=600&h=400&fit=crop')}" alt="${escAttr(p.title)}" loading="lazy">
+          </a>
+          <div class="blog-body">
+            <div class="blog-meta-row">${p.category ? `<span class="blog-tag">${escHtml(p.category)}</span>` : ''}</div>
+            <span class="blog-date">${new Date(p.createdAt).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' })}</span>
+            <h3 class="blog-title">${escHtml(p.title)}</h3>
+            <p class="blog-excerpt">${escHtml(p.excerpt || '')}</p>
+            <a href="blog-post.html?slug=${encodeURIComponent(p.slug)}" class="blog-read">Read More →</a>
+          </div>
+        </article>`).join('');
+    } catch (e) {
+      // Falls back to the hardcoded blog cards already on the page.
+    }
+    function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function escAttr(s) { return (s || '').replace(/"/g, '&quot;'); }
+  })();
+
+  // ===== Page routing =====
+  function showPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const target = document.getElementById('page-' + pageId);
+    if (target) target.classList.add('active');
+    document.querySelectorAll('.nav-links a').forEach(link => link.classList.remove('active'));
+    const activeLink = document.querySelector(`.nav-links a[onclick*="showPage('${pageId}')"]`);
+    if (activeLink) activeLink.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    closeMobileMenu();
+    updateSEO(pageId);
+  }
+
+  // ===== Header scroll effect =====
+  window.addEventListener('scroll', () => {
+    document.getElementById('header').classList.toggle('scrolled', window.scrollY > 30);
+  });
+
+  // ===== Mobile menu =====
+  function toggleMobileMenu() {
+    const m = document.getElementById('mobileMenu');
+    const btn = document.querySelector('.hamburger');
+    const open = m.style.display === 'block';
+    m.style.display = open ? 'none' : 'block';
+    btn.textContent = open ? '☰' : '✕';
+    btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobileMenu').style.display = 'none';
+    document.querySelector('.hamburger').textContent = '☰';
+    document.querySelector('.hamburger').setAttribute('aria-expanded', 'false');
+  }
+
+  // ===== Demo switcher (with fallback if file missing) =====
+  function switchDemo(slug, btn) {
+    document.querySelectorAll('.demo-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    const url = `${slug}.html`;
+    const frame = document.getElementById('demoFrame');
+    const fallback = document.getElementById('demoFallback');
+    fallback.classList.remove('show');
+    frame.style.display = 'block';
+    document.getElementById('demoFallbackName').textContent = url;
+    frame.src = url;
+    document.getElementById('demoUrl').textContent = url;
+    document.getElementById('demoOpenLink').href = url;
+    checkDemoExists(url);
+  }
+  function checkDemoExists(url) {
+    fetch(url, { method: 'HEAD' }).then(res => {
+      if (!res.ok) showDemoFallback();
+    }).catch(() => showDemoFallback());
+  }
+  function showDemoFallback() {
+    document.getElementById('demoFrame').style.display = 'none';
+    document.getElementById('demoFallback').classList.add('show');
+  }
+  // Initial check for the default demo
+  window.addEventListener('load', () => checkDemoExists('mall.html'));
+
+  // ===== Blog now uses real linked pages (blog-*.html) =====
+
+  // ===== Newsletter (De Prudent backend API — replaces Firebase) =====
+  const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+
+  document.querySelectorAll('.newsletter-form').forEach(function(form) {
+    form.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const emailInput = form.querySelector('.newsletter-email');
+      const msg = form.parentElement.querySelector('.newsletter-msg');
+      const email = emailInput.value.trim();
+      if (!email) {
+        msg.textContent = 'Please enter your email address.';
+        msg.style.color = '#f87171';
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE}/stores/site/newsletter`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        if (!res.ok) throw new Error('Request failed');
+        msg.textContent = '✅ You\'re subscribed! Check your inbox.';
+        msg.style.color = '#34D399';
+        emailInput.value = '';
+      } catch (err) {
+        msg.textContent = '❌ Something went wrong. Please try again.';
+        msg.style.color = '#f87171';
+      }
+    });
+  });
+
+  // ===== Set initial page =====
+  showPage('home');
+
+  // ===== AI Chat Widget =====
+  (function() {
+    const WA_NUMBER = '2349162306809';
+    const bubble = document.getElementById('chatBubble');
+    const bubbleIcon = document.getElementById('chatBubbleIcon');
+    const panel = document.getElementById('chatPanel');
+    const closeBtn = document.getElementById('chatCloseBtn');
+    const body = document.getElementById('chatBody');
+    const greetingWrap = document.getElementById('chatGreetingWrap');
+    let hasOpened = false;
+
+    function waLink(text) {
+      return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
+    }
+
+    function addMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.className = 'chat-msg ' + sender;
+      msg.textContent = text;
+      body.appendChild(msg);
+      body.scrollTop = body.scrollHeight;
+      return msg;
+    }
+
+    function addQuickReplies(options) {
+      const wrap = document.createElement('div');
+      wrap.className = 'chat-quick-replies';
+      options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'quick-reply-btn';
+        btn.textContent = opt.label;
+        btn.addEventListener('click', () => handleChoice(opt));
+        wrap.appendChild(btn);
+      });
+      body.appendChild(wrap);
+      body.scrollTop = body.scrollHeight;
+    }
+
+    const MAIN_MENU = [
+      { label: '💰 Pricing', key: 'pricing' },
+      { label: '⚡ How fast can I get a store?', key: 'speed' },
+      { label: '🛠️ Which backend should I choose?', key: 'backend' },
+      { label: '🎨 See live demos', key: 'demos' },
+      { label: '📈 SEO services', key: 'seo' },
+      { label: '💬 Talk to a human now', key: 'human' },
+    ];
+
+    const RESPONSES = {
+      pricing: {
+        text: "Store builds start at $99 and go up to $499 depending on complexity (Firebase/Supabase custom builds, standard Shopify, or Headless Shopify). Monthly management and SEO packages start separately from $15/mo. Want the full pricing page?",
+        followUps: [
+          { label: '📋 Open full pricing page', action: () => { showPage('pricing'); closePanel(); } },
+          { label: '⬅️ Back to menu', key: 'menu' },
+        ]
+      },
+      speed: {
+        text: "Most stores go live within 48 hours of us finalizing your requirements. You'll get a live demo link to review within 24 hours of our first chat.",
+        followUps: [
+          { label: '💬 Start my store now', href: waLink("Hi De Prudent, I want to start building my store") },
+          { label: '⬅️ Back to menu', key: 'menu' },
+        ]
+      },
+      backend: {
+        text: "It depends on your priorities: Firebase/Supabase/Appwrite/Directus/Backendless means zero monthly fees and full data ownership. Standard Shopify gets you a huge app ecosystem with a monthly subscription. Headless Shopify combines Shopify's checkout with a fully custom frontend. Want a recommendation based on your business?",
+        followUps: [
+          { label: '💬 Get a personal recommendation', href: waLink("Hi De Prudent, I need help choosing the right backend for my store") },
+          { label: '⬅️ Back to menu', key: 'menu' },
+        ]
+      },
+      demos: {
+        text: "We've got live demos for a general mall store, a restaurant (Abeni), a luxury boutique (MARQUE), and a Headless Shopify build (Kern) — all fully functional, not mockups.",
+        followUps: [
+          { label: '🎨 Open demos page', action: () => { showPage('demos'); closePanel(); } },
+          { label: '⬅️ Back to menu', key: 'menu' },
+        ]
+      },
+      seo: {
+        text: "We offer Local SEO for Nigerian businesses, International SEO for global clients, and full Google Ads management, on top of on-page SEO setup and backlink building.",
+        followUps: [
+          { label: '📈 Open SEO page', href: 'seo.html' },
+          { label: '⬅️ Back to menu', key: 'menu' },
+        ]
+      },
+      human: {
+        text: "Sure thing — tap below and I'll connect you directly on WhatsApp. Typical reply time is under an hour.",
+        followUps: [
+          { label: '💬 Chat on WhatsApp now', href: waLink("Hi De Prudent, I'd like to speak with someone") },
+        ]
+      },
+      menu: {
+        text: "What would you like to know?",
+        isMenu: true,
+      }
+    };
+
+    function handleChoice(opt) {
+      addMessage(opt.label, 'user');
+      if (opt.href) {
+        setTimeout(() => window.open(opt.href, '_blank'), 200);
+        return;
+      }
+      if (opt.action) {
+        setTimeout(opt.action, 200);
+        return;
+      }
+      showResponse(opt.key);
+    }
+
+    function showResponse(key) {
+      const r = RESPONSES[key];
+      setTimeout(() => {
+        if (r.isMenu) {
+          addMessage(r.text, 'bot');
+          addQuickReplies(MAIN_MENU);
+          return;
+        }
+        addMessage(r.text, 'bot');
+        addQuickReplies(r.followUps);
+      }, 350);
+    }
+
+    function initChat() {
+      if (body.children.length) return;
+      addMessage("👋 Hi! I'm the De Prudent assistant. I can answer quick questions about pricing, demos, and backends — or connect you straight to WhatsApp.", 'bot');
+      addQuickReplies(MAIN_MENU);
+    }
+
+    function openPanel() {
+      panel.classList.add('open');
+      bubble.setAttribute('aria-expanded', 'true');
+      bubbleIcon.textContent = '✕';
+      greetingWrap.innerHTML = '';
+      initChat();
+    }
+    function closePanel() {
+      panel.classList.remove('open');
+      bubble.setAttribute('aria-expanded', 'false');
+      bubbleIcon.textContent = '💬';
+    }
+    bubble.addEventListener('click', () => {
+      if (panel.classList.contains('open')) closePanel();
+      else openPanel();
+    });
+    closeBtn.addEventListener('click', closePanel);
+
+    // Show a proactive greeting bubble after a short delay, once per session
+    setTimeout(() => {
+      if (sessionStorage.getItem('chatGreetingShown') || panel.classList.contains('open')) return;
+      const greeting = document.createElement('div');
+      greeting.id = 'chatGreeting';
+      greeting.innerHTML = 'How may I help? 👋<span class="close-greeting" aria-label="Dismiss">✕</span>';
+      greetingWrap.appendChild(greeting);
+      sessionStorage.setItem('chatGreetingShown', '1');
+      greeting.addEventListener('click', (e) => {
+        if (e.target.classList.contains('close-greeting')) {
+          greeting.remove();
+          e.stopPropagation();
+          return;
+        }
+        greeting.remove();
+        openPanel();
+      });
+      setTimeout(() => { if (greeting.parentNode) greeting.remove(); }, 12000);
+    }, 3500);
+
+    // ===== Free-text AI input (calls Netlify Function; falls back gracefully if unavailable) =====
+    const chatInput = document.getElementById('chatInput');
+    const chatSendBtn = document.getElementById('chatSendBtn');
+    let aiAvailable = true; // flips false after first failure so we stop retrying pointlessly this session
+
+    function showTyping() {
+      const typing = document.createElement('div');
+      typing.className = 'chat-typing';
+      typing.id = 'chatTypingIndicator';
+      typing.innerHTML = '<span></span><span></span><span></span>';
+      body.appendChild(typing);
+      body.scrollTop = body.scrollHeight;
+    }
+    function hideTyping() {
+      const t = document.getElementById('chatTypingIndicator');
+      if (t) t.remove();
+    }
+
+    async function sendFreeText() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      addMessage(text, 'user');
+      chatInput.value = '';
+
+      if (!aiAvailable) {
+        setTimeout(() => {
+          addMessage("Let's get you straight to a real person on WhatsApp for that.", 'bot');
+          addQuickReplies([{ label: '💬 Chat on WhatsApp now', href: waLink(text) }, { label: '⬅️ Back to menu', key: 'menu' }]);
+        }, 300);
+        return;
+      }
+
+      showTyping();
+      try {
+        const res = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text }),
+        });
+        hideTyping();
+        if (!res.ok) throw new Error('Function returned ' + res.status);
+        const data = await res.json();
+        addMessage(data.reply || "Sorry, I couldn't process that.", 'bot');
+        addQuickReplies([{ label: '💬 Continue on WhatsApp', href: waLink(text) }, { label: '⬅️ Back to menu', key: 'menu' }]);
+      } catch (e) {
+        hideTyping();
+        aiAvailable = false; // don't keep hitting a missing/broken endpoint for the rest of the session
+        addMessage("I'm not able to answer freeform questions right now — but I can connect you to a real person.", 'bot');
+        addQuickReplies([{ label: '💬 Chat on WhatsApp now', href: waLink(text) }, { label: '⬅️ Back to menu', key: 'menu' }]);
+      }
+    }
+    chatSendBtn.addEventListener('click', sendFreeText);
+    chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendFreeText(); });
+  })();
+</script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

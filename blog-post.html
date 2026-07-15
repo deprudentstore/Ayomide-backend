@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">Blog – De Prudent</title>
+<meta name="description" id="pageDesc" content="De Prudent blog">
+<style>
+  :root { --primary:#1a1a2e; --accent:#d4af37; --bg:#0B0B0F; --text:#EDEDF0; --muted:#9A9AA6; --border:#22222B; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:var(--bg); color:var(--text); line-height:1.7; }
+  .wrap { max-width:720px; margin:0 auto; padding:24px 20px 60px; }
+  a.back { color:var(--accent); text-decoration:none; font-size:14px; display:inline-block; margin-bottom:24px; }
+  .cover { width:100%; height:260px; object-fit:cover; border-radius:14px; margin-bottom:24px; background:#16161c; }
+  h1 { font-size:1.8rem; margin-bottom:10px; }
+  .meta { color:var(--muted); font-size:13px; margin-bottom:24px; }
+  .body p { margin-bottom:16px; color:#D8D8DE; }
+  .not-found { text-align:center; padding:80px 20px; color:var(--muted); }
+  .cta { margin-top:40px; padding:24px; background:#141419; border:1px solid var(--border); border-radius:14px; text-align:center; }
+  .cta a { display:inline-block; margin-top:12px; background:var(--accent); color:#1a1a2e; padding:10px 22px; border-radius:30px; text-decoration:none; font-weight:700; font-size:14px; }
+</style>
+</head>
+<body>
+  <div class="wrap" id="content">
+    <a class="back" href="index.html#blog">← Back to Blog</a>
+    <p style="color:var(--muted);">Loading…</p>
+  </div>
+
+  <script type="module">
+    const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+    const slug = new URLSearchParams(window.location.search).get('slug');
+    const contentEl = document.getElementById('content');
+
+    async function loadPost() {
+      if (!slug) { showNotFound(); return; }
+      try {
+        const res = await fetch(`${API_BASE}/blog/${slug}`);
+        if (!res.ok) { showNotFound(); return; }
+        const post = await res.json();
+        renderPost(post);
+      } catch (e) {
+        showNotFound();
+      }
+    }
+
+    function renderPost(post) {
+      document.getElementById('pageTitle').textContent = `${post.title} – De Prudent`;
+      document.getElementById('pageDesc').setAttribute('content', post.excerpt || post.title);
+      contentEl.innerHTML = `
+        <a class="back" href="index.html#blog">← Back to Blog</a>
+        ${post.image_url ? `<img class="cover" src="${escapeAttr(post.image_url)}" alt="${escapeAttr(post.title)}">` : ''}
+        <h1>${escapeHtml(post.title)}</h1>
+        <p class="meta">${post.category ? escapeHtml(post.category) + ' · ' : ''}${new Date(post.createdAt).toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' })}</p>
+        <div class="body">${post.body}</div>
+        <div class="cta">
+          <p>Want a store like the ones we build? Let's talk.</p>
+          <a href="https://wa.me/2349162306809?text=I%20read%20your%20blog%20post%20and%20I%27m%20interested%20in%20a%20store" target="_blank">Chat on WhatsApp</a>
+        </div>
+      `;
+    }
+
+    function showNotFound() {
+      contentEl.innerHTML = `
+        <a class="back" href="index.html#blog">← Back to Blog</a>
+        <div class="not-found">
+          <h1 style="font-size:1.4rem;margin-bottom:8px;">Post not found</h1>
+          <p>This post may have been unpublished or the link is outdated.</p>
+        </div>
+      `;
+    }
+
+    function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+    function escapeAttr(s) { return (s || '').replace(/"/g, '&quot;'); }
+
+    loadPost();
+  </script>
+</body>
+</html>

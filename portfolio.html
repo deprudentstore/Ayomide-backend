@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>De Prudent Store Designer – Live Portfolio</title>
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --surface: #13132b;
+      --primary: #6c5ce7;
+      --accent: #a29bfe;
+      --text: #ffffff;
+      --text-secondary: #b0b0c0;
+      --radius: 16px;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.6; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+    .header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 25px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .logo { font-size: 1.8rem; font-weight: 800; color: white; }
+    .logo span { color: var(--primary); }
+    .cta-btn {
+      background: var(--primary); color: white; text-decoration: none;
+      padding: 12px 24px; border-radius: 30px; font-weight: 600; font-size: 0.9rem;
+    }
+
+    .hero {
+      text-align: center; padding: 50px 20px;
+    }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 15px; }
+    .hero p { color: var(--text-secondary); font-size: 1.1rem; max-width: 600px; margin: 0 auto; }
+
+    .store-selector {
+      display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 30px 0;
+    }
+    .store-btn {
+      background: var(--surface); color: var(--text); border: 2px solid rgba(255,255,255,0.1);
+      padding: 10px 20px; border-radius: 30px; font-weight: 600; cursor: pointer;
+      transition: 0.2s; font-family: inherit; font-size: 0.9rem;
+    }
+    .store-btn.active {
+      border-color: var(--primary); background: var(--primary); color: white;
+    }
+    .store-btn:hover { border-color: var(--accent); }
+
+    .preview-frame {
+      width: 100%; height: 500px; border: none; border-radius: var(--radius);
+      background: var(--surface); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      margin-bottom: 40px;
+    }
+
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px; margin-bottom: 40px;
+    }
+    .feature-card {
+      background: var(--surface); border-radius: var(--radius); padding: 25px;
+      border: 1px solid rgba(255,255,255,0.06); transition: transform 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); }
+    .feature-icon { font-size: 2rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    .feature-card p { color: var(--text-secondary); font-size: 0.9rem; }
+
+    .services-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px; margin-bottom: 40px;
+    }
+    .service-card {
+      background: var(--surface); border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px; padding: 20px; text-align: center;
+    }
+    .service-card h4 { margin-bottom: 6px; color: var(--accent); }
+    .service-card p { color: var(--text-secondary); font-size: 0.85rem; }
+
+    .footer {
+      text-align: center; padding: 30px 20px; border-top: 1px solid rgba(255,255,255,0.1);
+      color: var(--text-secondary); font-size: 0.9rem; margin-top: 30px;
+    }
+    .footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 2rem; }
+      .preview-frame { height: 350px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">De<span>Prudent</span> Store Designer</div>
+      <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20saw%20your%20portfolio%20and%20I%20want%20a%20custom%20store" class="cta-btn" target="_blank">Chat on WhatsApp</a>
+    </header>
+
+    <section class="hero">
+      <h1>See Our Web Projects in Action</h1>
+      <p>Every store below is fully dynamic – pulling real products, images, and prices from a live database. Tap a category to preview the exact experience your customers will have.</p>
+    </section>
+
+    <!-- Store selector buttons -->
+    <div class="store-selector" id="storeSelector">
+      <button class="store-btn active" data-slug="mall">🛒 Mall</button>
+      <button class="store-btn" data-slug="restaurant">🍽️ Abeni (Restaurant)</button>
+      <button class="store-btn" data-slug="luxury">🖤 MARQUE (Luxury)</button>
+      <button class="store-btn" data-slug="headless-shopify">⚡ Kern (Headless Shopify)</button>
+      <button class="store-btn" data-slug="admin">⚙️ Store Admin</button>
+    </div>
+
+    <!-- Live preview iframe -->
+    <iframe id="storePreview" class="preview-frame" src="mall.html" title="Store Preview"></iframe>
+
+    <!-- Features -->
+    <h2 style="text-align:center; margin-bottom:20px;">Why Businesses Choose De Prudent</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🎨</div>
+        <h3>Fully Custom Design</h3>
+        <p>Your brand, your colours, your style. No templates, no limits.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📱</div>
+        <h3>Mobile‑First & Fast</h3>
+        <p>Every store is built to look and perform perfectly on any device.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🛠️</div>
+        <h3>Easy Product Editing</h3>
+        <p>You (or your client) can add, edit, and delete products via a simple admin panel – no coding needed.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💳</div>
+        <h3>Multiple Payment Options</h3>
+        <p>Bank transfer, card (Paystack), WhatsApp – we integrate the method that works for your market.</p>
+      </div>
+    </div>
+
+    <!-- Services -->
+    <h2 style="text-align:center; margin-bottom:20px;">What We Offer</h2>
+    <div class="services-grid">
+      <div class="service-card">
+        <h4>📄 Custom Coded Stores</h4>
+        <p>Hand‑written HTML, CSS, and JavaScript – lightning fast and 100% SEO‑friendly.</p>
+      </div>
+      <div class="service-card">
+        <h4>🛍️ Shopify Integration</h4>
+        <p>Already on Shopify? We build custom themes or headless storefronts that connect to your Shopify backend.</p>
+      </div>
+      <div class="service-card">
+        <h4>🔐 Admin Dashboard</h4>
+        <p>Manage products, track orders, and view customer data from a secure, password‑protected panel.</p>
+      </div>
+      <div class="service-card">
+        <h4>🌍 Global Reach</h4>
+        <p>Hosted worldwide, multi‑currency ready, and WhatsApp‑connected for international clients.</p>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p>© <span class="copy-year">2026</span> De Prudent Store Designer. All rights reserved.</p>
+      <p><a href="https://wa.me/2349162306809">WhatsApp: +234 916 230 6809</a> | Serving businesses globally</p>
+    </div>
+  </div>
+
+  <script>
+    // Store selector logic
+    const buttons = document.querySelectorAll('.store-btn');
+    const iframe = document.getElementById('storePreview');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const slug = btn.dataset.slug;
+        if (slug === "admin") {
+          iframe.src = "store-admin.html?store=mall";
+        } else {
+          iframe.src = `${slug}.html`;
+        }
+      });
+    });
+  </script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

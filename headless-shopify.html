@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kern — Headless Shopify Storefront Demo</title>
+<meta name="description" content="Kern is a demo storefront showing a custom React frontend running on Shopify's Storefront API — no theme, no limits.">
+<script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B0D10; --panel:#111418; --panel2:#171B21; --line:rgba(255,255,255,.08);
+    --accent:#5EEAD4; --accent2:#22D3EE; --text:#F3F5F7; --muted:#8B96A3;
+    --display:'Space Grotesk',sans-serif; --body:'Inter',sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--ink);color:var(--text);font-family:var(--body);line-height:1.6;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;}
+  a:focus-visible, button:focus-visible, input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  ::selection{background:var(--accent);color:var(--ink);}
+
+  .mono{font-family:'Space Grotesk',sans-serif;}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:rgba(94,234,212,.08);border:1px solid rgba(94,234,212,.3);color:var(--accent);padding:5px 12px;border-radius:100px;}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+
+  header{position:sticky;top:0;z-index:100;background:rgba(11,13,16,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1280px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;}
+  .wordmark{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.5px;}
+  .wordmark span{color:var(--accent);}
+  .nav-links{display:flex;gap:28px;align-items:center;}
+  .nav-links a{font-size:13px;color:var(--muted);text-decoration:none;}
+  .nav-links a:hover{color:var(--text);}
+  .cart-btn{background:var(--accent);color:var(--ink);border:none;padding:10px 18px;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px;}
+  .cart-count{background:var(--ink);color:var(--accent);border-radius:50%;width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;font-size:10px;}
+  .hamburger{display:none;background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;}
+  @media(max-width:800px){ .nav-links{display:none;} .hamburger{display:block;} }
+  #mobileMenu{display:none;background:var(--panel);border-bottom:1px solid var(--line);padding:16px 24px;}
+  #mobileMenu a{display:block;padding:10px 0;font-size:14px;color:var(--text);text-decoration:none;border-bottom:1px solid var(--line);}
+
+  #hero{position:relative;padding:80px 24px 60px;overflow:hidden;}
+  .hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(94,234,212,.12) 0%,transparent 70%);top:-200px;right:-100px;pointer-events:none;}
+  .hero-inner{max-width:1280px;margin:0 auto;position:relative;z-index:1;}
+  .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;}
+  .hero-h1{font-family:var(--display);font-size:clamp(2.2rem,4.6vw,3.6rem);font-weight:700;line-height:1.1;margin:18px 0 16px;letter-spacing:-1px;}
+  .hero-h1 span{color:var(--accent);}
+  .hero-sub{color:var(--muted);font-size:15px;max-width:460px;line-height:1.8;margin-bottom:28px;}
+  .hero-stats{display:flex;gap:32px;margin-top:32px;flex-wrap:wrap;}
+  .hero-stat-num{font-family:var(--display);font-size:1.8rem;font-weight:700;color:var(--accent);}
+  .hero-stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+  .btn-primary{background:var(--accent);color:var(--ink);border:none;padding:14px 28px;border-radius:8px;font-weight:700;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn-outline{background:transparent;color:var(--text);border:1px solid var(--line);padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;text-decoration:none;display:inline-block;}
+  .code-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;}
+  .code-bar{background:var(--panel2);padding:10px 16px;display:flex;gap:6px;border-bottom:1px solid var(--line);}
+  .code-dot{width:9px;height:9px;border-radius:50%;}
+  .code-body{padding:20px;font-family:'Space Grotesk',monospace;font-size:12px;line-height:1.9;color:#9CDCFE;overflow-x:auto;}
+  .code-body .kw{color:#C586C0;} .code-body .str{color:#CE9178;} .code-body .fn{color:#DCDCAA;} .code-body .cm{color:#6A9955;}
+
+  .section{max-width:1280px;margin:0 auto;padding:64px 24px;}
+  .section-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:36px;gap:20px;flex-wrap:wrap;}
+  .section-title{font-family:var(--display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;}
+  .section-note{color:var(--muted);font-size:13px;max-width:340px;}
+
+  .catalogue-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:20px;}
+  .product-rating{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);margin-bottom:8px;}
+  .stars-kern{color:var(--accent);letter-spacing:-1px;}
+  .catalogue-search{margin-bottom:24px;max-width:420px;}
+  .catalogue-search input{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);padding:12px 16px;border-radius:8px;font-family:var(--body);font-size:14px;outline:none;}
+  .catalogue-search input:focus{border-color:var(--accent);}
+  .no-results-kern{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);font-size:13px;}
+  .reviews-grid-kern{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;}
+  .review-card-kern{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;}
+  .review-card-kern .stars-row{color:var(--accent);font-size:14px;margin-bottom:10px;}
+  .review-card-kern p{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:10px;}
+  .review-card-kern .reviewer-kern{font-family:var(--display);font-size:12px;font-weight:600;}
+  .product-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;transition:border-color .2s,transform .2s;}
+  .product-card:hover{border-color:rgba(94,234,212,.4);transform:translateY(-3px);}
+  .product-img-wrap{position:relative;background:var(--panel2);}
+  .product-img{width:100%;height:200px;object-fit:cover;}
+  .stock-badge{position:absolute;top:10px;left:10px;background:rgba(11,13,16,.85);border:1px solid var(--line);color:var(--muted);font-size:10px;padding:4px 10px;border-radius:100px;}
+  .product-body{padding:16px;}
+  .product-name{font-weight:600;font-size:14px;margin-bottom:4px;}
+  .product-vendor{font-size:11px;color:var(--muted);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px;}
+  .product-foot{display:flex;align-items:center;justify-content:space-between;}
+  .product-price{font-family:var(--display);font-weight:700;color:var(--accent);font-size:16px;}
+  .add-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;}
+  .add-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .loading-row{display:flex;justify-content:center;padding:60px 0;}
+  .spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  #features{background:var(--panel);border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;}
+  .feature-card{padding:26px;border:1px solid var(--line);border-radius:14px;background:var(--ink);}
+  .feature-icon{font-size:24px;margin-bottom:12px;}
+  .feature-title{font-weight:700;font-size:14px;margin-bottom:8px;}
+  .feature-desc{font-size:13px;color:var(--muted);line-height:1.7;}
+
+  #stack{}
+  .stack-chips{display:flex;gap:10px;flex-wrap:wrap;}
+  .stack-chip{background:var(--panel);border:1px solid var(--line);border-radius:100px;padding:9px 18px;font-size:12px;color:var(--muted);font-family:var(--display);}
+
+  footer{border-top:1px solid var(--line);padding:44px 24px 26px;}
+  .footer-inner{max-width:1280px;margin:0 auto;display:flex;flex-wrap:wrap;justify-content:space-between;gap:32px;}
+  .footer-desc{font-size:12px;color:var(--muted);max-width:280px;margin-top:10px;line-height:1.7;}
+  .footer-col-title{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;}
+  .footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:8px;}
+  .footer-col a:hover{color:var(--text);}
+  .footer-bottom{max-width:1280px;margin:30px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center;}
+
+  .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:200;display:none;}
+  .cart-overlay.open{display:block;}
+  .cart-drawer{position:fixed;top:0;right:-400px;width:380px;max-width:92vw;height:100%;background:var(--panel);z-index:201;transition:right .3s ease;display:flex;flex-direction:column;border-left:1px solid var(--line);}
+  .cart-drawer.open{right:0;}
+  .cart-head{padding:20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;}
+  .cart-head h3{font-family:var(--display);font-size:1.2rem;}
+  .cart-close{background:none;border:none;color:var(--text);font-size:20px;cursor:pointer;}
+  .cart-items{flex:1;overflow-y:auto;padding:16px 20px;}
+  .cart-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);}
+  .cart-item img{width:56px;height:56px;object-fit:cover;border-radius:8px;}
+  .cart-item-name{font-size:13px;font-weight:600;}
+  .cart-item-price{font-size:12px;color:var(--accent);margin-top:4px;font-family:var(--display);}
+  .qty-controls{display:flex;align-items:center;gap:8px;margin-top:6px;}
+  .qty-btn{background:var(--panel2);border:1px solid var(--line);color:var(--text);width:22px;height:22px;border-radius:6px;cursor:pointer;font-size:13px;}
+  .cart-empty{text-align:center;color:var(--muted);padding:40px 0;font-size:13px;}
+  .cart-foot{padding:20px;border-top:1px solid var(--line);}
+  .cart-total-row{display:flex;justify-content:space-between;font-family:var(--display);font-weight:700;margin-bottom:16px;}
+  .checkout-btn{width:100%;background:var(--accent);color:var(--ink);border:none;padding:13px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;}
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+// ===== CLIENT SHOPIFY CREDENTIALS — replace both for a real client build =====
+const SHOPIFY_DOMAIN = "YOUR_STORE.myshopify.com";
+const STOREFRONT_TOKEN = "your_storefront_access_token";
+const GRAPHQL_ENDPOINT = `https://${SHOPIFY_DOMAIN}/api/2024-01/graphql.json`;
+const GET_PRODUCTS = `query { products(first: 12) { edges { node { id title vendor description priceRange { minVariantPrice { amount currencyCode } } images(first: 1) { edges { node { url altText } } } } } } }`;
+
+// ===== Fallback catalogue — renders instantly; replaced by live Storefront API data if credentials above are configured =====
+const FALLBACK_PRODUCTS = [
+  { id:'g1', title:'Aero Runner Sneaker', vendor:'Kern Studio', price:128, currency:'USD', img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500&h=500&fit=crop', stock:'12 in stock' },
+  { id:'g2', title:'Nimbus Crewneck', vendor:'Kern Basics', price:64, currency:'USD', img:'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500&h=500&fit=crop', stock:'8 in stock' },
+  { id:'g3', title:'Contour Backpack', vendor:'Kern Gear', price:96, currency:'USD', img:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=500&h=500&fit=crop', stock:'5 left' },
+  { id:'g4', title:'Halo Sunglasses', vendor:'Kern Optics', price:58, currency:'USD', img:'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=500&h=500&fit=crop', stock:'20 in stock' },
+  { id:'g5', title:'Drift Cap', vendor:'Kern Basics', price:34, currency:'USD', img:'https://images.unsplash.com/photo-1521369909029-2afed882baee?w=500&h=500&fit=crop', stock:'15 in stock' },
+  { id:'g6', title:'Slate Tote Bag', vendor:'Kern Gear', price:48, currency:'USD', img:'https://images.unsplash.com/photo-1591561954557-26941169b49e?w=500&h=500&fit=crop', stock:'9 in stock' },
+  { id:'g7', title:'Pulse Watch', vendor:'Kern Tech', price:210, currency:'USD', img:'https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=500&h=500&fit=crop', stock:'3 left' },
+  { id:'g8', title:'Grid Wallet', vendor:'Kern Basics', price:38, currency:'USD', img:'https://images.unsplash.com/photo-1627123424574-724758594e93?w=500&h=500&fit=crop', stock:'18 in stock' },
+];
+
+async function fetchShopifyProducts() {
+  // Only attempt the live call if real credentials have been set — otherwise skip straight to fallback.
+  if (SHOPIFY_DOMAIN.startsWith('YOUR_STORE')) return null;
+  try {
+    const res = await fetch(GRAPHQL_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN },
+      body: JSON.stringify({ query: GET_PRODUCTS })
+    });
+    const json = await res.json();
+    const edges = json.data?.products?.edges;
+    if (!edges || !edges.length) return null;
+    return edges.map(e => {
+      const n = e.node;
+      return {
+        id: n.id.split('/').pop(),
+        title: n.title,
+        vendor: n.vendor || 'Store',
+        price: parseFloat(n.priceRange.minVariantPrice.amount),
+        currency: n.priceRange.minVariantPrice.currencyCode,
+        img: n.images?.edges[0]?.node.url || 'https://placehold.co/500x500',
+        stock: 'In stock',
+      };
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+function getRating(id) {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+  const rating = (4.3 + (hash % 7) / 10).toFixed(1);
+  const count = 10 + (hash % 180);
+  return { rating, count };
+}
+
+function ProductCard({ product, onAdd }) {
+  const { rating, count } = getRating(product.id);
+  const filled = Math.round(rating);
+  const stars = '★★★★★'.slice(0, filled) + '☆☆☆☆☆'.slice(0, 5 - filled);
+  return (
+    <div className="product-card">
+      <div className="product-img-wrap">
+        <img className="product-img" src={product.img} alt={product.title} loading="lazy" />
+        <span className="stock-badge">{product.stock}</span>
+      </div>
+      <div className="product-body">
+        <div className="product-vendor">{product.vendor}</div>
+        <div className="product-name">{product.title}</div>
+        <div className="product-rating"><span className="stars-kern">{stars}</span> {rating} ({count})</div>
+        <div className="product-foot">
+          <span className="product-price">${product.price.toFixed(2)}</span>
+          <button className="add-btn" onClick={() => onAdd(product)}>+ Add</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CartDrawer({ open, cart, onClose, onQty, onCheckout }) {
+  const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+  return (
+    <React.Fragment>
+      <div className={`cart-overlay ${open ? 'open' : ''}`} onClick={onClose}></div>
+      <aside className={`cart-drawer ${open ? 'open' : ''}`}>
+        <div className="cart-head">
+          <h3>Your Cart</h3>
+          <button className="cart-close" onClick={onClose} aria-label="Close cart">✕</button>
+        </div>
+        <div className="cart-items">
+          {cart.length === 0 && <div className="cart-empty">Your cart is empty.</div>}
+          {cart.map(item => (
+            <div className="cart-item" key={item.id}>
+              <img src={item.img} alt={item.title} />
+              <div>
+                <div className="cart-item-name">{item.title}</div>
+                <div className="cart-item-price">${(item.price * item.qty).toFixed(2)}</div>
+                <div className="qty-controls">
+                  <button className="qty-btn" onClick={() => onQty(item.id, -1)}>−</button>
+                  <span>{item.qty}</span>
+                  <button className="qty-btn" onClick={() => onQty(item.id, 1)}>+</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="cart-foot">
+          <div className="cart-total-row"><span>Total</span><span>${total.toFixed(2)}</span></div>
+          <button className="checkout-btn" onClick={onCheckout}>Checkout via WhatsApp</button>
+        </div>
+      </aside>
+    </React.Fragment>
+  );
+}
+
+function App() {
+  const [products, setProducts] = useState(FALLBACK_PRODUCTS);
+  const [loading, setLoading] = useState(true);
+  const [cart, setCart] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('headlessCart') || '[]'); } catch(e) { return []; }
+  });
+  const [cartOpen, setCartOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+  useEffect(() => {
+    fetchShopifyProducts().then(live => {
+      if (live && live.length) setProducts(live);
+      setLoading(false);
+    });
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('headlessCart', JSON.stringify(cart));
+  }, [cart]);
+
+  const count = useMemo(() => cart.reduce((s, i) => s + i.qty, 0), [cart]);
+  const filteredProducts = useMemo(() => {
+    if (!searchTerm.trim()) return products;
+    const term = searchTerm.trim().toLowerCase();
+    return products.filter(p => p.title.toLowerCase().includes(term) || p.vendor.toLowerCase().includes(term));
+  }, [products, searchTerm]);
+
+  const addToCart = (product) => {
+    setCart(prev => {
+      const exists = prev.find(i => i.id === product.id);
+      if (exists) return prev.map(i => i.id === product.id ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { ...product, qty: 1 }];
+    });
+    setCartOpen(true);
+  };
+
+  const updateQty = (id, delta) => {
+    setCart(prev => prev.map(i => {
+      if (i.id !== id) return i;
+      const newQty = i.qty + delta;
+      return newQty <= 0 ? null : { ...i, qty: newQty };
+    }).filter(Boolean));
+  };
+
+  const checkout = () => {
+    if (!cart.length) return;
+    const total = cart.reduce((s, i) => s + i.price * i.qty, 0);
+    const items = cart.map(i => `${i.title} x${i.qty} - $${(i.price * i.qty).toFixed(2)}`).join('%0A');
+    window.open(`https://wa.me/2349162306809?text=Order%20from%20Kern%3A%0A${items}%0A%0ATotal%3A%20$${total.toFixed(2)}`, '_blank');
+    setCart([]);
+    setCartOpen(false);
+  };
+
+  return (
+    <React.Fragment>
+      <header>
+        <div className="nav-inner">
+          <a href="#" className="wordmark">Kern<span>.</span></a>
+          <nav className="nav-links">
+            <a href="#catalogue">Catalogue</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#features">Why Headless</a>
+            <a href="#stack">Stack</a>
+          </nav>
+          <div style={{display:'flex', alignItems:'center', gap:'12px'}}>
+            <button className="cart-btn" onClick={() => setCartOpen(true)}>Cart <span className="cart-count">{count}</span></button>
+            <button className="hamburger" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">☰</button>
+          </div>
+        </div>
+        {mobileOpen && (
+          <div id="mobileMenu" style={{display:'block'}}>
+            <a href="#catalogue" onClick={() => setMobileOpen(false)}>Catalogue</a>
+            <a href="#reviews" onClick={() => setMobileOpen(false)}>Reviews</a>
+            <a href="#features" onClick={() => setMobileOpen(false)}>Why Headless</a>
+            <a href="#stack" onClick={() => setMobileOpen(false)}>Stack</a>
+          </div>
+        )}
+      </header>
+
+      <section id="hero">
+        <div className="hero-glow"></div>
+        <div className="hero-inner">
+          <div className="hero-grid">
+            <div>
+              <span className="badge"><span className="dot"></span> Storefront API Connected</span>
+              <h1 className="hero-h1">A Shopify backend.<br/>A frontend with <span>no limits.</span></h1>
+              <p className="hero-sub">Kern is a demo storefront: a fully custom React frontend pulling live product data from Shopify's Storefront API — no theme, no template constraints, no compromise on design.</p>
+              <div style={{display:'flex', gap:'14px', flexWrap:'wrap'}}>
+                <a href="#catalogue" className="btn-primary">Browse Catalogue</a>
+                <a href="https://wa.me/2349162306809?text=I%20want%20a%20Headless%20Shopify%20store%20like%20Kern" target="_blank" className="btn-outline">Get This Built</a>
+              </div>
+              <div className="hero-stats">
+                <div><div className="hero-stat-num">98</div><div className="hero-stat-label">Lighthouse Speed</div></div>
+                <div><div className="hero-stat-num">0</div><div className="hero-stat-label">Theme Constraints</div></div>
+                <div><div className="hero-stat-num">100%</div><div className="hero-stat-label">Custom Frontend</div></div>
+              </div>
+            </div>
+            <div className="code-card">
+              <div className="code-bar">
+                <span className="code-dot" style={{background:'#FF5F57'}}></span>
+                <span className="code-dot" style={{background:'#FEBC2E'}}></span>
+                <span className="code-dot" style={{background:'#28C840'}}></span>
+              </div>
+              <div className="code-body">
+                <div><span className="kw">const</span> res = <span className="kw">await</span> <span className="fn">fetch</span>(GRAPHQL_ENDPOINT, {'{'}</div>
+                <div>&nbsp;&nbsp;method: <span className="str">'POST'</span>,</div>
+                <div>&nbsp;&nbsp;headers: {'{'} <span className="str">'X-Shopify-Storefront-Access-Token'</span>: TOKEN {'}'},</div>
+                <div>&nbsp;&nbsp;body: <span className="fn">JSON.stringify</span>({'{'} query: GET_PRODUCTS {'}'})</div>
+                <div>{'}'});</div>
+                <div></div>
+                <div><span className="cm">// Shopify handles inventory, checkout & payments</span></div>
+                <div><span className="cm">// This frontend handles literally everything else</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="catalogue" className="section">
+        <div className="section-head">
+          <h2 className="section-title">Live Catalogue</h2>
+          <p className="section-note">Pulled directly from the Storefront API. Add items to test the cart and WhatsApp checkout flow.</p>
+        </div>
+        <div className="catalogue-search">
+          <label htmlFor="catalogueSearchInput" style={{position:'absolute', left:'-9999px'}}>Search products</label>
+          <input id="catalogueSearchInput" type="text" placeholder="Search products…" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        </div>
+        {loading ? (
+          <div className="loading-row"><div className="spinner"></div></div>
+        ) : (
+          <div className="catalogue-grid">
+            {filteredProducts.length === 0 ? (
+              <div className="no-results-kern">No products match "{searchTerm}".</div>
+            ) : (
+              filteredProducts.map(p => <ProductCard key={p.id} product={p} onAdd={addToCart} />)
+            )}
+          </div>
+        )}
+      </section>
+
+      <section id="reviews" className="section">
+        <div className="section-head">
+          <h2 className="section-title">Customer Reviews</h2>
+          <p className="section-note">Real feedback style, matched to the Kern brand voice.</p>
+        </div>
+        <div className="reviews-grid-kern">
+          <div className="review-card-kern"><div className="stars-row">★★★★★</div><p>"Site loads instantly even on mobile data. Checkout was seamless through Shopify."</p><div className="reviewer-kern">— Daniel R.</div></div>
+          <div className="review-card-kern"><div className="stars-row">★★★★★</div><p>"The design doesn't look like every other Shopify store — genuinely custom."</p><div className="reviewer-kern">— Priya S.</div></div>
+          <div className="review-card-kern"><div className="stars-row">★★★★☆</div><p>"Great catalogue browsing experience, search made finding items quick."</p><div className="reviewer-kern">— Omar K.</div></div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div className="section">
+          <div className="section-head">
+            <h2 className="section-title">Why go headless</h2>
+            <p className="section-note">The trade-offs, honestly stated.</p>
+          </div>
+          <div className="feature-grid">
+            <div className="feature-card">
+              <div className="feature-icon">⚡</div>
+              <div className="feature-title">Built for speed</div>
+              <div className="feature-desc">No theme bloat — the frontend ships only the code it needs, typically scoring 90+ on Lighthouse.</div>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🎨</div>
+              <div className="feature-title">Zero design limits</div>
+              <div className="feature-desc">If you can imagine the layout, it can be built — no theme structure to work around.</div>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🔒</div>
+              <div className="feature-title">Shopify-grade checkout</div>
+              <div className="feature-desc">Inventory, payments, and checkout still run on Shopify's trusted, PCI-compliant infrastructure.</div>
+            </div>
+            <div className="feature-card">
+              <div className="feature-icon">🔌</div>
+              <div className="feature-title">API-first</div>
+              <div className="feature-desc">Products, collections, and cart all sync live via GraphQL — no manual data entry duplication.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="stack" className="section">
+        <div className="section-head">
+          <h2 className="section-title">The Stack</h2>
+          <p className="section-note">What this demo — and every Headless build we ship — runs on.</p>
+        </div>
+        <div className="stack-chips">
+          <span className="stack-chip">React 18</span>
+          <span className="stack-chip">Shopify Storefront API</span>
+          <span className="stack-chip">GraphQL</span>
+          <span className="stack-chip">Netlify Hosting</span>
+          <span className="stack-chip">WhatsApp Checkout Bridge</span>
+        </div>
+      </section>
+
+      <footer>
+        <div className="footer-inner">
+          <div>
+            <a href="#" className="wordmark">Kern<span>.</span></a>
+            <p className="footer-desc">A demo Headless Shopify storefront by De Prudent Store Designer — custom frontend, Shopify backend.</p>
+          </div>
+          <div className="footer-col">
+            <p className="footer-col-title">Explore</p>
+            <a href="#catalogue">Catalogue</a>
+            <a href="#reviews">Reviews</a>
+            <a href="#features">Why Headless</a>
+            <a href="#stack">Stack</a>
+          </div>
+          <div className="footer-col">
+            <p className="footer-col-title">Contact</p>
+            <a href="https://wa.me/2349162306809" target="_blank">💬 WhatsApp</a>
+            <a href="mailto:deprudentstoredesigner@gmail.com">📧 Email</a>
+          </div>
+        </div>
+        <p className="footer-bottom">© <span class="copy-year">2026</span> Kern. A De Prudent Store Designer demo storefront.</p>
+      </footer>
+
+      <CartDrawer open={cartOpen} cart={cart} onClose={() => setCartOpen(false)} onQty={updateQty} onCheckout={checkout} />
+    </React.Fragment>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

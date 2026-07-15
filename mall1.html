@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Store – Shop Online</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{font-family:system-ui,'Segoe UI',sans-serif;background:#f5f5f5;color:#1f2937;}
+    .header{background:#1f2937;color:white;padding:15px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:0;z-index:100;}
+    .logo{font-weight:800;font-size:1.4rem;}
+    .logo span{color:#d4af37;}
+    .search-bar{flex:1;background:#f0f0f0;border-radius:30px;padding:8px 15px;}
+    .search-bar input{width:100%;border:none;background:transparent;outline:none;}
+    .cart-btn{background:#d4af37;border:none;padding:8px 16px;border-radius:30px;font-weight:600;cursor:pointer;}
+    .flash-banner{background:linear-gradient(135deg,#e74c3c,#c0392b);color:white;display:flex;justify-content:space-between;padding:12px 20px;margin:10px 15px 0;border-radius:12px;}
+    .section-title{padding:20px 20px 8px;font-size:1.2rem;font-weight:700;}
+    .product-row{display:flex;gap:12px;padding:10px 20px;overflow-x:auto;scrollbar-width:thin;}
+    .product-card{min-width:160px;background:white;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:0.2s;}
+    .product-card img{width:100%;height:120px;object-fit:cover;}
+    .card-info{padding:10px;}
+    .price{font-weight:700;color:#d4af37;}
+    .add-btn{background:#1f2937;color:white;width:100%;padding:8px;border:none;border-radius:20px;cursor:pointer;margin-top:6px;}
+    .deals-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:0 20px 20px;}
+    .cart-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);opacity:0;pointer-events:none;transition:0.3s;z-index:1000;}
+    .cart-overlay.open{opacity:1;pointer-events:auto;}
+    .cart-drawer{position:fixed;top:0;right:-420px;width:380px;max-width:90vw;height:100vh;background:white;transition:0.3s;z-index:1001;padding:20px;display:flex;flex-direction:column;}
+    .cart-drawer.open{right:0;}
+    .close-cart{align-self:flex-end;font-size:1.8rem;background:none;border:none;cursor:pointer;}
+    .cart-item{display:flex;gap:10px;padding:10px 0;border-bottom:1px solid #eee;align-items:center;flex-wrap:wrap;}
+    .checkout-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:2000;}
+    .checkout-content{background:white;max-width:500px;width:90%;padding:24px;border-radius:20px;}
+    input,textarea{width:100%;padding:10px;margin:5px 0 15px;border:1px solid #ddd;border-radius:8px;}
+    .footer{background:#1f2937;color:white;padding:30px;text-align:center;margin-top:40px;}
+    @media(max-width:640px){.header{flex-direction:column;}.search-bar{width:100%;}}
+  </style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">My<span>Store</span></div>
+  <div class="search-bar"><input type="text" id="searchInput" placeholder="Search products..."></div>
+  <button class="cart-btn" id="cartToggle">🛒 Cart (<span id="cartCount">0</span>)</button>
+</div>
+<div class="flash-banner"><span>⚡ FLASH SALE – Up to 60% off</span><span id="flashCountdown">Ends in 04:59:59</span></div>
+<div id="sectionsContainer"><div style="text-align:center;padding:40px;">Loading products...</div></div>
+<div id="checkoutModal" class="checkout-modal"><div class="checkout-content"><h2>Complete Your Order</h2><div id="checkoutSummary"></div><input type="text" id="custName" placeholder="Full Name *"><input type="tel" id="custPhone" placeholder="Phone *"><textarea id="custAddress" placeholder="Delivery Address *"></textarea><input type="email" id="custEmail" placeholder="Email"><button id="confirmOrderBtn" style="background:#25D366;color:white;padding:12px;border:none;border-radius:30px;width:100%;">Send via WhatsApp</button><button id="closeCheckoutBtn" style="margin-top:10px;width:100%;padding:10px;background:#eee;border:none;border-radius:30px;">Cancel</button></div></div>
+<div class="cart-overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer"><button class="close-cart" id="closeCartBtn">&times;</button><h2>Your Cart</h2><div id="cartItems"></div><div class="cart-footer"><p>Total: <strong id="cartTotal">€0.00</strong></p><button id="proceedCheckout" style="width:100%;background:#d4af37;padding:12px;border:none;border-radius:30px;font-weight:bold;">Proceed to Checkout</button></div></div>
+<footer class="footer"><p>© <span class="copy-year">2026</span> My Store. All rights reserved.</p></footer>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+// ==== CLIENT CONFIGURATION – REPLACE WITH CLIENT'S DETAILS ====
+const firebaseConfig = {
+  apiKey: "AIzaSyDpzSx6cfyHgDc80V-mGMo-2ZQRY8AIuh8",
+  authDomain: "deprudent-store-platform-cce59.firebaseapp.com",
+  projectId: "deprudent-store-platform-cce59",
+  storageBucket: "deprudent-store-platform-cce59.firebasestorage.app",
+  messagingSenderId: "274718749378",
+  appId: "1:274718749378:web:66410bd2ad1d2ea895015b"
+};
+const STORE_SLUG = 'mall';           // Change per client
+const WHATSAPP_NUMBER = '2349162306809'; // Client's WhatsApp
+const STORE_NAME = "My Store";       // Client's business name
+// ==== END CLIENT CONFIGURATION ====
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+let allProducts = [], cart = [], searchQuery = '';
+function loadCart() { const saved = localStorage.getItem(STORE_SLUG+'_cart'); if(saved) { try { cart = JSON.parse(saved); } catch(e){} } renderCart(); }
+function saveCart() { localStorage.setItem(STORE_SLUG+'_cart', JSON.stringify(cart)); renderCart(); }
+function renderCart() { const totalQty = cart.reduce((s,i)=>s+i.qty,0), subtotal = cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('cartCount').innerText = totalQty; document.getElementById('cartTotal').innerText = `€${subtotal.toFixed(2)}`; const container = document.getElementById('cartItems'); if(cart.length===0){ container.innerHTML='<p>Cart empty</p>'; return; } container.innerHTML = cart.map((item,idx)=>`<div class="cart-item"><img src="${item.img||'https://placehold.co/50'}" style="width:50px;height:50px;object-fit:cover;border-radius:8px;"><div><strong>${item.name}</strong><br><small>€${item.price} each</small></div><div class="cart-item-controls"><button class="qty-down" data-idx="${idx}">-</button><span>${item.qty}</span><button class="qty-up" data-idx="${idx}">+</button></div><button class="remove-item" data-idx="${idx}">×</button></div>`).join(''); document.querySelectorAll('.qty-up').forEach(btn=>btn.addEventListener('click',()=>{cart[btn.dataset.idx].qty++; saveCart();})); document.querySelectorAll('.qty-down').forEach(btn=>btn.addEventListener('click',()=>{if(cart[btn.dataset.idx].qty>1)cart[btn.dataset.idx].qty--; else cart.splice(btn.dataset.idx,1); saveCart();})); document.querySelectorAll('.remove-item').forEach(btn=>btn.addEventListener('click',()=>{cart.splice(btn.dataset.idx,1); saveCart();})); }
+function addToCart(id,name,price,img){ let existing=cart.find(i=>i.id===id); if(existing) existing.qty++; else cart.push({id,name,price:parseFloat(price),img,qty:1}); saveCart(); openCart(); }
+async function fetchProducts(){ const q = query(collection(db,"products"), where("storeId","==",STORE_SLUG)); const snap = await getDocs(q); allProducts = snap.docs.map(d=>({id:d.id,...d.data()})); renderAllSections(); }
+function renderAllSections(){ const cats = [{id:'trending',emoji:'🔥',title:'Trending Now'},{id:'women',emoji:'👗',title:'Women'},{id:'men',emoji:'👔',title:'Men'},{id:'kids',emoji:'👶',title:'Kids'},{id:'electronics',emoji:'📱',title:'Electronics'},{id:'home',emoji:'🏠',title:'Home'},{id:'sports',emoji:'⚽',title:'Sports'},{id:'beauty',emoji:'💄',title:'Beauty'},{id:'deals',emoji:'💰',title:'Deals',grid:true}]; const filtered = allProducts.filter(p=>!searchQuery||p.name.toLowerCase().includes(searchQuery)||(p.description||'').toLowerCase().includes(searchQuery)); let html=''; for(let cat of cats){ let items = filtered.filter(p=>p.category===cat.id); if(items.length===0) continue; html+=`<div class="section-title">${cat.emoji} ${cat.title}</div>`; if(cat.grid){ html+='<div class="deals-grid">'; items.forEach(p=>{html+=`<div class="deal-card" style="background:white;border-radius:12px;overflow:hidden"><img src="${p.image_url||'https://placehold.co/200'}" style="width:100%;height:130px;object-fit:cover"><div style="padding:8px 10px"><h4>${p.name}</h4><div class="price">€${p.price}</div><p style="font-size:0.7rem;">${p.description||''}</p><button class="add-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-img="${p.image_url||''}">Add</button></div></div>`;}); html+='</div>'; } else{ html+='<div class="product-row">'; items.forEach(p=>{html+=`<div class="product-card"><img src="${p.image_url||'https://placehold.co/150'}" alt="${p.name}"><div class="card-info"><h4>${p.name}</h4><div class="price">€${p.price}</div><p style="font-size:0.7rem;">${p.description||''}</p><button class="add-btn" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-img="${p.image_url||''}">Add</button></div></div>`;}); html+='</div>'; } } document.getElementById('sectionsContainer').innerHTML = html || '<p style="text-align:center;padding:40px;">No products found.</p>'; document.querySelectorAll('.add-btn').forEach(btn=>btn.addEventListener('click',()=>addToCart(btn.dataset.id,btn.dataset.name,btn.dataset.price,btn.dataset.img))); }
+document.getElementById('searchInput').addEventListener('input',(e)=>{searchQuery=e.target.value.toLowerCase(); renderAllSections();});
+const drawer = document.getElementById('cartDrawer'), overlay = document.getElementById('cartOverlay');
+function openCart(){ drawer.classList.add('open'); overlay.classList.add('open'); }
+function closeCart(){ drawer.classList.remove('open'); overlay.classList.remove('open'); }
+document.getElementById('cartToggle').onclick=openCart; document.getElementById('closeCartBtn').onclick=closeCart; overlay.onclick=closeCart;
+document.getElementById('proceedCheckout').onclick=()=>{ if(cart.length){ closeCart(); showCheckout(); } };
+function showCheckout(){ let total = cart.reduce((s,i)=>s+i.price*i.qty,0); document.getElementById('checkoutSummary').innerHTML = cart.map(i=>`<div>${i.name} x${i.qty} – €${(i.price*i.qty).toFixed(2)}</div>`).join('')+`<p><strong>Total: €${total.toFixed(2)}</strong></p>`; document.getElementById('checkoutModal').style.display='flex'; }
+document.getElementById('closeCheckoutBtn').onclick=()=>document.getElementById('checkoutModal').style.display='none';
+document.getElementById('confirmOrderBtn').onclick=async()=>{ let name=document.getElementById('custName').value.trim(), phone=document.getElementById('custPhone').value.trim(), address=document.getElementById('custAddress').value.trim(), email=document.getElementById('custEmail').value.trim(); if(!name||!phone||!address){ alert('Please fill name, phone and address'); return; } let total = cart.reduce((s,i)=>s+i.price*i.qty,0); let items = cart.map(i=>`${i.name} x${i.qty} - €${(i.price*i.qty).toFixed(2)}`).join('%0A'); let msg = `🛍️ NEW ORDER FROM ${STORE_NAME}%0A%0A*Customer:* ${encodeURIComponent(name)}%0A*Phone:* ${encodeURIComponent(phone)}%0A*Address:* ${encodeURIComponent(address)}%0A*Email:* ${encodeURIComponent(email)}%0A%0A*Order:*%0A${items}%0A%0A*Total:* €${total.toFixed(2)}`; window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank'); await addDoc(collection(db,"orders"),{ storeId:STORE_SLUG, customer:{name,phone,address,email}, items:cart, total, status:'pending', createdAt:serverTimestamp() }); cart = []; saveCart(); document.getElementById('checkoutModal').style.display='none'; alert('Order sent!'); };
+fetchProducts(); loadCart();
+const flashEnd = new Date(); flashEnd.setUTCHours(24,0,0,0);
+setInterval(()=>{ let diff=flashEnd-new Date(); if(diff<=0) document.getElementById('flashCountdown').innerText='Sale ended'; else { let h=Math.floor(diff/3600000), m=Math.floor((diff%3600000)/60000), s=Math.floor((diff%60000)/1000); document.getElementById('flashCountdown').innerText=`Ends in ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; } },1000);
+</script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Complete Full‑Stack Webapp Solution | De Prudent Store Designer</title>
+<meta name="description" content="A full list of full‑stack webapp features De Prudent Store Designer can build for your business — cart management, delivery tracking, loyalty points, analytics, and more.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9973A; --gold-light: #E8B96A; --obsidian: #080B10;
+    --surface: #0E1319; --surface2: #141C25; --border: rgba(201,151,58,0.15);
+    --muted: #7A8A9A; --text: #E8EDF2;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--obsidian); color: var(--text);
+    font-family: 'Outfit', sans-serif; overflow-x: hidden; line-height: 1.6;
+  }
+  .display { font-family: 'Cormorant Garamond', serif; }
+  .gold-text {
+    background: linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+
+  .btn-gold {
+    display: inline-block; background: linear-gradient(135deg,#B8862A,var(--gold),#D4A84A);
+    color: #080B10; font-weight: 700; font-family: 'Outfit', sans-serif;
+    border-radius: 100px; padding: 14px 32px; font-size: 15px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: box-shadow .3s, transform .2s;
+  }
+  .btn-gold:hover { box-shadow: 0 0 28px rgba(201,151,58,.45); transform: translateY(-2px); }
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; transition: border-color .3s,transform .3s; }
+  .card:hover { border-color: rgba(201,151,58,.4); transform: translateY(-4px); }
+
+  header { position: sticky; top: 0; z-index: 100; background: rgba(8,11,16,.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  .header-inner { max-width: 1200px; margin: 0 auto; height: 68px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { text-decoration: none; display: flex; align-items: baseline; gap: 2px; }
+  .logo-main { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .logo-tag { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-left: 8px; font-weight: 300; }
+  .back-link { font-size: 13px; color: var(--gold-light); text-decoration: none; font-weight: 600; }
+  .back-link:hover { text-decoration: underline; }
+
+  #hero { position: relative; padding: 100px 24px 60px; text-align: center; overflow: hidden; }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; top: -200px; left: 50%; transform: translateX(-50%); background: radial-gradient(ellipse,rgba(201,151,58,.1) 0%,transparent 70%); pointer-events: none; }
+  .hero-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+  .section-label { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+  .hero-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem,5.5vw,3.8rem); font-weight: 700; line-height: 1.15; margin-bottom: 18px; }
+  .hero-sub { color: var(--muted); font-size: 16px; max-width: 580px; margin: 0 auto; line-height: 1.8; }
+
+  .section { padding: 20px 24px 90px; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+
+  .feature-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 20px;
+  }
+  @media (min-width: 640px) {
+    .feature-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 1024px) {
+    .feature-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .feature-card { padding: 30px 26px; }
+  .feature-icon { font-size: 32px; margin-bottom: 16px; display: block; }
+  .feature-title { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 10px; line-height: 1.4; }
+  .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  #cta { text-align: center; padding-top: 10px; }
+  .cta-h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem,3.6vw,2.6rem); font-weight: 700; margin-bottom: 16px; }
+  .cta-sub { color: var(--muted); font-size: 15px; max-width: 480px; margin: 0 auto 30px; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <span class="logo-main">De<span class="gold-text">Prudent</span></span>
+      <span class="logo-tag">STORE DESIGNER</span>
+    </a>
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <p class="section-label">What We Build</p>
+    <h1 class="hero-h1">Complete Full‑Stack<br><span class="gold-text">Webapp Solution</span></h1>
+    <p class="hero-sub">Every module your web application or online store actually needs to run, sell, and scale — built into your custom solution, not bolted on as an afterthought.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="feature-grid">
+
+      <div class="card feature-card">
+        <span class="feature-icon">🛒</span>
+        <h3 class="feature-title">Advanced Cart Management System</h3>
+        <p class="feature-desc">A persistent, fast cart that saves on refresh and handles variants, quantities, and multi-item checkout without friction.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🚚</span>
+        <h3 class="feature-title">Delivery Management System</h3>
+        <p class="feature-desc">Assign delivery zones, track fulfillment status, and keep customers informed from order to doorstep.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🎟️</span>
+        <h3 class="feature-title">Coupon & Discount Management</h3>
+        <p class="feature-desc">Create percentage or fixed discounts, launch limited-time codes, and drive urgency without touching code.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🔔</span>
+        <h3 class="feature-title">Push Notification System</h3>
+        <p class="feature-desc">Alert customers about order updates, restocks, and promotions the moment they happen.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">📦</span>
+        <h3 class="feature-title">Real-Time Order Tracking</h3>
+        <p class="feature-desc">Customers see live status updates on every order — no more "where is my order?" messages clogging your inbox.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">💬</span>
+        <h3 class="feature-title">Dispute Resolution Chat</h3>
+        <p class="feature-desc">A built-in channel for customers and support to resolve order issues directly, keeping everything on record.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🎧</span>
+        <h3 class="feature-title">Customer Support Module</h3>
+        <p class="feature-desc">A dedicated support flow so customers get help fast, without needing to leave your store to find you.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🎁</span>
+        <h3 class="feature-title">Loyalty Points & Voucher System</h3>
+        <p class="feature-desc">Reward repeat buyers automatically and turn first-time customers into regulars with redeemable points.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">📊</span>
+        <h3 class="feature-title">Stock & Inventory Management</h3>
+        <p class="feature-desc">Real-time stock counts that update automatically on every sale — never oversell an out-of-stock item again.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">📈</span>
+        <h3 class="feature-title">Business Dashboard with Product Analytics</h3>
+        <p class="feature-desc">See which products actually sell, which don't, and where your traffic is converting — at a glance.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">💰</span>
+        <h3 class="feature-title">Revenue & Sales Reports</h3>
+        <p class="feature-desc">Clear, exportable reports on revenue over time, so you always know exactly where the business stands.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">📢</span>
+        <h3 class="feature-title">Promotions & Banner Management</h3>
+        <p class="feature-desc">Launch and swap homepage banners and seasonal promotions yourself, without waiting on a developer.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">🏷️</span>
+        <h3 class="feature-title">Multiple Brands, Categories & Products Support</h3>
+        <p class="feature-desc">Organize a growing catalogue across brands and categories without the structure becoming unmanageable.</p>
+      </div>
+
+      <div class="card feature-card">
+        <span class="feature-icon">📥</span>
+        <h3 class="feature-title">Manual & Bulk Inventory Upload</h3>
+        <p class="feature-desc">Add products one at a time, or upload hundreds at once — whichever fits how your business actually works.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="cta" class="section">
+  <div class="section-inner">
+    <h2 class="cta-h2">Want These Features <span class="gold-text">In Your Store?</span></h2>
+    <p class="cta-sub">Message us on WhatsApp and tell us which modules matter most for your business — we'll build them in from day one.</p>
+    <a href="https://wa.me/2349162306809?text=I%20want%20to%20discuss%20adding%20these%20features%20to%20my%20store" target="_blank" class="btn-gold">💬 Chat on WhatsApp</a>
+  </div>
+</section>
+
+<footer>
+  <p>© <span class="copy-year">2026</span> De Prudent Store Designer. Serving businesses worldwide 🌍</p>
+</footer>
+
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

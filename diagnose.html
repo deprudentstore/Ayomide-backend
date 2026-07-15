@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>De Prudent — Connection Diagnostic</title>
+<style>
+  body { font-family: monospace; background:#111; color:#eee; padding:16px; font-size:14px; line-height:1.5; }
+  h1 { font-size:18px; color:#F6C453; }
+  .test { border:1px solid #333; border-radius:8px; padding:12px; margin-bottom:14px; }
+  .pending { color:#999; }
+  .ok { color:#4ade80; }
+  .fail { color:#f87171; }
+  pre { white-space:pre-wrap; word-break:break-word; background:#1a1a1a; padding:8px; border-radius:6px; }
+  button { background:#F6C453; color:#111; border:none; padding:10px 16px; border-radius:8px; font-weight:bold; }
+</style>
+</head>
+<body>
+<h1>De Prudent — Connection Diagnostic</h1>
+<p>This page tests your backend from this exact browser, and shows the raw result — no login required.</p>
+<button onclick="runAll()">Run Tests</button>
+
+<div id="results" style="margin-top:16px;"></div>
+
+<script>
+const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+const resultsEl = document.getElementById('results');
+
+function addTest(id, title) {
+  const div = document.createElement('div');
+  div.className = 'test';
+  div.innerHTML = `<strong>${title}</strong><div id="${id}" class="pending">Running…</div>`;
+  resultsEl.appendChild(div);
+  return document.getElementById(id);
+}
+
+async function runAll() {
+  resultsEl.innerHTML = '';
+
+  // Test 1: plain GET with normal CORS mode
+  const t1 = addTest('t1', 'Test 1 — GET /api/health (cors mode)');
+  try {
+    const res = await fetch(`${API_BASE}/health`, { mode: 'cors' });
+    const text = await res.text();
+    t1.className = 'ok';
+    t1.innerHTML = `✅ Reached server. Status ${res.status}<pre>${text}</pre>`;
+  } catch (err) {
+    t1.className = 'fail';
+    t1.innerHTML = `❌ ${err.name}: ${err.message}`;
+  }
+
+  // Test 2: same GET but no-cors mode (opaque — tells us if it's a pure network problem vs CORS block)
+  const t2 = addTest('t2', 'Test 2 — GET /api/health (no-cors mode)');
+  try {
+    await fetch(`${API_BASE}/health`, { mode: 'no-cors' });
+    t2.className = 'ok';
+    t2.innerHTML = `✅ Request completed (opaque response — this means the server IS reachable over the network; if Test 1 failed but this succeeds, it's a CORS problem, not a network problem).`;
+  } catch (err) {
+    t2.className = 'fail';
+    t2.innerHTML = `❌ ${err.name}: ${err.message} — if this fails too, it's a network/connectivity issue, not CORS.`;
+  }
+
+  // Test 3: POST like the real login call (triggers CORS preflight)
+  const t3 = addTest('t3', 'Test 3 — POST /api/admin/login (triggers preflight, dummy credentials)');
+  try {
+    const res = await fetch(`${API_BASE}/admin/login`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: 'test@test.com', password: 'wrongpassword' }),
+    });
+    const text = await res.text();
+    t3.className = 'ok';
+    t3.innerHTML = `✅ Reached server. Status ${res.status}<pre>${text}</pre>(A 401 "Invalid email or password" here is GOOD — it means the request went through fine.)`;
+  } catch (err) {
+    t3.className = 'fail';
+    t3.innerHTML = `❌ ${err.name}: ${err.message}`;
+  }
+
+  // Test 4: current page's origin, so we can confirm it matches ALLOWED_ORIGINS exactly
+  const t4 = addTest('t4', 'Test 4 — Your current origin');
+  t4.className = 'ok';
+  t4.innerHTML = `<pre>${window.location.origin}</pre>This must exactly match an entry in ALLOWED_ORIGINS on the backend.`;
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MARQUE — Considered Pieces, Made to Last</title>
+<meta name="description" content="MARQUE is a slow-fashion boutique: limited runs, considered materials, made on order. A De Prudent Store Designer luxury storefront demo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,400&family=Work+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15161B; --ink2:#1C1E25; --bone:#F1ECE1; --bone-dim:#C9C2B3;
+    --burgundy:#7C2333; --burgundy-light:#A23C4E; --brass:#A98358; --brass-light:#C7A87E;
+    --line: rgba(241,236,225,0.14);
+    --display:'Fraunces', serif; --body:'Work Sans', sans-serif; --mono:'IBM Plex Mono', monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--ink);color:var(--bone);font-family:var(--body);line-height:1.6;overflow-x:hidden;}
+  img{display:block;max-width:100%;}
+  a{color:inherit;}
+  ::selection{background:var(--burgundy);color:var(--bone);}
+  a:focus-visible, button:focus-visible, input:focus-visible{outline:1px solid var(--brass-light);outline-offset:3px;}
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.01ms !important; transition-duration:0.01ms !important; scroll-behavior:auto !important;} }
+
+  /* ===== Stitched tag — the signature element ===== */
+  .tag{
+    font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase;
+    border:1px dashed var(--brass); color:var(--brass-light); padding:5px 12px; display:inline-block;
+    background:rgba(169,131,88,.06);
+  }
+  .stitch-divider{ border:none; border-top:1px dashed var(--line); margin:0; }
+
+  /* ===== Announcement marquee ===== */
+  .marquee-wrap{ background:var(--burgundy); overflow:hidden; white-space:nowrap; padding:8px 0; }
+  .marquee{ display:inline-block; padding-left:100%; animation:scrollMarquee 26s linear infinite; }
+  .marquee span{ font-family:var(--mono); font-size:11px; letter-spacing:2px; text-transform:uppercase; margin-right:48px; }
+  @keyframes scrollMarquee{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+
+  /* ===== Header ===== */
+  header{ position:sticky; top:0; z-index:90; background:rgba(21,22,27,.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .nav-inner{ max-width:1280px; margin:0 auto; padding:18px 28px; display:flex; align-items:center; justify-content:space-between; }
+  .wordmark{ font-family:var(--display); font-size:26px; font-weight:600; letter-spacing:2px; text-decoration:none; }
+  .nav-links{ display:flex; gap:36px; align-items:center; }
+  .nav-links a{ font-size:13px; letter-spacing:1px; text-transform:uppercase; text-decoration:none; color:var(--bone-dim); transition:color .25s; }
+  .nav-links a:hover{ color:var(--bone); }
+  .nav-actions{ display:flex; align-items:center; gap:20px; }
+  .bag-btn{ background:none; border:1px solid var(--line); color:var(--bone); font-family:var(--mono); font-size:12px; padding:9px 16px; cursor:pointer; display:flex; align-items:center; gap:8px; letter-spacing:1px; }
+  .bag-btn:hover{ border-color:var(--brass); }
+  .bag-count{ background:var(--burgundy); color:var(--bone); border-radius:50%; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; font-size:10px; }
+  .hamburger{ display:none; background:none; border:none; color:var(--bone); font-size:22px; cursor:pointer; }
+  #mobileMenu{ display:none; background:var(--ink2); border-bottom:1px solid var(--line); padding:20px 28px; }
+  #mobileMenu a{ display:block; text-decoration:none; color:var(--bone); padding:12px 0; font-size:14px; letter-spacing:1px; text-transform:uppercase; border-bottom:1px solid var(--line); }
+  @media(max-width:860px){ .nav-links{display:none;} .hamburger{display:block;} }
+
+  /* ===== Hero (editorial, asymmetric) ===== */
+  #hero{ position:relative; min-height:92vh; display:flex; align-items:flex-end; }
+  .hero-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 25%; filter:brightness(.55) saturate(.9); }
+  .hero-content{ position:relative; z-index:1; padding:64px 28px 80px; max-width:1280px; margin:0 auto; width:100%; }
+  .hero-eyebrow{ margin-bottom:22px; }
+  .hero-h1{ font-family:var(--display); font-weight:400; font-size:clamp(2.6rem,7vw,5.6rem); line-height:1.02; max-width:780px; }
+  .hero-h1 em{ font-style:italic; color:var(--brass-light); }
+  .hero-sub{ font-size:15px; color:var(--bone-dim); max-width:420px; margin-top:22px; line-height:1.8; }
+  .hero-actions{ display:flex; gap:18px; margin-top:34px; flex-wrap:wrap; }
+  .btn-solid{ background:var(--bone); color:var(--ink); font-family:var(--mono); font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:15px 30px; text-decoration:none; border:1px solid var(--bone); transition:.25s; cursor:pointer; }
+  .btn-solid:hover{ background:transparent; color:var(--bone); }
+  .btn-ghost{ background:transparent; color:var(--bone); font-family:var(--mono); font-size:12px; letter-spacing:1.5px; text-transform:uppercase; padding:15px 30px; text-decoration:none; border:1px solid var(--line); transition:.25s; cursor:pointer; }
+  .btn-ghost:hover{ border-color:var(--brass); }
+
+  /* ===== Philosophy strip ===== */
+  #philosophy{ border-bottom:1px dashed var(--line); padding:64px 28px; }
+  .philosophy-inner{ max-width:1280px; margin:0 auto; display:grid; grid-template-columns:1.1fr 1fr; gap:60px; align-items:center; }
+  .philosophy-statement{ font-family:var(--display); font-size:clamp(1.5rem,2.6vw,2.2rem); font-weight:300; line-height:1.4; }
+  .philosophy-statement em{ font-style:italic; color:var(--brass-light); }
+  .tag-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  @media(max-width:780px){ .philosophy-inner{ grid-template-columns:1fr; gap:30px; } }
+
+  /* ===== Section heads ===== */
+  .section{ padding:90px 28px; }
+  .section-inner{ max-width:1280px; margin:0 auto; }
+  .section-head{ display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:48px; gap:24px; flex-wrap:wrap; }
+  .section-title{ font-family:var(--display); font-size:clamp(2rem,4vw,3rem); font-weight:400; }
+  .section-note{ font-size:13px; color:var(--bone-dim); max-width:320px; line-height:1.7; }
+
+  /* ===== Spotlight ===== */
+  #spotlight{ background:var(--ink2); }
+  .spotlight-grid{ display:grid; grid-template-columns:1.1fr 1fr; gap:64px; align-items:center; }
+  .spotlight-img-wrap{ position:relative; }
+  .spotlight-img{ width:100%; height:560px; object-fit:cover; }
+  .label-tag{ position:absolute; bottom:24px; left:24px; background:var(--ink); border:1px dashed var(--brass); padding:10px 16px; transform:rotate(-2deg); }
+  .label-tag .price{ font-family:var(--mono); font-size:18px; color:var(--bone); }
+  .label-tag .sku{ font-family:var(--mono); font-size:10px; color:var(--brass-light); letter-spacing:1px; }
+  .spotlight-name{ font-family:var(--display); font-size:clamp(1.8rem,3vw,2.6rem); margin:18px 0 14px; }
+  .spotlight-desc{ color:var(--bone-dim); font-size:14px; line-height:1.9; margin-bottom:28px; max-width:440px; }
+  .swatch-block{ margin-bottom:24px; }
+  .swatch-label{ font-family:var(--mono); font-size:11px; letter-spacing:1.5px; text-transform:uppercase; color:var(--bone-dim); margin-bottom:10px; display:block; }
+  .swatches{ display:flex; gap:10px; flex-wrap:wrap; }
+  .swatch{ width:38px; height:38px; border:1px solid var(--line); cursor:pointer; position:relative; transition:.2s; }
+  .swatch.selected{ outline:1px solid var(--brass-light); outline-offset:3px; }
+  .size-pills{ display:flex; gap:8px; flex-wrap:wrap; }
+  .size-pill{ font-family:var(--mono); font-size:12px; border:1px solid var(--line); padding:8px 14px; cursor:pointer; background:none; color:var(--bone); transition:.2s; }
+  .size-pill.selected{ border-color:var(--brass); background:rgba(169,131,88,.12); }
+  .spotlight-actions{ display:flex; gap:14px; margin-top:30px; flex-wrap:wrap; }
+
+  /* ===== The Edit (asymmetric grid) ===== */
+  .edit-grid{ display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:240px; gap:18px; }
+  .edit-card{ position:relative; overflow:hidden; cursor:pointer; background:var(--ink2); border:1px solid var(--line); }
+  .edit-card.tall{ grid-row:span 2; }
+  .edit-card.wide{ grid-column:span 2; }
+  .edit-card img{ width:100%; height:100%; object-fit:cover; transition:transform .6s ease; }
+  .edit-card:hover img{ transform:scale(1.06); }
+  .edit-overlay{ position:absolute; inset:0; background:linear-gradient(180deg,transparent 50%,rgba(0,0,0,.78) 100%); display:flex; flex-direction:column; justify-content:flex-end; padding:16px; opacity:0; transition:opacity .3s; }
+  .edit-card:hover .edit-overlay{ opacity:1; }
+  .edit-name{ font-family:var(--display); font-size:16px; margin-bottom:4px; }
+  .edit-price{ font-family:var(--mono); font-size:12px; color:var(--brass-light); }
+  .sold-ribbon{ position:absolute; top:14px; left:-30px; background:var(--burgundy); color:var(--bone); font-family:var(--mono); font-size:10px; letter-spacing:1px; text-transform:uppercase; padding:5px 36px; transform:rotate(-38deg); z-index:2; }
+  .qv-btn{ align-self:flex-start; font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; background:var(--bone); color:var(--ink); border:none; padding:8px 14px; cursor:pointer; }
+  @media(max-width:900px){ .edit-grid{ grid-template-columns:repeat(2,1fr); grid-auto-rows:200px; } .edit-card.wide{ grid-column:span 2; } }
+  .edit-search-wrap{ margin-bottom:24px; }
+  .edit-search{ width:100%; max-width:420px; background:var(--ink2); border:1px solid var(--line); color:var(--bone); padding:13px 18px; font-family:var(--body); font-size:14px; outline:none; }
+  .edit-search::placeholder{ color:var(--bone-dim); }
+  .edit-search:focus{ border-color:var(--brass); }
+  .no-results-mq{ text-align:center; padding:60px 20px; color:var(--bone-dim); font-family:var(--mono); font-size:13px; grid-column:1/-1; }
+  .card-rating{ display:flex; align-items:center; gap:5px; font-family:var(--mono); font-size:10px; color:var(--bone-dim); margin-top:4px; }
+  .card-rating .stars-sm{ color:var(--brass-light); letter-spacing:-1px; }
+  .reviews-grid-mq{ display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:20px; }
+  .review-card-mq{ border:1px solid var(--line); padding:22px; background:var(--ink); }
+  .review-card-mq .stars-mq{ color:var(--brass-light); font-size:14px; margin-bottom:12px; }
+  .review-card-mq p{ font-size:13px; color:var(--bone-dim); line-height:1.8; margin-bottom:12px; }
+  .review-card-mq .reviewer-mq{ font-family:var(--mono); font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--bone); }
+
+  .reveal{ opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.in{ opacity:1; transform:translateY(0); }
+
+  /* ===== Lookbook ===== */
+  #lookbook{ background:var(--ink2); }
+  .lookbook-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  .look-tile{ position:relative; overflow:hidden; }
+  .look-tile img{ width:100%; height:420px; object-fit:cover; transition:transform .7s ease; }
+  .look-tile:hover img{ transform:scale(1.04); }
+  .look-tile:nth-child(2){ margin-top:48px; }
+  .look-caption{ font-family:var(--mono); font-size:11px; letter-spacing:1px; color:var(--bone-dim); margin-top:12px; text-transform:uppercase; }
+  @media(max-width:860px){ .lookbook-grid{ grid-template-columns:1fr 1fr; } .look-tile:nth-child(2){margin-top:0;} }
+  @media(max-width:560px){ .lookbook-grid{ grid-template-columns:1fr; } }
+
+  /* ===== Size guide ===== */
+  .size-guide-wrap{ display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
+  .unit-toggle{ display:inline-flex; border:1px solid var(--line); margin-bottom:24px; }
+  .unit-btn{ font-family:var(--mono); font-size:11px; letter-spacing:1px; padding:9px 18px; background:none; border:none; color:var(--bone-dim); cursor:pointer; }
+  .unit-btn.active{ background:var(--bone); color:var(--ink); }
+  table.size-table{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:13px; }
+  .size-table th{ text-align:left; padding:12px 10px; border-bottom:1px dashed var(--brass); color:var(--brass-light); text-transform:uppercase; font-size:11px; letter-spacing:1px; }
+  .size-table td{ padding:12px 10px; border-bottom:1px dashed var(--line); color:var(--bone-dim); }
+  @media(max-width:780px){ .size-guide-wrap{ grid-template-columns:1fr; gap:32px; } }
+
+  /* ===== Waitlist ===== */
+  #waitlist{ background:var(--burgundy); }
+  .waitlist-inner{ max-width:680px; margin:0 auto; text-align:center; }
+  .waitlist-inner h2{ font-family:var(--display); font-size:clamp(1.8rem,3.4vw,2.6rem); margin-bottom:14px; }
+  .waitlist-inner p{ color:rgba(241,236,225,.8); font-size:14px; margin-bottom:32px; }
+  .waitlist-form{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+  .waitlist-form input{ background:rgba(241,236,225,.08); border:1px solid rgba(241,236,225,.3); color:var(--bone); padding:13px 18px; font-family:var(--body); min-width:260px; outline:none; }
+  .waitlist-form input::placeholder{ color:rgba(241,236,225,.55); }
+  .waitlist-msg{ font-family:var(--mono); font-size:12px; margin-top:14px; min-height:16px; }
+
+  /* ===== Footer ===== */
+  footer{ border-top:1px dashed var(--line); padding:56px 28px 32px; }
+  .footer-inner{ max-width:1280px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; gap:40px; }
+  .footer-statement{ font-family:var(--display); font-size:1.3rem; max-width:320px; line-height:1.5; }
+  .footer-col-title{ font-family:var(--mono); font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--brass-light); margin-bottom:14px; }
+  .footer-col a{ display:block; font-size:13px; color:var(--bone-dim); text-decoration:none; margin-bottom:10px; }
+  .footer-col a:hover{ color:var(--bone); }
+  .footer-bottom{ max-width:1280px; margin:40px auto 0; padding-top:22px; border-top:1px solid var(--line); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:11px; color:var(--bone-dim); }
+  .payment-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .payment-row span{ font-family:var(--mono); font-size:10px; border:1px solid var(--line); padding:4px 10px; }
+
+  /* ===== Cart drawer ===== */
+  #cartOverlay{ position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:200; display:none; }
+  #cartOverlay.open{ display:block; }
+  #cartDrawer{ position:fixed; top:0; right:-420px; width:400px; max-width:92vw; height:100%; background:var(--ink2); z-index:201; transition:right .35s ease; display:flex; flex-direction:column; border-left:1px solid var(--line); }
+  #cartDrawer.open{ right:0; }
+  .cart-head{ padding:24px; border-bottom:1px solid var(--line); display:flex; justify-content:space-between; align-items:center; }
+  .cart-head h3{ font-family:var(--display); font-size:1.4rem; }
+  .cart-close{ background:none; border:none; color:var(--bone); font-size:22px; cursor:pointer; }
+  .cart-items{ flex:1; overflow-y:auto; padding:16px 24px; }
+  .cart-item{ display:flex; gap:14px; padding:14px 0; border-bottom:1px dashed var(--line); }
+  .cart-item img{ width:64px; height:80px; object-fit:cover; }
+  .cart-item-info{ flex:1; }
+  .cart-item-name{ font-size:13px; margin-bottom:4px; }
+  .cart-item-meta{ font-family:var(--mono); font-size:11px; color:var(--bone-dim); }
+  .cart-item-price{ font-family:var(--mono); font-size:13px; color:var(--brass-light); margin-top:6px; }
+  .cart-remove{ background:none; border:none; color:var(--bone-dim); font-size:11px; text-decoration:underline; cursor:pointer; font-family:var(--mono); margin-top:6px; }
+  .cart-foot{ padding:24px; border-top:1px solid var(--line); }
+  .cart-total-row{ display:flex; justify-content:space-between; font-family:var(--mono); font-size:14px; margin-bottom:18px; }
+  .cart-empty{ color:var(--bone-dim); font-size:13px; padding:40px 0; text-align:center; }
+
+  /* ===== Quick view modal ===== */
+  #qvOverlay{ position:fixed; inset:0; background:rgba(0,0,0,.72); z-index:210; display:none; align-items:center; justify-content:center; padding:24px; }
+  #qvOverlay.open{ display:flex; }
+  .qv-modal{ background:var(--ink2); border:1px solid var(--line); max-width:880px; width:100%; max-height:90vh; overflow-y:auto; display:grid; grid-template-columns:1fr 1fr; }
+  .qv-modal img{ width:100%; height:100%; min-height:340px; object-fit:cover; }
+  .qv-body{ padding:36px; position:relative; }
+  .qv-close{ position:absolute; top:18px; right:18px; background:none; border:none; color:var(--bone); font-size:20px; cursor:pointer; }
+  @media(max-width:680px){ .qv-modal{ grid-template-columns:1fr; } }
+
+  .visually-hidden{ position:absolute; left:-9999px; }
+</style>
+</head>
+<body>
+
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span>FREE WORLDWIDE SHIPPING OVER $200</span>
+    <span>LIMITED RUNS — NEW DROP MONTHLY</span>
+    <span>MADE ON ORDER, NEVER OVERPRODUCED</span>
+    <span>FREE WORLDWIDE SHIPPING OVER $200</span>
+    <span>LIMITED RUNS — NEW DROP MONTHLY</span>
+    <span>MADE ON ORDER, NEVER OVERPRODUCED</span>
+  </div>
+</div>
+
+<header>
+  <div class="nav-inner">
+    <a href="#hero" class="wordmark">MARQUE</a>
+    <nav class="nav-links">
+      <a href="#edit">The Edit</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#size-guide">Size Guide</a>
+      <a href="#waitlist">Waitlist</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="bag-btn" id="cartToggle" aria-label="Open bag">Bag <span class="bag-count" id="cartCount">0</span></button>
+      <button class="hamburger" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+    </div>
+  </div>
+  <div id="mobileMenu">
+    <a href="#edit">The Edit</a>
+    <a href="#lookbook">Lookbook</a>
+    <a href="#size-guide">Size Guide</a>
+    <a href="#waitlist">Waitlist</a>
+  </div>
+</header>
+
+<main>
+
+  <section id="hero">
+    <img class="hero-img" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1600&h=1200&fit=crop" alt="Editorial fashion photograph from the MARQUE SS26 collection">
+    <div class="hero-content">
+      <span class="tag hero-eyebrow">SS26 — No. 001</span>
+      <h1 class="hero-h1">Pieces built<br>to <em>outlast</em><br>the season.</h1>
+      <p class="hero-sub">MARQUE is a slow-fashion atelier: small runs, considered materials, and garments made only once they're ordered. No overproduction. No filler collections.</p>
+      <div class="hero-actions">
+        <a href="#edit" class="btn-solid">Shop The Edit</a>
+        <a href="#lookbook" class="btn-ghost">View Lookbook</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="philosophy">
+    <div class="philosophy-inner">
+      <p class="philosophy-statement">We don't chase trend cycles. Every piece is cut from deadstock or responsibly sourced fabric, in <em>runs of fewer than 50</em>, and made only when it's ordered.</p>
+      <div class="tag-row">
+        <span class="tag">Limited Runs</span>
+        <span class="tag">Considered Materials</span>
+        <span class="tag">Made on Order</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="spotlight" class="section">
+    <div class="section-inner">
+      <div class="spotlight-grid">
+        <div class="spotlight-img-wrap reveal">
+          <img class="spotlight-img" id="spotlightImg" src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=900&h=1100&fit=crop" alt="MARQUE Atelier Coat, spotlight product">
+          <div class="label-tag">
+            <div class="price" id="spotlightPrice">$340</div>
+            <div class="sku">MRQ — AC-014</div>
+          </div>
+        </div>
+        <div class="reveal">
+          <span class="tag">Spotlight</span>
+          <h2 class="spotlight-name">The Atelier Coat</h2>
+          <p class="spotlight-desc">Hand-finished wool-blend overcoat, cut for a structured drape. Horn buttons, half-belt back, fully lined in bone silk-twill. One of 32 made this run.</p>
+          <div class="swatch-block">
+            <span class="swatch-label">Colour — <span id="spotlightColorName">Ink Black</span></span>
+            <div class="swatches" id="spotlightSwatches">
+              <div class="swatch selected" data-color="Ink Black" style="background:#15161B" title="Ink Black"></div>
+              <div class="swatch" data-color="Bone" style="background:#E9E2D3" title="Bone"></div>
+              <div class="swatch" data-color="Burgundy" style="background:#7C2333" title="Burgundy"></div>
+            </div>
+          </div>
+          <div class="swatch-block">
+            <span class="swatch-label">Size</span>
+            <div class="size-pills" id="spotlightSizes">
+              <button class="size-pill" data-size="XS">XS</button>
+              <button class="size-pill selected" data-size="S">S</button>
+              <button class="size-pill" data-size="M">M</button>
+              <button class="size-pill" data-size="L">L</button>
+              <button class="size-pill" data-size="XL">XL</button>
+            </div>
+          </div>
+          <div class="spotlight-actions">
+            <button class="btn-solid" id="spotlightAddBtn">Add to Bag — $340</button>
+            <a href="#size-guide" class="btn-ghost">Size Guide</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="edit" class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="section-title">The Edit</h2>
+        <p class="section-note">This season's full collection. Sold-out pieces can be joined via waitlist — we restock select styles each cycle.</p>
+      </div>
+      <div class="edit-search-wrap">
+        <label for="editSearchInput" class="visually-hidden">Search the collection</label>
+        <input type="text" id="editSearchInput" class="edit-search" placeholder="Search the collection…">
+      </div>
+      <div class="edit-grid" id="editGrid"><!-- populated by JS --></div>
+    </div>
+  </section>
+
+  <section id="reviews" class="section" style="background:var(--ink2);">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="section-title">In Their Words</h2>
+        <p class="section-note">A few notes from people who've worn the pieces.</p>
+      </div>
+      <div class="reviews-grid-mq">
+        <div class="review-card-mq"><div class="stars-mq">★★★★★</div><p>"The Atelier Coat is exactly what the photos promised — the drape is incredible in person."</p><div class="reviewer-mq">— Adaeze, London</div></div>
+        <div class="review-card-mq"><div class="stars-mq">★★★★★</div><p>"Sized up like the guide suggested and it fit perfectly. Fast shipping too."</p><div class="reviewer-mq">— Marcus, Lagos</div></div>
+        <div class="review-card-mq"><div class="stars-mq">★★★★☆</div><p>"Beautiful fabric quality. Waitlisted for the Silk Column Dress restock — worth the wait."</p><div class="reviewer-mq">— Yasmin, Dubai</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="lookbook" class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="section-title">Lookbook — SS26</h2>
+        <p class="section-note">Shot in Lagos and Lisbon. Styling by the MARQUE studio.</p>
+      </div>
+      <div class="lookbook-grid">
+        <div class="look-tile reveal">
+          <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=700&h=900&fit=crop" alt="Look 01 from the MARQUE SS26 lookbook" loading="lazy">
+          <p class="look-caption">Look 01 — The Atelier Coat</p>
+        </div>
+        <div class="look-tile reveal">
+          <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=700&h=900&fit=crop" alt="Look 02 from the MARQUE SS26 lookbook" loading="lazy">
+          <p class="look-caption">Look 02 — Studio Series</p>
+        </div>
+        <div class="look-tile reveal">
+          <img src="https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=700&h=900&fit=crop" alt="Look 03 from the MARQUE SS26 lookbook" loading="lazy">
+          <p class="look-caption">Look 03 — Off-Duty</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="size-guide" class="section">
+    <div class="section-inner">
+      <div class="section-head">
+        <h2 class="section-title">Size Guide</h2>
+        <p class="section-note">Measurements taken flat, in centimetres. If you're between sizes, we recommend sizing up.</p>
+      </div>
+      <div class="size-guide-wrap">
+        <div>
+          <div class="unit-toggle">
+            <button class="unit-btn active" data-unit="cm">CM</button>
+            <button class="unit-btn" data-unit="in">IN</button>
+          </div>
+          <table class="size-table">
+            <thead>
+              <tr><th>Size</th><th>Chest</th><th>Waist</th><th>Length</th></tr>
+            </thead>
+            <tbody id="sizeTableBody"><!-- populated by JS --></tbody>
+          </table>
+        </div>
+        <div>
+          <span class="tag" style="margin-bottom:18px;display:inline-block;">How to measure</span>
+          <p style="color:var(--bone-dim);font-size:14px;line-height:1.9;margin-bottom:18px;">Lay the garment flat on a table. Chest is measured pit-to-pit and doubled. Waist is measured straight across, doubled. Length runs from the base of the collar to the hem.</p>
+          <p style="color:var(--bone-dim);font-size:14px;line-height:1.9;">Still unsure? Message us on WhatsApp with your usual size in another brand and we'll recommend the right fit.</p>
+          <a href="https://wa.me/2349162306809?text=I%20need%20help%20choosing%20a%20size%20for%20MARQUE" target="_blank" class="btn-ghost" style="margin-top:20px;display:inline-block;">💬 Ask for Fit Help</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="waitlist">
+    <div class="section-inner waitlist-inner">
+      <span class="tag">Be First</span>
+      <h2 style="margin-top:18px;">Join the waitlist</h2>
+      <p>Get notified the moment a sold-out piece restocks, and first access to the next drop before it's public.</p>
+      <form class="waitlist-form" id="waitlistForm">
+        <label for="waitlistEmail" class="visually-hidden">Email address</label>
+        <input type="email" id="waitlistEmail" placeholder="Your email address" required>
+        <button type="submit" class="btn-solid">Notify Me</button>
+      </form>
+      <p class="waitlist-msg" id="waitlistMsg" role="status" aria-live="polite"></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <div>
+      <a href="#hero" class="wordmark">MARQUE</a>
+      <p class="footer-statement" style="margin-top:16px;">Considered pieces, made to last. Small runs, real materials, no waste.</p>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Shop</p>
+      <a href="#edit">The Edit</a>
+      <a href="#lookbook">Lookbook</a>
+      <a href="#size-guide">Size Guide</a>
+      <a href="#waitlist">Waitlist</a>
+    </div>
+    <div class="footer-col">
+      <p class="footer-col-title">Contact</p>
+      <a href="https://wa.me/2349162306809" target="_blank">💬 WhatsApp</a>
+      <a href="mailto:deprudentstoredesigner@gmail.com">📧 Email Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© <span class="copy-year">2026</span> MARQUE. A De Prudent Store Designer demo storefront.</p>
+    <div class="payment-row">
+      <span>PAYSTACK</span><span>FLUTTERWAVE</span><span>PAYPAL</span>
+    </div>
+  </div>
+</footer>
+
+<!-- Cart Drawer -->
+<div id="cartOverlay"></div>
+<aside id="cartDrawer" aria-label="Shopping bag">
+  <div class="cart-head">
+    <h3>Your Bag</h3>
+    <button class="cart-close" id="closeCart" aria-label="Close bag">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"><div class="cart-empty">Your bag is empty.</div></div>
+  <div class="cart-foot">
+    <div class="cart-total-row"><span>Subtotal</span><span id="cartTotal">$0</span></div>
+    <button class="btn-solid" id="checkoutBtn" style="width:100%;">Proceed to Checkout</button>
+  </div>
+</aside>
+
+<!-- Quick View Modal -->
+<div id="qvOverlay">
+  <div class="qv-modal">
+    <img id="qvImg" src="" alt="">
+    <div class="qv-body">
+      <button class="qv-close" id="qvClose" aria-label="Close quick view">✕</button>
+      <span class="tag" id="qvSku"></span>
+      <h2 class="spotlight-name" id="qvName" style="margin-top:14px;"></h2>
+      <p class="spotlight-desc" id="qvDesc"></p>
+      <div class="swatch-block">
+        <span class="swatch-label">Colour — <span id="qvColorName"></span></span>
+        <div class="swatches" id="qvSwatches"></div>
+      </div>
+      <div class="swatch-block">
+        <span class="swatch-label">Size</span>
+        <div class="size-pills" id="qvSizes"></div>
+      </div>
+      <div class="spotlight-actions" id="qvActionWrap">
+        <button class="btn-solid" id="qvAddBtn"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+  // De Prudent backend API (replaces Firebase). Update after deploying to Vercel.
+  const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+  const STORE_SLUG = 'luxury';
+
+  // ===== Fallback catalogue (renders instantly; live backend data for store "luxury" overrides it if present) =====
+  const FALLBACK_PRODUCTS = [
+    { id:'p1', name:'The Atelier Coat', sku:'AC-014', price:340, img:'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=700&h=900&fit=crop', colors:[{name:'Ink Black',hex:'#15161B'},{name:'Bone',hex:'#E9E2D3'},{name:'Burgundy',hex:'#7C2333'}], sizes:['XS','S','M','L','XL'], soldOut:false, desc:'Hand-finished wool-blend overcoat with a structured drape.', size:'wide tall' },
+    { id:'p2', name:'Silk Column Dress', sku:'SD-022', price:215, img:'https://images.unsplash.com/photo-1490114538077-0a7f8cb49891?w=700&h=900&fit=crop', colors:[{name:'Bone',hex:'#E9E2D3'},{name:'Ink Black',hex:'#15161B'}], sizes:['XS','S','M','L'], soldOut:false, desc:'Bias-cut silk column dress, single back seam.', size:'tall' },
+    { id:'p3', name:'Brushed Wool Trouser', sku:'WT-009', price:165, img:'https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?w=700&h=900&fit=crop', colors:[{name:'Brass',hex:'#A98358'},{name:'Ink Black',hex:'#15161B'}], sizes:['XS','S','M','L','XL'], soldOut:true, desc:'High-waisted brushed wool trouser with a tapered leg.', size:'' },
+    { id:'p4', name:'Linen Wrap Blouse', sku:'LB-031', price:120, img:'https://images.unsplash.com/photo-1521334884684-d80222895322?w=700&h=900&fit=crop', colors:[{name:'Bone',hex:'#E9E2D3'},{name:'Burgundy',hex:'#7C2333'}], sizes:['XS','S','M','L'], soldOut:false, desc:'Heavyweight linen wrap blouse, mother-of-pearl buttons.', size:'wide' },
+    { id:'p5', name:'Tailored Vest', sku:'TV-017', price:140, img:'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=700&h=900&fit=crop', colors:[{name:'Ink Black',hex:'#15161B'}], sizes:['S','M','L'], soldOut:false, desc:'Structured tailored vest, can be worn open or buttoned.', size:'' },
+    { id:'p6', name:'Suede Ankle Boot', sku:'SB-040', price:260, img:'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=700&h=900&fit=crop', colors:[{name:'Brass',hex:'#A98358'}], sizes:['36','37','38','39','40'], soldOut:true, desc:'Hand-cut suede ankle boot on a stacked leather heel.', size:'tall' },
+  ];
+
+  let PRODUCTS = FALLBACK_PRODUCTS;
+  let editSearchTerm = '';
+
+  function getRating(id){
+    let hash = 0;
+    for (let i=0;i<id.length;i++) hash = (hash*31 + id.charCodeAt(i)) >>> 0;
+    const rating = (4.4 + (hash % 6)/10).toFixed(1);
+    const count = 8 + (hash % 140);
+    return { rating, count };
+  }
+  function cardRatingHtml(id){
+    const { rating, count } = getRating(id);
+    const filled = Math.round(rating);
+    const stars = '★★★★★'.slice(0, filled) + '☆☆☆☆☆'.slice(0, 5-filled);
+    return `<div class="card-rating"><span class="stars-sm">${stars}</span> ${rating} (${count})</div>`;
+  }
+
+  document.getElementById('editSearchInput').addEventListener('input', (e) => {
+    editSearchTerm = e.target.value.trim().toLowerCase();
+    renderEdit();
+  });
+
+  async function loadProducts() {
+    try {
+      const res = await fetch(`${API_BASE}/products?store=${STORE_SLUG}`);
+      if (res.ok) {
+        const products = await res.json();
+        if (Array.isArray(products) && products.length) PRODUCTS = products;
+      }
+    } catch (e) {
+      // Falls back silently to FALLBACK_PRODUCTS — keeps the demo looking complete even offline.
+    }
+    renderEdit();
+  }
+
+  function renderEdit() {
+    const grid = document.getElementById('editGrid');
+    const layouts = ['tall','','wide','','tall',''];
+    const visible = editSearchTerm ? PRODUCTS.filter(p => p.name.toLowerCase().includes(editSearchTerm)) : PRODUCTS;
+    if (!visible.length) {
+      grid.innerHTML = `<div class="no-results-mq">No pieces match "${editSearchTerm}". Try a different search.</div>`;
+      return;
+    }
+    grid.innerHTML = visible.map((p, i) => `
+      <div class="edit-card reveal ${layouts[i % layouts.length]}" data-id="${p.id}">
+        ${p.soldOut ? '<div class="sold-ribbon">Waitlist</div>' : ''}
+        <img src="${p.img || p.image_url}" alt="${p.name}" loading="lazy">
+        <div class="edit-overlay">
+          <div class="edit-name">${p.name}</div>
+          ${cardRatingHtml(p.id)}
+          <div class="edit-price" style="margin:6px 0 10px;">${p.soldOut ? 'Sold Out' : '$' + p.price}</div>
+          <button class="qv-btn" data-id="${p.id}">${p.soldOut ? 'Join Waitlist' : 'Quick View'}</button>
+        </div>
+      </div>
+    `).join('');
+    grid.querySelectorAll('.qv-btn, .edit-card').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const id = e.currentTarget.dataset.id || e.currentTarget.closest('.edit-card').dataset.id;
+        openQuickView(id);
+      });
+    });
+    initReveal();
+  }
+
+  // ===== Quick View =====
+  let qvState = {};
+  function openQuickView(id) {
+    const p = PRODUCTS.find(x => x.id === id);
+    if (!p) return;
+    qvState = { product: p, color: p.colors[0].name, size: p.soldOut ? null : p.sizes[0] };
+    document.getElementById('qvImg').src = p.img || p.image_url;
+    document.getElementById('qvImg').alt = p.name;
+    document.getElementById('qvSku').textContent = 'MRQ — ' + p.sku;
+    document.getElementById('qvName').textContent = p.name;
+    document.getElementById('qvDesc').textContent = p.desc || p.description || '';
+    document.getElementById('qvColorName').textContent = qvState.color;
+    document.getElementById('qvSwatches').innerHTML = p.colors.map(c =>
+      `<div class="swatch ${c.name===qvState.color?'selected':''}" data-color="${c.name}" style="background:${c.hex}" title="${c.name}"></div>`
+    ).join('');
+    document.getElementById('qvSizes').innerHTML = p.sizes.map(s =>
+      `<button class="size-pill ${s===qvState.size?'selected':''}" data-size="${s}">${s}</button>`
+    ).join('');
+    updateQvButton();
+    document.getElementById('qvOverlay').classList.add('open');
+  }
+  function updateQvButton() {
+    const btn = document.getElementById('qvAddBtn');
+    if (qvState.product.soldOut) {
+      btn.textContent = 'Join Waitlist';
+    } else {
+      btn.textContent = `Add to Bag — $${qvState.product.price}`;
+    }
+  }
+  document.getElementById('qvSwatches').addEventListener('click', e => {
+    if (!e.target.classList.contains('swatch')) return;
+    qvState.color = e.target.dataset.color;
+    document.getElementById('qvColorName').textContent = qvState.color;
+    document.querySelectorAll('#qvSwatches .swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === qvState.color));
+  });
+  document.getElementById('qvSizes').addEventListener('click', e => {
+    if (!e.target.classList.contains('size-pill')) return;
+    qvState.size = e.target.dataset.size;
+    document.querySelectorAll('#qvSizes .size-pill').forEach(s => s.classList.toggle('selected', s.dataset.size === qvState.size));
+  });
+  document.getElementById('qvAddBtn').addEventListener('click', () => {
+    if (qvState.product.soldOut) {
+      closeQv();
+      document.getElementById('waitlist').scrollIntoView({ behavior:'smooth' });
+      return;
+    }
+    addToBag(qvState.product, qvState.size, qvState.color);
+    closeQv();
+    openCart();
+  });
+  function closeQv(){ document.getElementById('qvOverlay').classList.remove('open'); }
+  document.getElementById('qvClose').addEventListener('click', closeQv);
+  document.getElementById('qvOverlay').addEventListener('click', e => { if (e.target.id === 'qvOverlay') closeQv(); });
+
+  // ===== Spotlight interactions =====
+  const SPOTLIGHT_PRODUCT = { id:'p1', name:'The Atelier Coat', sku:'AC-014', price:340, img:'https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=900&h=1100&fit=crop' };
+  let spotlightColor = 'Ink Black', spotlightSize = 'S';
+  document.getElementById('spotlightSwatches').addEventListener('click', e => {
+    if (!e.target.classList.contains('swatch')) return;
+    spotlightColor = e.target.dataset.color;
+    document.getElementById('spotlightColorName').textContent = spotlightColor;
+    document.querySelectorAll('#spotlightSwatches .swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === spotlightColor));
+  });
+  document.getElementById('spotlightSizes').addEventListener('click', e => {
+    if (!e.target.classList.contains('size-pill')) return;
+    spotlightSize = e.target.dataset.size;
+    document.querySelectorAll('#spotlightSizes .size-pill').forEach(s => s.classList.toggle('selected', s.dataset.size === spotlightSize));
+  });
+  document.getElementById('spotlightAddBtn').addEventListener('click', () => {
+    addToBag(SPOTLIGHT_PRODUCT, spotlightSize, spotlightColor);
+    openCart();
+  });
+
+  // ===== Cart =====
+  let cart = JSON.parse(localStorage.getItem('checkoutCart') || '[]');
+  function addToBag(product, size, color) {
+    const lineId = product.id + '-' + size + '-' + color;
+    const existing = cart.find(i => i.id === lineId);
+    if (existing) { existing.qty++; }
+    else { cart.push({ id: lineId, name: `${product.name} (${color}, ${size})`, price: product.price, img: product.img, qty: 1 }); }
+    renderCart();
+  }
+  function removeFromBag(id) {
+    cart = cart.filter(i => i.id !== id);
+    renderCart();
+  }
+  function renderCart() {
+    localStorage.setItem('checkoutCart', JSON.stringify(cart));
+    const itemsEl = document.getElementById('cartItems');
+    const countEl = document.getElementById('cartCount');
+    const totalEl = document.getElementById('cartTotal');
+    const totalQty = cart.reduce((s,i) => s + i.qty, 0);
+    countEl.textContent = totalQty;
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<div class="cart-empty">Your bag is empty.</div>';
+      totalEl.textContent = '$0';
+      return;
+    }
+    itemsEl.innerHTML = cart.map(i => `
+      <div class="cart-item">
+        <img src="${i.img}" alt="${i.name}">
+        <div class="cart-item-info">
+          <div class="cart-item-name">${i.name}</div>
+          <div class="cart-item-meta">Qty ${i.qty}</div>
+          <div class="cart-item-price">$${(i.price * i.qty).toFixed(2)}</div>
+          <button class="cart-remove" data-id="${i.id}">Remove</button>
+        </div>
+      </div>
+    `).join('');
+    itemsEl.querySelectorAll('.cart-remove').forEach(btn => {
+      btn.addEventListener('click', () => removeFromBag(btn.dataset.id));
+    });
+    const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
+    totalEl.textContent = '$' + total.toFixed(2);
+  }
+  const cartDrawer = document.getElementById('cartDrawer');
+  const cartOverlay = document.getElementById('cartOverlay');
+  function openCart(){ cartDrawer.classList.add('open'); cartOverlay.classList.add('open'); }
+  function closeCart(){ cartDrawer.classList.remove('open'); cartOverlay.classList.remove('open'); }
+  document.getElementById('cartToggle').addEventListener('click', openCart);
+  document.getElementById('closeCart').addEventListener('click', closeCart);
+  cartOverlay.addEventListener('click', closeCart);
+  document.getElementById('checkoutBtn').addEventListener('click', () => {
+    if (!cart.length) return;
+    localStorage.setItem('checkoutCart', JSON.stringify(cart));
+    window.location.href = `checkout.html?store=${STORE_SLUG}`;
+  });
+  renderCart();
+
+  // ===== Mobile menu =====
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  hamburgerBtn.addEventListener('click', () => {
+    const open = mobileMenu.style.display === 'block';
+    mobileMenu.style.display = open ? 'none' : 'block';
+    hamburgerBtn.setAttribute('aria-expanded', open ? 'false' : 'true');
+    hamburgerBtn.textContent = open ? '☰' : '✕';
+  });
+  mobileMenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+    mobileMenu.style.display = 'none';
+    hamburgerBtn.textContent = '☰';
+  }));
+
+  // ===== Size guide CM/IN toggle =====
+  const SIZE_DATA = {
+    cm: [['XS','84','66','110'],['S','88','70','111'],['M','94','76','112'],['L','100','82','113'],['XL','106','88','114']],
+    in: [['XS','33.1','26.0','43.3'],['S','34.6','27.6','43.7'],['M','37.0','29.9','44.1'],['L','39.4','32.3','44.5'],['XL','41.7','34.6','44.9']]
+  };
+  function renderSizeTable(unit) {
+    document.getElementById('sizeTableBody').innerHTML = SIZE_DATA[unit].map(row =>
+      `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`
+    ).join('');
+  }
+  document.querySelectorAll('.unit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.unit-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderSizeTable(btn.dataset.unit);
+    });
+  });
+  renderSizeTable('cm');
+
+  // ===== Waitlist form =====
+  document.getElementById('waitlistForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('waitlistEmail').value.trim();
+    const msg = document.getElementById('waitlistMsg');
+    if (!email) { msg.textContent = 'Please enter your email address.'; return; }
+    try {
+      await fetch(`${API_BASE}/stores/${STORE_SLUG}/waitlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch (err) {
+      // Non-blocking — still confirm to the visitor even if the write fails.
+    }
+    msg.textContent = "✅ You're on the list — we'll email you the moment something restocks.";
+    document.getElementById('waitlistEmail').value = '';
+  });
+
+  // ===== Scroll reveal =====
+  function initReveal() {
+    const els = document.querySelectorAll('.reveal:not(.in)');
+    if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('in')); return; }
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); obs.unobserve(entry.target); }
+      });
+    }, { threshold: 0.15 });
+    els.forEach(el => obs.observe(el));
+  }
+  initReveal();
+
+  loadProducts();
+</script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

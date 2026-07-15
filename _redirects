@@ -1,0 +1,38 @@
+# Demo stores
+/mall                   /mall.html                    200
+/restaurant             /restaurant.html              200
+/luxury                 /luxury.html                  200
+/headless-shopify       /headless-shopify.html        200
+/portfolio              /portfolio.html                200
+/store-admin            /store-admin.html              200
+/admin                  /store-admin.html              200
+/checkout               /checkout.html                  200
+
+# SEO page and Blog posts
+/seo                                /seo.html                                200
+/blog-firebase-vs-shopify           /blog-firebase-vs-shopify.html           200
+/blog-headless-shopify-explained    /blog-headless-shopify-explained.html    200
+/blog-mobile-first-design           /blog-mobile-first-design.html           200
+/blog-no-monthly-fees-explained     /blog-no-monthly-fees-explained.html     200
+/blog-paystack-vs-flutterwave       /blog-paystack-vs-flutterwave.html       200
+/blog-whatsapp-ordering             /blog-whatsapp-ordering.html             200
+/blog-shopify-vs-headless-shopify   /blog-shopify-vs-headless-shopify.html   200
+/blog-first-10-sales                /blog-first-10-sales.html                200
+
+# About page
+/about                               /about.html                             200
+
+# Projects page
+/projects                            /projects.html                          200
+
+# Features page
+/features                            /features.html                          200
+
+# Additional pages
+/mall1                               /mall1.html                             200
+/diagnose                            /diagnose.html                          200
+/blog-post                           /blog-post.html                         200
+/site-admin                          /site-admin.html                        200
+
+# SPA catch-all — MUST BE LAST
+/*                                  /index.html                             200

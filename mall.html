@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Khalee Mall – Shop Everything</title>
+  <style>
+    :root {
+      --primary: #1a1a2e;
+      --accent: #d4af37;
+      --bg: #f5f5f5;
+      --card-bg: #fff;
+      --text: #333;
+      --header-bg: #1a1a2e;
+      --header-text: #ffffff;
+      --btn-bg: #1a1a2e;
+      --btn-text: #ffffff;
+      --radius: 12px;
+      --font: 'Segoe UI', system-ui, sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; }
+
+    .header {
+      background: var(--header-bg); color: var(--header-text);
+      padding: 15px 20px; display: flex; align-items: center;
+      gap: 12px; position: sticky; top: 0; z-index: 100;
+    }
+    .logo { font-weight: 800; font-size: 1.4rem; }
+    .logo span { color: var(--accent); }
+    .search-bar {
+      flex: 1; display: flex; align-items: center;
+      background: #f0f0f0; border-radius: 20px; padding: 8px 15px;
+    }
+    .search-bar input {
+      border: none; background: transparent; width: 100%;
+      font-family: inherit; font-size: 0.9rem; outline: none; color: #333;
+    }
+    .cart-btn {
+      background: var(--accent); color: var(--primary); border: none;
+      padding: 10px 16px; border-radius: 20px; font-weight: 600;
+      display: flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .cart-count {
+      background: var(--primary); color: var(--accent); border-radius: 50%;
+      width: 20px; height: 20px; display: inline-flex;
+      align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 700;
+    }
+
+    .flash-banner {
+      background: linear-gradient(135deg, #e74c3c, #c0392b); color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px; font-weight: 700; margin: 10px 15px 0;
+      border-radius: 12px; flex-wrap: wrap;
+    }
+    .flash-banner .countdown {
+      background: rgba(255,255,255,0.2); padding: 6px 12px;
+      border-radius: 20px; font-size: 0.9rem;
+    }
+
+    .filter-bar {
+      position: sticky; top: 62px; z-index: 90; background: var(--bg);
+      display: flex; gap: 8px; overflow-x: auto; white-space: nowrap;
+      padding: 10px 15px; border-bottom: 1px solid #e5e5e5;
+    }
+    .filter-chip {
+      background: #fff; border: 1px solid #ddd; border-radius: 20px;
+      padding: 7px 16px; font-size: 0.8rem; font-weight: 600; color: #555;
+      cursor: pointer; flex-shrink: 0;
+    }
+    .filter-chip.active { background: var(--primary); color: var(--accent); border-color: var(--primary); }
+    .no-results { text-align: center; padding: 60px 20px; color: #888; }
+
+    .rating-line { display: flex; align-items: center; gap: 5px; margin: 4px 0; font-size: 0.78rem; color: #555; }
+    .rating-stars { color: #f5a623; letter-spacing: -1px; }
+    .rating-count { color: #999; }
+
+    #reviewsSection { background: #fff; margin: 30px 15px; padding: 24px 20px; border-radius: var(--radius); }
+    #reviewsSection h2 { font-size: 1.2rem; margin-bottom: 16px; }
+    .reviews-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .review-card-mall { background: var(--bg); border-radius: 10px; padding: 14px; }
+    .review-card-mall .stars { color: #f5a623; font-size: 0.85rem; margin-bottom: 6px; }
+    .review-card-mall p { font-size: 0.82rem; color: #555; margin-bottom: 8px; }
+    .review-card-mall .reviewer { font-size: 0.75rem; font-weight: 700; color: #333; }
+
+    .section-title {
+      padding: 20px 20px 8px; font-size: 1.2rem; font-weight: 700;
+    }
+
+    .product-row {
+      display: flex; gap: 12px; padding: 10px 20px; overflow-x: auto;
+      scrollbar-width: none; white-space: nowrap;
+    }
+    .product-row::-webkit-scrollbar { display: none; }
+
+    .product-card-small {
+      min-width: 150px; background: var(--card-bg); border-radius: var(--radius);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05); overflow: hidden;
+      display: flex; flex-direction: column; transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .product-card-small:hover { transform: translateY(-4px); }
+    .product-card-small img {
+      width: 100%; height: 120px; object-fit: cover; display: block;
+    }
+    .card-info { padding: 10px; }
+    .card-info h4 { font-size: 0.85rem; margin-bottom: 4px; }
+    .price { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+    .desc { font-size: 0.75rem; color: #666; margin: 4px 0 6px; white-space: normal; line-height: 1.3; }
+    .add-btn {
+      background: var(--btn-bg); color: var(--btn-text); border: none;
+      padding: 6px 12px; border-radius: 15px; font-size: 0.75rem;
+      font-weight: 600; cursor: pointer; margin-top: 6px; width: 100%;
+    }
+
+    .deals-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+      padding: 0 20px 20px;
+    }
+    .deal-card {
+      background: var(--card-bg); border-radius: var(--radius); overflow: hidden;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .deal-card img { width: 100%; height: 130px; object-fit: cover; display: block; }
+    .deal-info { padding: 8px 10px 10px; }
+    .deal-info h4 { font-size: 0.85rem; }
+    .deal-info .sale-badge {
+      background: #e74c3c; color: white; font-size: 0.7rem;
+      padding: 2px 6px; border-radius: 10px; margin-left: 5px;
+    }
+
+    /* Footer styles – same as professional footer */
+    .footer {
+      background: var(--primary); color: white; padding: 40px 20px 30px;
+      margin-top: 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      margin-bottom: 25px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .footer-col h4 {
+      font-size: 1rem; margin-bottom: 12px; color: var(--accent);
+      font-weight: 700;
+    }
+    .footer-col a {
+      color: rgba(255,255,255,0.8); text-decoration: none;
+      font-size: 0.85rem; display: block; margin-bottom: 6px;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--accent); }
+    .newsletter-form {
+      display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;
+    }
+    .newsletter-form input {
+      flex: 1; padding: 10px 14px; border-radius: 25px; border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.1); color: white; font-family: inherit;
+      font-size: 0.85rem; outline: none; min-width: 150px;
+    }
+    .newsletter-form input::placeholder { color: rgba(255,255,255,0.5); }
+    .newsletter-form button {
+      background: var(--accent); color: var(--primary); border: none;
+      padding: 10px 20px; border-radius: 25px; font-weight: 700; cursor: pointer;
+      font-size: 0.85rem; white-space: nowrap;
+    }
+    .newsletter-msg { font-size: 0.8rem; margin-top: 6px; }
+    .newsletter-msg.success { color: #27ae60; }
+    .newsletter-msg.error { color: #e74c3c; }
+    .social-icons { display: flex; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+    .social-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.1);
+      color: white; text-decoration: none; font-size: 1.1rem;
+      transition: background 0.2s;
+    }
+    .social-icon:hover { background: var(--accent); color: var(--primary); }
+    .trust-badges {
+      display: flex; flex-wrap: wrap; gap: 20px; align-items: center;
+      justify-content: center; margin: 25px 0; padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      max-width: 1100px; margin-left: auto; margin-right: auto;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 0.8rem; color: rgba(255,255,255,0.7);
+    }
+    .trust-item .icon { font-size: 1.3rem; }
+    .payment-icons { display: flex; gap: 8px; align-items: center; }
+    .payment-icons span { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+    .footer-bottom {
+      text-align: center; font-size: 0.75rem;
+      color: rgba(255,255,255,0.5); padding-top: 15px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+      max-width: 1100px; margin: 0 auto;
+    }
+    .footer-bottom a { color: var(--accent); text-decoration: none; }
+
+    /* Cart drawer */
+    .cart-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 1000;
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: auto; }
+    .cart-drawer {
+      position: fixed; top: 0; right: -400px; width: 360px; max-width: 90vw;
+      height: 100vh; background: white; box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      transition: right 0.3s; z-index: 1001; padding: 20px;
+      display: flex; flex-direction: column;
+    }
+    .cart-drawer.open { right: 0; }
+    .close-cart { align-self: flex-end; background: none; border: none; font-size: 1.8rem; cursor: pointer; }
+    .cart-items { flex: 1; overflow-y: auto; margin: 15px 0; }
+    .cart-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid #eee; }
+    .cart-item-img { width: 45px; height: 45px; object-fit: cover; border-radius: 6px; }
+    .cart-item-details { flex: 1; }
+    .remove-item { background: none; border: none; color: #999; font-size: 1.2rem; cursor: pointer; }
+    .cart-footer { border-top: 1px solid #eee; padding-top: 15px; }
+    .checkout-btn {
+      width: 100%; background: var(--accent); color: var(--primary);
+      border: none; padding: 14px; border-radius: 30px; font-weight: 700; cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">Khalee <span>Mall</span></div>
+    <div class="search-bar"><input type="text" id="searchInput" placeholder="Search everything..."></div>
+    <button class="cart-btn" id="cartToggle">🛒 <span class="cart-count" id="cartCount">0</span></button>
+  </header>
+
+  <div class="flash-banner">
+    <span>⚡ FLASH SALE – Up to 60% off</span>
+    <span class="countdown" id="flashCountdown">Ends in 04:59:59</span>
+  </div>
+
+  <div class="filter-bar" id="filterBar"></div>
+
+  <div id="sectionsContainer"></div>
+
+  <div id="reviewsSection">
+    <h2>⭐ What Shoppers Are Saying</h2>
+    <div class="reviews-grid">
+      <div class="review-card-mall"><div class="stars">★★★★★</div><p>"Fast delivery and the quality matched the photos exactly. Will order again."</p><div class="reviewer">— Amaka O., verified buyer</div></div>
+      <div class="review-card-mall"><div class="stars">★★★★★</div><p>"Customer service on WhatsApp responded within minutes. Great experience overall."</p><div class="reviewer">— Tunde A., verified buyer</div></div>
+      <div class="review-card-mall"><div class="stars">★★★★☆</div><p>"Good prices and the deals section actually has real discounts, not fake markups."</p><div class="reviewer">— Ngozi F., verified buyer</div></div>
+    </div>
+  </div>
+
+  <!-- Professional Footer (same as before) -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Customer Service</h4>
+        <a href="https://wa.me/2349162306809?text=Hi%20Khalee%20Mall%2C%20I%20need%20help">Help Center</a>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20want%20to%20track%20my%20order">Order Tracking</a>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20what%20are%20your%20shipping%20options%3F">Shipping & Delivery</a>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20want%20to%20return%20an%20item">Returns</a>
+        <a href="https://wa.me/2349162306809?text=Hi%20Khalee%20Mall%2C%20I%20want%20to%20contact%20you">Contact Us</a>
+      </div>
+      <div class="footer-col">
+        <h4>About Khalee Mall</h4>
+        <a href="https://wa.me/2349162306809?text=Tell%20me%20more%20about%20Khalee%20Mall">About Us</a>
+        <a href="https://wa.me/2349162306809?text=I'm%20interested%20in%20career%20opportunities">Careers</a>
+        <a href="https://wa.me/2349162306809?text=Press%20inquiry">Press</a>
+        <a href="https://wa.me/2349162306809?text=Investor%20relations">Investors</a>
+        <a href="https://wa.me/2349162306809?text=I%20want%20to%20read%20the%20blog">Blog</a>
+      </div>
+      <div class="footer-col">
+        <h4>Make Money with Us</h4>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20want%20to%20sell%20on%20Khalee%20Mall">Sell on Khalee Mall</a>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20want%20to%20become%20an%20affiliate">Become an Affiliate</a>
+        <a href="https://wa.me/2349162306809?text=Hi%2C%20I%20want%20to%20advertise%20my%20products">Advertise Your Products</a>
+      </div>
+      <div class="footer-col">
+        <h4>Never Miss a Thing</h4>
+        <p style="font-size:0.8rem;color:rgba(255,255,255,0.7);margin-bottom:8px;">Sign up for promotions and new arrivals.</p>
+        <div class="newsletter-form" id="newsletterForm">
+          <input type="email" id="newsletterEmail" placeholder="Your email address" required>
+          <button type="submit">Sign Up</button>
+        </div>
+        <p class="newsletter-msg" id="newsletterMsg"></p>
+        <h4 style="margin-top:15px;">Connect with Us</h4>
+        <div class="social-icons">
+          <a href="https://facebook.com/" target="_blank" class="social-icon" title="Facebook">f</a>
+          <a href="https://instagram.com/" target="_blank" class="social-icon" title="Instagram">📷</a>
+          <a href="https://twitter.com/" target="_blank" class="social-icon" title="Twitter">𝕏</a>
+          <a href="https://tiktok.com/" target="_blank" class="social-icon" title="TikTok">🎵</a>
+          <a href="https://wa.me/2349162306809" target="_blank" class="social-icon" title="WhatsApp">💬</a>
+        </div>
+        <h4 style="margin-top:15px;">Download App</h4>
+        <a href="#" style="background:black; color:white; padding:6px 12px; border-radius:6px; display:inline-block; margin-right:5px; font-size:0.8rem; text-decoration:none;">🍎 App Store</a>
+        <a href="#" style="background:black; color:white; padding:6px 12px; border-radius:6px; display:inline-block; font-size:0.8rem; text-decoration:none;">▶ Google Play</a>
+      </div>
+    </div>
+    <div class="trust-badges">
+      <div class="trust-item"><span class="icon">🔒</span> Secure SSL Checkout</div>
+      <div class="trust-item"><span class="icon">🔄</span> 30-Day Free Returns</div>
+      <div class="trust-item"><span class="icon">🛡️</span> Buyer Protection</div>
+      <div class="payment-icons">
+        <span>We accept:</span>
+        <span style="font-weight:700;color:white;">Visa</span>
+        <span style="font-weight:700;color:white;">MasterCard</span>
+        <span style="font-weight:700;color:white;">Paystack</span>
+        <span style="font-weight:700;color:white;">Bank Transfer</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© <span class="copy-year">2026</span> Khalee Mall. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+    </div>
+  </footer>
+
+  <!-- Cart Drawer -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <button class="close-cart" id="closeCart">&times;</button>
+    <h2>Your Cart</h2>
+    <div class="cart-items" id="cartItems"><p style="color:#aaa;">Cart is empty</p></div>
+    <div class="cart-footer">
+      <p>Subtotal: <strong id="cartSubtotal">€0.00</strong></p>
+      <button class="checkout-btn" id="checkoutBtn">Checkout</button>
+    </div>
+  </div>
+
+  <script type="module">
+    // ===== De Prudent backend API (replaces Firebase) =====
+    // Update this once your backend is deployed on Vercel, e.g.
+    // "https://deprudent-backend-updated.vercel.app/api"
+    const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+
+    const pathParts = window.location.pathname.split('/').filter(p => p);
+    let storeSlug = pathParts[0] || 'mall';
+    storeSlug = storeSlug.replace(/\.html$/i, '') || 'mall';
+
+    // Newsletter sign‑up
+    const newsletterForm = document.getElementById('newsletterForm');
+    if (newsletterForm) {
+      newsletterForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('newsletterEmail').value.trim();
+        const msgEl = document.getElementById('newsletterMsg');
+        if (!email) {
+          msgEl.textContent = 'Please enter your email address.';
+          msgEl.className = 'newsletter-msg error';
+          return;
+        }
+        try {
+          const res = await fetch(`${API_BASE}/stores/${storeSlug}/newsletter`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          if (!res.ok) throw new Error('Request failed');
+          msgEl.textContent = '✅ You\'re subscribed!';
+          msgEl.className = 'newsletter-msg success';
+          document.getElementById('newsletterEmail').value = '';
+        } catch (err) {
+          msgEl.textContent = '❌ Something went wrong.';
+          msgEl.className = 'newsletter-msg error';
+        }
+      });
+    }
+
+    const categories = [
+      { id: 'trending', emoji: '🔥', title: 'Trending Now' },
+      { id: 'women',    emoji: '👗', title: 'Women\'s Fashion' },
+      { id: 'men',      emoji: '👔', title: 'Men\'s Style' },
+      { id: 'kids',     emoji: '👶', title: 'Kids\' Picks' },
+      { id: 'electronics', emoji: '📱', title: 'Electronics' },
+      { id: 'home',     emoji: '🏠', title: 'Home Essentials' },
+      { id: 'sports',   emoji: '⚽', title: 'Sports & Outdoors' },
+      { id: 'beauty',   emoji: '💄', title: 'Beauty & Care' },
+      { id: 'recommend', emoji: '🌟', title: 'Recommended for You' },
+      { id: 'deals',    emoji: '💰', title: 'Big Discount Deals', grid: true }
+    ];
+
+    async function fetchProducts() {
+      try {
+        const res = await fetch(`${API_BASE}/products?store=${storeSlug}`);
+        if (!res.ok) throw new Error('Request failed');
+        let products = await res.json();
+        if (!Array.isArray(products) || !products.length) products = FALLBACK_PRODUCTS;
+        allProductsGlobal = products;
+      } catch (e) {
+        allProductsGlobal = FALLBACK_PRODUCTS;
+      }
+      renderFilterBar();
+      renderAllSections(allProductsGlobal);
+    }
+
+    let allProductsGlobal = [];
+    let activeCatFilter = 'all';
+    let searchTerm = '';
+
+    // Deterministic pseudo-rating so the same product always shows the same rating/review count
+    function getRating(id) {
+      let hash = 0;
+      for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
+      const rating = (4.2 + (hash % 9) / 10).toFixed(1); // 4.2 - 5.0
+      const count = 18 + (hash % 400); // 18 - 417
+      return { rating, count };
+    }
+    function ratingLineHtml(id) {
+      const { rating, count } = getRating(id);
+      const filled = Math.round(rating);
+      const stars = '★★★★★'.slice(0, filled) + '☆☆☆☆☆'.slice(0, 5 - filled);
+      return `<div class="rating-line"><span class="rating-stars">${stars}</span> <strong>${rating}</strong> <span class="rating-count">(${count})</span></div>`;
+    }
+
+    function renderFilterBar() {
+      const bar = document.getElementById('filterBar');
+      const chips = [{ id: 'all', emoji: '🛍️', title: 'All' }, ...categories];
+      bar.innerHTML = chips.map(c => `<button class="filter-chip ${c.id===activeCatFilter?'active':''}" data-cat="${c.id}">${c.emoji} ${c.title}</button>`).join('');
+      bar.querySelectorAll('.filter-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          activeCatFilter = btn.dataset.cat;
+          renderFilterBar();
+          renderAllSections(allProductsGlobal);
+        });
+      });
+    }
+
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+      searchTerm = e.target.value.trim().toLowerCase();
+      renderAllSections(allProductsGlobal);
+    });
+
+    // ===== Fallback catalogue — renders instantly if Firestore has no seeded products for this store =====
+    const FALLBACK_PRODUCTS = [
+      { id:'f1', name:'Oversized Denim Jacket', category:'trending', price:42, description:'Relaxed-fit denim jacket with raw-edge trim.', image_url:'https://images.unsplash.com/photo-1551028719-00167b16eac5?w=300&h=300&fit=crop' },
+      { id:'f2', name:'Wireless Earbuds Pro', category:'trending', price:38, description:'Active noise cancelling, 24hr battery.', image_url:'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=300&h=300&fit=crop' },
+      { id:'f3', name:'Floral Wrap Dress', category:'women', price:34, description:'Lightweight wrap dress, true to size.', image_url:'https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=300&h=300&fit=crop' },
+      { id:'f4', name:'High-Waist Trousers', category:'women', price:29, description:'Tailored trousers with a wide leg.', image_url:'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=300&h=300&fit=crop' },
+      { id:'f5', name:'Classic Oxford Shirt', category:'men', price:26, description:'Breathable cotton, slim fit.', image_url:'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=300&h=300&fit=crop' },
+      { id:'f6', name:'Leather Chelsea Boots', category:'men', price:64, description:'Genuine leather, elastic side panels.', image_url:'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=300&h=300&fit=crop' },
+      { id:'f7', name:'Kids Dino Hoodie', category:'kids', price:18, description:'Soft fleece hoodie with dino print.', image_url:'https://images.unsplash.com/photo-1519238263530-99bdd11df2ea?w=300&h=300&fit=crop' },
+      { id:'f8', name:'Toddler Sneakers', category:'kids', price:15, description:'Velcro strap sneakers, non-slip sole.', image_url:'https://images.unsplash.com/photo-1514989940723-e8e51635b782?w=300&h=300&fit=crop' },
+      { id:'f9', name:'Smartwatch Series X', category:'electronics', price:89, description:'Heart-rate tracking, 7-day battery.', image_url:'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300&h=300&fit=crop' },
+      { id:'f10', name:'Portable Bluetooth Speaker', category:'electronics', price:32, description:'Waterproof, 12-hour playtime.', image_url:'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=300&h=300&fit=crop' },
+      { id:'f11', name:'Ceramic Dinnerware Set', category:'home', price:48, description:'16-piece set, dishwasher safe.', image_url:'https://images.unsplash.com/photo-1584346133934-a3afd2e5b1e2?w=300&h=300&fit=crop' },
+      { id:'f12', name:'Scented Soy Candle', category:'home', price:14, description:'Hand-poured, 40-hour burn time.', image_url:'https://images.unsplash.com/photo-1602874801007-a3f4c6939d59?w=300&h=300&fit=crop' },
+      { id:'f13', name:'Yoga Mat Pro', category:'sports', price:24, description:'Non-slip, 6mm thick, carry strap included.', image_url:'https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=300&h=300&fit=crop' },
+      { id:'f14', name:'Adjustable Dumbbell Set', category:'sports', price:76, description:'5–25kg adjustable, space-saving.', image_url:'https://images.unsplash.com/photo-1584735175315-9d5df23860e6?w=300&h=300&fit=crop' },
+      { id:'f15', name:'Vitamin C Serum', category:'beauty', price:19, description:'Brightening serum with hyaluronic acid.', image_url:'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=300&h=300&fit=crop' },
+      { id:'f16', name:'Matte Lipstick Set', category:'beauty', price:22, description:'6-shade set, long-wear formula.', image_url:'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=300&h=300&fit=crop' },
+      { id:'f17', name:'Minimalist Backpack', category:'recommend', price:44, description:'Water-resistant, fits 15" laptop.', image_url:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop' },
+      { id:'f18', name:'Polarized Sunglasses', category:'recommend', price:21, description:'UV400 protection, unisex frame.', image_url:'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=300&h=300&fit=crop' },
+      { id:'f19', name:'Clearance: Travel Duffel Bag', category:'deals', price:19, description:'Was $39 — 51% off this week only.', image_url:'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=300&h=300&fit=crop' },
+      { id:'f20', name:'Clearance: LED Desk Lamp', category:'deals', price:12, description:'Was $28 — 57% off this week only.', image_url:'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=300&h=300&fit=crop' },
+    ];
+
+    function renderAllSections(allProducts) {
+      const container = document.getElementById('sectionsContainer');
+      let html = '';
+      let totalMatches = 0;
+
+      const catsToRender = activeCatFilter === 'all' ? categories : categories.filter(c => c.id === activeCatFilter);
+
+      catsToRender.forEach(cat => {
+        let items = allProducts.filter(p => p.category === cat.id);
+        if (searchTerm) items = items.filter(p => p.name.toLowerCase().includes(searchTerm));
+        if (items.length === 0) return;
+        totalMatches += items.length;
+
+        html += `<div class="section-title">${cat.emoji} ${cat.title}</div>`;
+
+        if (cat.grid) {
+          html += '<div class="deals-grid">';
+          items.forEach(p => {
+            html += `
+              <div class="deal-card">
+                <img src="${p.image_url || 'https://via.placeholder.com/200'}" alt="${p.name}">
+                <div class="deal-info">
+                  <h4>${p.name}</h4>
+                  ${ratingLineHtml(p.id)}
+                  <div class="price">€${p.price}</div>
+                  <p class="desc">${p.description || ''}</p>
+                  <button class="add-btn add-to-cart" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-img="${p.image_url}">Add</button>
+                </div>
+              </div>`;
+          });
+          html += '</div>';
+        } else {
+          html += '<div class="product-row">';
+          items.forEach(p => {
+            html += `
+              <div class="product-card-small">
+                <img src="${p.image_url || 'https://via.placeholder.com/150'}" alt="${p.name}">
+                <div class="card-info">
+                  <h4>${p.name}</h4>
+                  ${ratingLineHtml(p.id)}
+                  <div class="price">€${p.price}</div>
+                  <p class="desc">${p.description || ''}</p>
+                  <button class="add-btn add-to-cart" data-id="${p.id}" data-name="${p.name}" data-price="${p.price}" data-img="${p.image_url}">Add</button>
+                </div>
+              </div>`;
+          });
+          html += '</div>';
+        }
+      });
+
+      if (!html || totalMatches === 0) {
+        html = `<div class="no-results">No products match "${searchTerm || 'this filter'}". Try a different search or category.</div>`;
+      }
+      container.innerHTML = html;
+    }
+
+    // Cart logic
+    let cart = [];
+    function renderCart() {
+      const totalQty = cart.reduce((s,i) => s + i.qty, 0);
+      const subtotal = cart.reduce((s,i) => s + i.price * i.qty, 0);
+      document.getElementById('cartCount').textContent = totalQty;
+      document.getElementById('cartSubtotal').textContent = `€${subtotal.toFixed(2)}`;
+      const itemsDiv = document.getElementById('cartItems');
+      if (cart.length === 0) { itemsDiv.innerHTML = '<p style="color:#aaa;">Cart is empty</p>'; return; }
+      itemsDiv.innerHTML = cart.map((item, idx) => `
+        <div class="cart-item">
+          <img src="${item.img || 'https://via.placeholder.com/45'}" class="cart-item-img">
+          <div class="cart-item-details">
+            <strong>${item.name}</strong><br>
+            <small>${item.qty} × €${item.price} = €${(item.price * item.qty).toFixed(2)}</small>
+          </div>
+          <button class="remove-item" data-idx="${idx}">×</button>
+        </div>
+      `).join('');
+      document.querySelectorAll('.remove-item').forEach(btn => btn.addEventListener('click', () => { cart.splice(btn.dataset.idx, 1); renderCart(); }));
+    }
+
+    function addToCart(id, name, price, img) {
+      const existing = cart.find(i => i.id === id);
+      if (existing) existing.qty++;
+      else cart.push({ id, name, price: parseFloat(price), img, qty: 1 });
+      renderCart();
+    }
+
+    const drawer = document.getElementById('cartDrawer');
+    const overlay = document.getElementById('cartOverlay');
+    function openCart() { drawer.classList.add('open'); overlay.classList.add('open'); }
+    function closeCart() { drawer.classList.remove('open'); overlay.classList.remove('open'); }
+    document.getElementById('cartToggle').addEventListener('click', openCart);
+    document.getElementById('closeCart').addEventListener('click', closeCart);
+    overlay.addEventListener('click', closeCart);
+
+    document.addEventListener('click', e => {
+      if (e.target.classList.contains('add-to-cart')) {
+        const {id, name, price, img} = e.target.dataset;
+        addToCart(id, name, price, img);
+        openCart();
+      }
+    });
+
+    // Checkout redirect
+    document.getElementById('checkoutBtn').addEventListener('click', () => {
+      if (!cart.length) return;
+      localStorage.setItem('checkoutCart', JSON.stringify(cart));
+      window.location.href = `/checkout.html?store=${storeSlug}`;
+    });
+
+    // Flash countdown
+    const flashEnd = new Date().getTime() + 5 * 60 * 60 * 1000;
+    function updateCountdown() {
+      const now = Date.now(), dist = flashEnd - now;
+      if (dist < 0) { document.getElementById('flashCountdown').textContent = 'Sale ended'; return; }
+      const h = Math.floor(dist / 3600000), m = Math.floor((dist % 3600000) / 60000), s = Math.floor((dist % 60000) / 1000);
+      document.getElementById('flashCountdown').textContent = `Ends in ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+    }
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    fetchProducts();
+    renderCart();
+  </script>
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>

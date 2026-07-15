@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout – De Prudent</title>
+  <style>
+    :root { --primary: #1a1a2e; --accent: #d4af37; --bg: #f5f5f5; --text: #333; --radius: 12px; --font: 'Segoe UI', system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text); line-height: 1.5; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    .header { background: var(--primary); color: white; padding: 15px 20px; border-radius: var(--radius); margin-bottom: 20px; text-align: center; }
+    .section { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    .section h2 { margin-bottom: 10px; color: var(--primary); }
+    .order-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .total { font-weight: 700; font-size: 1.2rem; margin-top: 10px; }
+    .bank-details { background: #f9f9f9; padding: 15px; border-radius: 10px; margin-top: 10px; }
+    .bank-details p { margin: 5px 0; }
+    .btn {
+      display: block; width: 100%; padding: 14px; border-radius: 30px; border: none;
+      font-weight: 700; font-size: 1rem; cursor: pointer; margin-top: 12px; text-align: center;
+    }
+    .btn-card { background: var(--accent); color: var(--primary); }
+    .btn-whatsapp { background: #25D366; color: white; }
+    .btn-back { background: #888; color: white; }
+    .hidden { display: none; }
+    #payment-status { text-align: center; margin-top: 10px; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Checkout</h1>
+      <p id="storeNameDisplay">Store</p>
+    </div>
+
+    <div class="section" id="orderSummary">
+      <h2>Your Order</h2>
+      <div id="orderItems"></div>
+      <div class="total">Total: <span id="orderTotal"></span></div>
+    </div>
+
+    <div class="section" id="customerSection">
+      <h2>Your Details</h2>
+      <input type="text" id="customerName" placeholder="Full name" style="width:100%;padding:10px;margin-top:8px;border:1px solid #ddd;border-radius:8px;">
+      <input type="tel" id="customerPhone" placeholder="Phone number" style="width:100%;padding:10px;margin-top:8px;border:1px solid #ddd;border-radius:8px;">
+      <input type="text" id="customerAddress" placeholder="Delivery address (optional)" style="width:100%;padding:10px;margin-top:8px;border:1px solid #ddd;border-radius:8px;">
+      <p id="customerError" style="color:#c0392b;margin-top:6px;font-size:0.85rem;"></p>
+    </div>
+
+    <div class="section hidden" id="bankSection">
+      <h2>Bank Transfer</h2>
+      <p>Transfer the total amount to the account below and send us a confirmation on WhatsApp.</p>
+      <div class="bank-details" id="bankDetails"></div>
+    </div>
+
+    <div id="payment-status"></div>
+
+    <button class="btn btn-card hidden" id="paystackBtn">Pay with Card</button>
+    <button class="btn btn-whatsapp" id="whatsappConfirmBtn">Confirm Order via WhatsApp</button>
+    <button class="btn btn-back" onclick="history.back()">← Back to Store</button>
+  </div>
+
+  <script type="module">
+    // De Prudent backend API (replaces Firebase). Update after deploying to Vercel.
+    const API_BASE = "https://deprudent-backend-updated.vercel.app/api";
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const storeSlug = urlParams.get('store') || 'mall';
+    const cart = JSON.parse(localStorage.getItem('checkoutCart') || '[]');
+
+    if (cart.length === 0) {
+      document.getElementById('orderItems').innerHTML = '<p>Your cart is empty.</p>';
+    } else {
+      let html = '', total = 0;
+      cart.forEach(item => {
+        const lineTotal = item.price * item.qty;
+        total += lineTotal;
+        html += `<div class="order-item"><span>${item.name} × ${item.qty}</span><span>€${lineTotal.toFixed(2)}</span></div>`;
+      });
+      document.getElementById('orderItems').innerHTML = html;
+      document.getElementById('orderTotal').textContent = `€${total.toFixed(2)}`;
+    }
+
+    let storeData = {};
+    try {
+      const storeRes = await fetch(`${API_BASE}/stores/${storeSlug}`);
+      if (storeRes.ok) storeData = await storeRes.json();
+    } catch (e) {
+      // Falls back to an empty storeData — WhatsApp confirm button still works.
+    }
+    document.getElementById('storeNameDisplay').textContent = storeData.name || storeSlug;
+
+    if (storeData.bankName && storeData.accountNumber && storeData.accountName) {
+      document.getElementById('bankSection').classList.remove('hidden');
+      document.getElementById('bankDetails').innerHTML = `
+        <p><strong>Bank:</strong> ${storeData.bankName}</p>
+        <p><strong>Account Number:</strong> ${storeData.accountNumber}</p>
+        <p><strong>Account Name:</strong> ${storeData.accountName}</p>
+      `;
+    }
+
+    function getCustomerDetails() {
+      const name = document.getElementById('customerName').value.trim();
+      const phone = document.getElementById('customerPhone').value.trim();
+      const address = document.getElementById('customerAddress').value.trim();
+      const errEl = document.getElementById('customerError');
+      if (!name || !phone) {
+        errEl.textContent = 'Please enter your name and phone number before confirming.';
+        return null;
+      }
+      errEl.textContent = '';
+      return { name, phone, address };
+    }
+
+    // Saves the order to the backend so it shows up in the store's admin
+    // dashboard. Runs before WhatsApp/Paystack confirmation. If the API is
+    // unreachable, the order still goes through via WhatsApp/Paystack —
+    // this only fails silently in the background so a backend hiccup never
+    // blocks a real customer from completing their order.
+    async function saveOrder(customer, paymentRef) {
+      if (cart.length === 0) return null;
+      const items = cart.map(i => ({ name: i.name, price: i.price, qty: i.qty, productId: i.id || i._id || undefined }));
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+      try {
+        const res = await fetch(`${API_BASE}/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ storeSlug, customer, items, total, paymentRef })
+        });
+        if (!res.ok) throw new Error('Order save failed');
+        return await res.json();
+      } catch (e) {
+        console.error('Could not save order to backend:', e);
+        return null;
+      }
+    }
+
+    if (storeData.paystackPublicKey) {
+      document.getElementById('paystackBtn').classList.remove('hidden');
+      document.getElementById('paystackBtn').addEventListener('click', () => {
+        const customer = getCustomerDetails();
+        if (!customer) return;
+        const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+        const handler = PaystackPop.setup({
+          key: storeData.paystackPublicKey,
+          email: "customer@example.com",
+          amount: Math.round(total * 100),
+          currency: 'NGN',
+          ref: '' + Math.floor((Math.random() * 1000000000) + 1),
+          onClose: function() {
+            document.getElementById('payment-status').textContent = 'Payment cancelled.';
+          },
+          callback: async function(response) {
+            document.getElementById('payment-status').innerHTML = '<span style="color:green;">✅ Payment successful! Reference: ' + response.reference + '</span>';
+            await saveOrder(customer, response.reference);
+            localStorage.removeItem('checkoutCart');
+          }
+        });
+        handler.openIframe();
+      });
+    }
+
+    document.getElementById('whatsappConfirmBtn').addEventListener('click', async () => {
+      if (cart.length === 0) return;
+      const customer = getCustomerDetails();
+      if (!customer) return;
+      document.getElementById('whatsappConfirmBtn').textContent = 'Saving order...';
+      await saveOrder(customer);
+      localStorage.removeItem('checkoutCart');
+      const summary = cart.map(i => `${i.name} x${i.qty} - €${(i.price * i.qty).toFixed(2)}`).join('%0A');
+      const total = cart.reduce((s,i) => s + i.price * i.qty, 0).toFixed(2);
+      const waNumber = storeData.whatsappNumber || '2349162306809';
+      window.open(`https://wa.me/${waNumber}?text=Order%20from%20${storeSlug}%3A%0A${summary}%0A%0ATotal%3A%20€${total}`, '_blank');
+    });
+  </script>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+</body>
+</html>

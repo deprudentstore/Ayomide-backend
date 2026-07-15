@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recent Projects | De Prudent Store Designer</title>
+<meta name="description" content="Recent full‑stack web projects built by De Prudent Store Designer — custom web applications, corporate websites, and e‑commerce stores on Shopify, Firebase, and Supabase for clients worldwide.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9973A; --gold-light: #E8B96A; --obsidian: #080B10;
+    --surface: #0E1319; --surface2: #141C25; --border: rgba(201,151,58,0.15);
+    --muted: #7A8A9A; --text: #E8EDF2;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--obsidian); color: var(--text);
+    font-family: 'Outfit', sans-serif; overflow-x: hidden; line-height: 1.6;
+  }
+  .display { font-family: 'Cormorant Garamond', serif; }
+  .gold-text {
+    background: linear-gradient(135deg,var(--gold),var(--gold-light),var(--gold));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  a { color: inherit; }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--gold-light); outline-offset: 3px; }
+
+  .btn-gold {
+    display: inline-block; background: linear-gradient(135deg,#B8862A,var(--gold),#D4A84A);
+    color: #080B10; font-weight: 700; font-family: 'Outfit', sans-serif;
+    border-radius: 100px; padding: 14px 32px; font-size: 15px;
+    text-decoration: none; border: none; cursor: pointer;
+    transition: box-shadow .3s, transform .2s;
+  }
+  .btn-gold:hover { box-shadow: 0 0 28px rgba(201,151,58,.45); transform: translateY(-2px); }
+
+  .card { background: var(--surface2); border: 1px solid var(--border); border-radius: 16px; transition: border-color .3s,transform .3s; }
+  .card:hover { border-color: rgba(201,151,58,.4); transform: translateY(-4px); }
+
+  header { position: sticky; top: 0; z-index: 100; background: rgba(8,11,16,.95); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); padding: 0 24px; }
+  .header-inner { max-width: 1200px; margin: 0 auto; height: 68px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { text-decoration: none; display: flex; align-items: baseline; gap: 2px; }
+  .logo-main { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: var(--text); }
+  .logo-tag { font-size: 10px; color: var(--muted); letter-spacing: 2px; margin-left: 8px; font-weight: 300; }
+  .back-link { font-size: 13px; color: var(--gold-light); text-decoration: none; font-weight: 600; }
+  .back-link:hover { text-decoration: underline; }
+
+  #hero { position: relative; padding: 100px 24px 70px; text-align: center; overflow: hidden; }
+  .hero-glow { position: absolute; width: 600px; height: 600px; border-radius: 50%; top: -200px; left: 50%; transform: translateX(-50%); background: radial-gradient(ellipse,rgba(201,151,58,.1) 0%,transparent 70%); pointer-events: none; }
+  .hero-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
+  .section-label { font-size: 11px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 14px; }
+  .hero-h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.4rem,6vw,4.2rem); font-weight: 700; line-height: 1.1; margin-bottom: 20px; }
+  .hero-sub { color: var(--muted); font-size: 16px; max-width: 560px; margin: 0 auto; line-height: 1.8; }
+
+  .section { padding: 40px 24px 90px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+
+  /* Project grid */
+  .projects-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap: 24px; }
+  .project-card { padding: 32px 28px; }
+  .project-icon { width: 54px; height: 54px; border-radius: 14px; background: linear-gradient(135deg,rgba(201,151,58,.18),rgba(201,151,58,.05)); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 18px; }
+  .project-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 700; margin-bottom: 4px; }
+  .project-role { font-size: 12px; color: var(--gold); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  .project-desc { color: var(--muted); font-size: 14px; line-height: 1.8; margin-bottom: 20px; }
+  .project-result { background: var(--surface); border: 1px solid var(--gold); border-radius: 12px; padding: 14px 16px; font-size: 13px; color: var(--gold-light); font-weight: 600; margin-bottom: 20px; }
+  .project-stack { display: flex; gap: 8px; flex-wrap: wrap; }
+  .stack-chip { font-size: 12px; color: #9AAABB; background: var(--surface); padding: 5px 14px; border-radius: 100px; border: 1px solid var(--border); }
+
+  #cta { text-align: center; padding-top: 20px; }
+  .cta-h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem,3.6vw,2.6rem); font-weight: 700; margin-bottom: 14px; }
+  .cta-sub { color: var(--muted); font-size: 15px; max-width: 480px; margin: 0 auto 28px; }
+
+  footer { border-top: 1px solid var(--border); padding: 40px 24px; text-align: center; }
+  footer p { font-size: 12px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a href="/" class="logo">
+      <span class="logo-main">De<span class="gold-text">Prudent</span></span>
+      <span class="logo-tag">STORE DESIGNER</span>
+    </a>
+    <a href="/" class="back-link">← Back to Home</a>
+  </div>
+</header>
+
+<section id="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <p class="section-label">Portfolio</p>
+    <h1 class="hero-h1 display"><span class="gold-text">Recent Projects</span></h1>
+    <p class="hero-sub">A look at custom web projects recently designed and shipped for clients worldwide — each built hand-coded, fast, and free of monthly platform fees.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="section-inner">
+    <div class="projects-grid">
+
+      <div class="card project-card">
+        <div class="project-icon">👗</div>
+        <h2 class="project-title">Kemi's Fashion Boutique</h2>
+        <p class="project-role">Shopify + Liquid + Paystack</p>
+        <p class="project-desc">A custom fashion storefront built on Shopify's Liquid templating with Paystack integrated for seamless local and international checkout.</p>
+        <div class="project-result">📈 40% increase in orders post-launch</div>
+        <div class="project-stack">
+          <span class="stack-chip">Shopify</span>
+          <span class="stack-chip">Liquid</span>
+          <span class="stack-chip">Paystack</span>
+        </div>
+      </div>
+
+      <div class="card project-card">
+        <div class="project-icon">🍽️</div>
+        <h2 class="project-title">Kofi's Restaurant</h2>
+        <p class="project-role">Firebase + WhatsApp API</p>
+        <p class="project-desc">A fast, ordering-focused restaurant site connected directly to WhatsApp for order confirmations, with Firebase powering the live menu.</p>
+        <div class="project-result">⚡ Live in 48 hours</div>
+        <div class="project-stack">
+          <span class="stack-chip">Firebase</span>
+          <span class="stack-chip">WhatsApp API</span>
+        </div>
+      </div>
+
+      <div class="card project-card">
+        <div class="project-icon">✨</div>
+        <h2 class="project-title">Tobi's Skincare Brand</h2>
+        <p class="project-role">Supabase + Tailwind + SEO</p>
+        <p class="project-desc">A clean, SEO-optimized skincare storefront with a self-serve admin panel, giving the owner full independence over catalog updates.</p>
+        <div class="project-result">🛠️ Owner manages 100% of updates independently</div>
+        <div class="project-stack">
+          <span class="stack-chip">Supabase</span>
+          <span class="stack-chip">Tailwind</span>
+          <span class="stack-chip">SEO</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="cta" class="section">
+  <div class="section-inner">
+    <h2 class="cta-h2">Have a project in mind?</h2>
+    <p class="cta-sub">Let's talk about building your custom store — no monthly fees, live in days.</p>
+    <a href="https://wa.me/2349162306809" class="btn-gold" target="_blank" rel="noopener">Chat on WhatsApp</a>
+  </div>
+</section>
+
+<footer>
+  <p>&copy; <span class="copy-year">2026</span> De Prudent Store Designer. All rights reserved.</p>
+</footer>
+
+
+<script id="copyYearScript">document.querySelectorAll(".copy-year").forEach(function(el){el.textContent=new Date().getFullYear();});</script>
+</body>
+</html>
