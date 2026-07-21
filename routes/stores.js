@@ -62,10 +62,26 @@ router.post('/:slug/newsletter', signupLimiter, async (req, res) => {
         to: email,
         subject: `Welcome to ${storeDoc.name}! 📬`,
         html: `
-          <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
-            <h2 style="color:#C9973A;">Welcome to ${storeDoc.name}!</h2>
-            <p>Thanks for subscribing. You'll be the first to hear about new store-building tips, early access, and updates.</p>
-            <p style="margin-top:24px;">— De Prudent</p>
+          <div style="background-color:#0d0d0d;padding:32px 16px;font-family:Georgia,'Times New Roman',serif;">
+            <div style="max-width:480px;margin:0 auto;background-color:#151515;border:1px solid #C9973A;border-radius:8px;overflow:hidden;">
+              <div style="padding:32px 28px 24px;text-align:center;border-bottom:1px solid #2a2a2a;">
+                <h1 style="margin:0;color:#C9973A;font-size:22px;letter-spacing:1px;">DE PRUDENT</h1>
+              </div>
+              <div style="padding:28px;color:#e8e8e8;">
+                <h2 style="margin:0 0 16px;color:#C9973A;font-size:20px;">Welcome to ${storeDoc.name}!</h2>
+                <p style="margin:0 0 16px;line-height:1.6;color:#cfcfcf;">
+                  Thanks for subscribing. You'll be the first to hear about new store-building tips, early access, and updates.
+                </p>
+                <div style="text-align:center;margin:28px 0 8px;">
+                  <a href="https://deprudentportmall.netlify.app" style="display:inline-block;padding:12px 28px;background-color:#C9973A;color:#0d0d0d;text-decoration:none;font-weight:bold;border-radius:4px;letter-spacing:0.5px;">
+                    Visit De Prudent
+                  </a>
+                </div>
+              </div>
+              <div style="padding:18px 28px;text-align:center;border-top:1px solid #2a2a2a;">
+                <p style="margin:0;color:#777;font-size:12px;">— De Prudent</p>
+              </div>
+            </div>
           </div>
         `,
       }).catch(() => {}); // sendEmail already logs its own errors internally
